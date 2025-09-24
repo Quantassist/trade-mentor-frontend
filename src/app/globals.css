@@ -1,0 +1,417 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-radius: var(--radius);
+}
+
+:root {
+  --radius: 0.5rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.049 0.084 222.2);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.049 0.084 222.2);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.049 0.084 222.2);
+  --primary: oklch(0.112 0.047 222.2);
+  --primary-foreground: oklch(0.98 0.04 210);
+  --secondary: oklch(0.961 0.04 210);
+  --secondary-foreground: oklch(0.112 0.047 222.2);
+  --muted: oklch(0.961 0.04 210);
+  --muted-foreground: oklch(0.469 0.016 215.4);
+  --accent: oklch(0.961 0.04 210);
+  --accent-foreground: oklch(0.112 0.047 222.2);
+  --destructive: oklch(0.602 0.084 0);
+  --destructive-foreground: oklch(0.98 0.04 210);
+  --border: oklch(0.914 0.032 214.3);
+  --input: oklch(0.914 0.032 214.3);
+  --ring: oklch(0.049 0.084 222.2);
+  --novel-highlight-default: #ffffff;
+  --novel-highlight-purple: #f6f3f8;
+  --novel-highlight-red: #fdebeb;
+  --novel-highlight-yellow: #fbf4a2;
+  --novel-highlight-blue: #c1ecf9;
+  --novel-highlight-green: #acf79f;
+  --novel-highlight-orange: #faebdd;
+  --novel-highlight-pink: #faf1f5;
+  --novel-highlight-gray: #f1f1ef;
+}
+
+.dark {
+  --background: oklch(0.049 0.084 222.2);
+  --foreground: oklch(0.98 0.04 210);
+  --card: oklch(0.11 0.003 240);
+  --card-foreground: oklch(0.98 0.04 210);
+  --popover: oklch(0.049 0.084 222.2);
+  --popover-foreground: oklch(0.98 0.04 210);
+  --primary: oklch(0.98 0.04 210);
+  --primary-foreground: oklch(0.112 0.047 222.2);
+  --secondary: oklch(0.175 0.033 217.2);
+  --secondary-foreground: oklch(0.98 0.04 210);
+  --muted: oklch(0.175 0.033 217.2);
+  --muted-foreground: oklch(0.651 0.02 215);
+  --accent: oklch(0.175 0.033 217.2);
+  --accent-foreground: oklch(0.98 0.04 210);
+  --destructive: oklch(0.306 0.063 0);
+  --destructive-foreground: oklch(0.98 0.04 210);
+  --border: oklch(0.16 0.004 240);
+  --input: oklch(0.175 0.033 217.2);
+  --ring: oklch(0.839 0.027 212.7);
+  --novel-highlight-default: #000000;
+  --novel-highlight-purple: #3f2c4b;
+  --novel-highlight-red: #5c1a1a;
+  --novel-highlight-yellow: #5c4b1a;
+  --novel-highlight-blue: #1a3d5c;
+  --novel-highlight-green: #1a5c20;
+  --novel-highlight-orange: #5c3a1a;
+  --novel-highlight-pink: #5c1a3a;
+  --novel-highlight-gray: #3a3a3a;
+}
+
+html {
+  --scroll-behavior: smooth !important;
+  scroll-behavior: smooth !important;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.radial {
+  background-image: radial-gradient(
+    ellipse farthest-side,
+    white,
+    #716768,
+    black
+  );
+  background-size: 100% 90%;
+  background-repeat: no-repeat;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #4a4e58, white, #716768);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-radial {
+  background-image: radial-gradient(
+    ellipse farthest-side,
+    rgba(113, 103, 104, 0.2) 30%,
+    black 70%
+  );
+  background-size: 100% 50%;
+  background-repeat: no-repeat;
+}
+
+.text-radial--circle {
+  background-image: radial-gradient(
+    circle farthest-side,
+    rgba(113, 103, 104, 0.35) 20%,
+    black 70%
+  );
+  background-size: 50% 70%;
+  background-repeat: no-repeat;
+  background-position: top center;
+}
+
+.backdrop--blur__safari {
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.radial--blur {
+  -webkit-backdrop-filter: blur(100px);
+  filter: blur(100px);
+  background: #877874;
+}
+
+@media only screen and (max-width: 800px) {
+  .text-radial--circle {
+    background-image: radial-gradient(
+      circle farthest-side,
+      rgba(113, 103, 104, 0.2) 20%,
+      black 70%
+    );
+    background-size: 100% 50%;
+    background-repeat: no-repeat;
+    background-position: top center;
+  }
+}
+
+.swiper-autoheight .swiper-slide {
+  height: 100% !important;
+}
+
+.content-width-slide {
+  width: fit-content !important;
+}
+
+.img--overlay {
+  background-image: -webkit-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 1)
+  ); /* For Chrome 25 and Safari 6, iOS 6.1, Android 4.3 */
+  background-image: -moz-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 1)
+  ); /* For Firefox (3.6 to 15) */
+  background-image: -o-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 1)
+  ); /* For old Opera (11.1 to 12.0) */
+  background-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 1)
+  ); /* Standard syntax; must be last */
+}
+
+.slider-overlay {
+  background-image: -webkit-linear-gradient(
+    to right,
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0)
+  ); /* For Chrome 25 and Safari 6, iOS 6.1, Android 4.3 */
+  background-image: -moz-linear-gradient(
+    to right,
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0)
+  ); /* For Firefox (3.6 to 15) */
+  background-image: -o-linear-gradient(
+    to right,
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0)
+  ); /* For old Opera (11.1 to 12.0) */
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0)
+  ); /* Standard syntax; must be last */
+}
+
+.slider-overlay-rev {
+  background-image: -webkit-linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 1)
+  ); /* For Chrome 25 and Safari 6, iOS 6.1, Android 4.3 */
+  background-image: -moz-linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 1)
+  ); /* For Firefox (3.6 to 15) */
+  background-image: -o-linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 1)
+  ); /* For old Opera (11.1 to 12.0) */
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 1)
+  ); /* Standard syntax; must be last */
+}
+
+/* Global Drag Handle (tiptap-extension-global-drag-handle) */
+.drag-handle {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--card);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+  /* three-dot icon */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' style='fill: rgba(128, 128, 128, 0.85)'%3E%3Cpath d='M3,2 C2.44771525,2 2,1.55228475 2,1 C2,0.44771525 2.44771525,0 3,0 C3.55228475,0 4,0.44771525 4,1 C4,1.55228475 3.55228475,2 3,2 Z M3,6 C2.44771525,6 2,5.55228475 2,5 C2,4.44771525 2.44771525,4 3,4 C3.55228475,4 4,4.44771525 4,5 C4,5.55228475 3.55228475,6 3,6 Z M3,10 C2.44771525,10 2,9.55228475 2,9 C2,8.44771525 2.44771525,8 3,8 C3.55228475,8 4,8.44771525 4,9 C4,9.55228475 3.55228475,10 3,10 Z M7,2 C6.44771525,2 6,1.55228475 6,1 C6,0.44771525 6.44771525,0 7,0 C7.55228475,0 8,0.44771525 8,1 C8,1.55228475 7.55228475,2 7,2 Z M7,6 C6.44771525,6 6,5.55228475 6,5 C6,4.44771525 6.44771525,4 7,4 C7.55228475,4 8,4.44771525 8,5 C8,5.55228475 7.55228475,6 7,6 Z M7,10 C6.44771525,10 6,9.55228475 6,9 C6,8.44771525 6.44771525,8 7,8 C7.55228475,8 8,8.44771525 8,9 C8,9.55228475 7.55228475,10 7,10 Z'%3E%3C/path%3E%3C/svg%3E");
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+  opacity: 0.8;
+  z-index: 50;
+}
+.drag-handle:hover {
+  opacity: 1;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* TipTap image resize UX */
+.tiptap-image-wrapper {
+  max-width: 100%;
+  overflow: visible; /* allow side handles to be fully visible */
+  position: relative;
+}
+
+/* Circular side handles */
+.tiptap-image-resize-handle {
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+  background: transparent;
+}
+
+.tiptap-image-wrapper:hover .tiptap-image-resize-handle {
+  opacity: 1;
+}
+
+/* Slight grow on hover to make it feel interactive */
+.tiptap-image-resize-handle:hover {
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* TipTap video resize UX */
+.tiptap-video-wrapper {
+  max-width: 100%;
+  overflow: visible; /* allow side handles to be fully visible */
+  position: relative;
+}
+
+/* Circular side handles */
+.tiptap-video-resize-handle {
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+  background: transparent;
+}
+
+.tiptap-video-wrapper:hover .tiptap-video-resize-handle {
+  opacity: 1;
+}
+
+/* Slight grow on hover to make it feel interactive */
+.tiptap-video-resize-handle:hover {
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* Normalize list alignment inside TipTap editor */
+.ProseMirror ol,
+.ProseMirror ul {
+  padding-left: 1.5rem; /* 24px */
+}
+.ProseMirror li > p {
+  margin: 0;
+}
+
+/* Read-only HTML parser media normalization */
+.html-parser iframe {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Read-only image look to match editor */
+.parsed-html img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Read-only HTML parser spacing fixes */
+.parsed-html p:empty {
+  min-height: 1rem; /* preserve manual blank lines */
+}
+.parsed-html p:has(> br:only-child) {
+  min-height: 1rem;
+}
+.parsed-html img,
+.parsed-html iframe,
+.parsed-html figure {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Editor iframe (video) look */
+.ProseMirror iframe {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Editor audio look */
+.ProseMirror audio {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Read-only audio look */
+.parsed-html audio {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Optional: heading weights in both editor and read-only (extra assurance) */
+.ProseMirror h1,
+.parsed-html h1 {
+  font-weight: 700;
+}
+.ProseMirror h2,
+.parsed-html h2 {
+  font-weight: 600;
+}
+.ProseMirror h3,
+.parsed-html h3 {
+  font-weight: 600;
+}
