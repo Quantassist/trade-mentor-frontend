@@ -236,41 +236,34 @@ export const onCreateChannelPost = async (
   }
 }
 
-export const onLikeChannelPost = async (postid: string, likeid: string) => {
+export const onLikeChannelPost = async (postid: string) => {
   try {
     const user = await onAuthenticatedUser()
 
-    const liked = await client.like.findFirst({
+    // Toggle like based on current user and post
+    const existing = await client.like.findFirst({
       where: {
-        id: likeid,
+        postId: postid,
         userId: user.id!,
       },
     })
-    if (liked) {
-      const like = await client.like.delete({
+
+    if (existing) {
+      await client.like.delete({
         where: {
-          id: likeid,
-          userId: user.id!,
+          id: existing.id,
         },
       })
-      if (like) {
-        return { status: 200, message: "You unliked this post" }
-      }
-      return { status: 404, message: "Like not found!" }
+      return { status: 200, message: "You unliked this post" }
     }
-    const like = await client.like.create({
+
+    await client.like.create({
       data: {
-        id: likeid,
-        userId: user.id!,
         postId: postid,
+        userId: user.id!,
       },
     })
-
-    if (like) {
-      return { status: 200, message: "You liked this post" }
-    }
-
-    return { status: 404, message: "Like not found!" }
+    return { status: 200, message: "You liked this post" }
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }

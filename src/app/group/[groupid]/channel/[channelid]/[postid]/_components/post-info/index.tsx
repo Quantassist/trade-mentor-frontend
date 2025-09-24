@@ -33,17 +33,7 @@ const PostInfo = ({ id }: PostInfoProps) => {
       <Interactions
         id={id}
         page
-        userid={data.post?.authorId}
-        likedUser={
-          data.post && data.post?.likes.length > 0
-            ? data.post.likes[0].userId
-            : undefined
-        }
-        likeid={
-          data.post && data.post?.likes.length > 0
-            ? data.post.likes[0].id
-            : undefined
-        }
+        likedByMe={Boolean(data.post && data.post?.likes.length > 0)}
         likes={data.post?._count.likes!}
         comments={data.post?._count.comments!}
       />

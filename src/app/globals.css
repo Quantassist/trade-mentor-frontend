@@ -329,6 +329,41 @@ html {
   margin: 0;
 }
 
+/* Comfortable list spacing in editor */
+.ProseMirror ul li,
+.ProseMirror ol li {
+  margin-block: 0.4rem; /* vertical space between list items */
+}
+
+/* Task list (todolist) styles in editor */
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0; /* task lists manage their own layout */
+  margin-left: 0.25rem;
+}
+.ProseMirror ul[data-type="taskList"] > li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem; /* space between checkbox and text */
+  margin-block: 0.5rem;
+}
+.ProseMirror ul[data-type="taskList"] > li > label {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  margin-top: 2px; /* slight visual alignment tweak */
+}
+.ProseMirror ul[data-type="taskList"] > li > label > input[type="checkbox"] {
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 0.35rem;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.ProseMirror ul[data-type="taskList"] > li > div.content {
+  flex: 1;
+}
+
 /* Read-only HTML parser media normalization */
 .html-parser iframe {
   width: 100%;
@@ -365,6 +400,40 @@ html {
   display: block;
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+/* Comfortable list spacing in read-only view */
+.parsed-html ul li,
+.parsed-html ol li {
+  margin-block: 0.45rem;
+}
+
+/* Task list (todolist) styles in read-only view */
+.parsed-html ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0.25rem;
+}
+.parsed-html ul[data-type="taskList"] > li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-block: 0.5rem;
+}
+.parsed-html ul[data-type="taskList"] > li > label {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  margin-top: 2px;
+}
+.parsed-html ul[data-type="taskList"] > li > label > input[type="checkbox"] {
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 0.35rem;
+  accent-color: var(--primary);
+}
+.parsed-html ul[data-type="taskList"] > li > div.content {
+  flex: 1;
 }
 
 /* Editor iframe (video) look */

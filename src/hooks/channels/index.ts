@@ -238,8 +238,7 @@ export const useCreateChannelPost = (channelid: string) => {
 export const useLikeChannelPost = (postid: string) => {
   const client = useQueryClient()
   const { mutate, variables, isPending } = useMutation({
-    mutationFn: (data: { likeid: string }) =>
-      onLikeChannelPost(postid, data.likeid),
+    mutationFn: () => onLikeChannelPost(postid),
     onSuccess: (data) => {
       return toast(data.status !== 200 ? "Error" : "Success", {
         description: data.message,

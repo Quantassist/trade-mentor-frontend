@@ -40,22 +40,23 @@ export const PostFeed = ({ channelid, userid }: PostFeedProps) => {
   }
   return posts && posts.length > 0 ? (
     <>
-      {posts.map((post) => (
-        <PostCard
-          key={post.id}
-          postid={post.id}
-          channelname={post.channel.name!}
-          title={post.title!}
-          html={post.htmlContent!}
-          username={post.author.firstname + post.author.lastname}
-          userimage={post.author.image!}
-          likes={post._count.likes}
-          comments={post._count.comments}
-          likedUser={post.likes.length > 0 ? post.likes[0].userId : undefined}
-          userid={userid}
-          likeid={post.likes.length > 0 ? post.likes[0].id : undefined}
-        />
-      ))}
+      {posts.map((post) => {
+        const likedByMe = post.likes.length > 0
+        return (
+          <PostCard
+            key={post.id}
+            postid={post.id}
+            channelname={post.channel.name!}
+            title={post.title!}
+            html={post.htmlContent!}
+            username={post.author.firstname + post.author.lastname}
+            userimage={post.author.image!}
+            likes={post._count.likes}
+            comments={post._count.comments}
+            likedByMe={likedByMe}
+          />
+        )
+      })}
       <InfiniteScrollObserver
         action="POSTS"
         loading="POST"

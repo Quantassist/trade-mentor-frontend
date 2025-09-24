@@ -6,25 +6,33 @@ import { MessageCircle } from "lucide-react"
 type InteractionsProps = {
   id: string
   optimistic?: boolean
-  userid?: string
-  likedUser?: string
+  likedByMe?: boolean
   likes: number
   comments: number
-  likeid?: string
   page?: boolean
 }
 
 export const Interactions = ({
   id,
   optimistic,
-  userid,
-  likedUser,
+  likedByMe = false,
   likes,
   comments,
-  likeid,
   page,
 }: InteractionsProps) => {
   const { mutate, isPending } = useLikeChannelPost(id)
+
+  const displayLikes = Math.max(
+    0,
+    isPending ? (likedByMe ? likes - 1 : likes + 1) : likes,
+  )
+
+  const renderIcon = () => {
+    if (optimistic) return <UnlikeIcon />
+    if (isPending) return likedByMe ? <UnlikeIcon /> : <LikeIcon />
+    return likedByMe ? <LikeIcon /> : <UnlikeIcon />
+  }
+
   return (
     <div
       className={cn(
@@ -34,36 +42,8 @@ export const Interactions = ({
     >
       <div className="flex gap-5 text-[#757272] text-sm">
         <span className="flex gap-1 justify-center items-center">
-          {optimistic ? (
-            <UnlikeIcon />
-          ) : isPending ? (
-            <span className="cursor-pointer">
-              {userid === likedUser ? <UnlikeIcon /> : <LikeIcon />}
-            </span>
-          ) : likedUser === userid ? (
-            <span
-              onClick={() =>
-                mutate({
-                  likeid: likeid!,
-                })
-              }
-              className="cursor-pointer"
-            >
-              <LikeIcon />
-            </span>
-          ) : (
-            <span
-              onClick={() =>
-                mutate({
-                  likeid: likeid!,
-                })
-              }
-              className="cursor-pointer"
-            >
-              <UnlikeIcon />
-            </span>
-          )}
-          {isPending ? (likedUser === userid ? likes - 1 : likes + 1) : likes}
+          <span onClick={() => mutate()} className={cn("cursor-pointer")}>{renderIcon()}</span>
+          {displayLikes}
         </span>
 
         <span className="flex gap-1 justify-center items-center">
