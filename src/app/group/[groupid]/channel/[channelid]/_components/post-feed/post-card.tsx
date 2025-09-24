@@ -16,9 +16,7 @@ type PostCardProps = {
   channelname: string
   userimage?: string
   username?: string
-  likedUser?: string
-  userid?: string
-  likeid?: string
+  likedByMe?: boolean
   optimistic?: boolean
 }
 
@@ -31,9 +29,7 @@ export const PostCard = ({
   likes,
   comments,
   postid,
-  likedUser,
-  userid,
-  likeid,
+  likedByMe,
   optimistic,
 }: PostCardProps) => {
   const pathname = usePathname()
@@ -55,11 +51,9 @@ export const PostCard = ({
       <Separator orientation="horizontal" className="bg-themeGray mt-3" />
       <Interactions
         id={postid}
-        userid={userid}
         likes={likes}
         comments={comments}
-        likedUser={likedUser}
-        likeid={likeid}
+        likedByMe={likedByMe}
         optimistic={optimistic}
       />
     </Card>

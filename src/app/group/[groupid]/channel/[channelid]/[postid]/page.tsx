@@ -52,7 +52,7 @@ const PostPage = async ({
           <PostComments postid={postid} />
         </div>
         <div className="col-span-1 hidden lg:inline relative">
-          <GroupSideWidget light />
+          <GroupSideWidget groupid={groupid} light />
         </div>
       </div>
     </HydrationBoundary>
