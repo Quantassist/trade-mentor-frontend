@@ -9,12 +9,16 @@ import {
   onUpdateChannelInfo,
 } from "@/actions/channel"
 import {
+  onDeletePost,
   onGetCommentReplies,
   onGetPostComments,
   onGetPostInfo,
+  onUpdatePost,
 } from "@/actions/groups"
 import { CreateCommentSchema } from "@/components/form/post-comments/schema"
 import { CreateChannelPostSchema } from "@/components/global/post-content/schema"
+import { onRemoveItem } from "@/redux/slices/infinite-scroll-slice"
+import type { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   useMutation,
@@ -25,6 +29,7 @@ import {
 import { JSONContent } from "novel"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
+import { useDispatch } from "react-redux"
 import { toast } from "sonner"
 import { v4 } from "uuid"
 import z from "zod"
@@ -391,4 +396,112 @@ export const usePostReply = (postid: string, commentid: string) => {
     isPending,
     variables,
   }
+}
+
+export const useEditPost = (
+  postid: string,
+  initial: {
+    title: string
+    htmlcontent?: string | null
+    jsoncontent?: string | null
+    content?: string | null
+  },
+) => {
+  const [onJsonDescription, setJsonDescription] = useState<JSONContent | undefined>(
+    initial.jsoncontent ? (JSON.parse(initial.jsoncontent) as JSONContent) : undefined,
+  )
+  const [onHtmlDescription, setOnHtmlDescription] = useState<string | undefined>(
+    initial.htmlcontent ?? undefined,
+  )
+  const [onDescription, setOnDescription] = useState<string | undefined>(
+    initial.content ?? undefined,
+  )
+
+  const {
+    formState: { errors },
+    register,
+    handleSubmit,
+    setValue,
+  } = useForm<z.infer<typeof CreateChannelPostSchema>>({
+    resolver: zodResolver(CreateChannelPostSchema),
+    defaultValues: {
+      title: initial.title,
+    },
+  })
+
+  const onSetDescription = () => {
+    const jsonContent = JSON.stringify(onJsonDescription)
+    setValue("jsoncontent", jsonContent)
+    setValue("htmlcontent", onHtmlDescription)
+    setValue("content", onDescription)
+  }
+
+  useEffect(() => {
+    onSetDescription()
+    return () => {
+      onSetDescription()
+    }
+  }, [onJsonDescription, onDescription, onHtmlDescription])
+
+  const client = useQueryClient()
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: {
+      title: string
+      content?: string
+      htmlcontent?: string
+      jsoncontent?: string
+    }) => onUpdatePost(postid, data.title, data.htmlcontent, data.jsoncontent, data.content),
+    onSuccess: (data) => {
+      return toast(data.status !== 200 ? "Error" : "Success", {
+        description: data.message,
+      })
+    },
+    onSettled: async () => {
+      await client.invalidateQueries({ queryKey: ["unique-post"] })
+      return await client.invalidateQueries({ queryKey: ["channel-info"] })
+    },
+  })
+
+  const onUpdate = handleSubmit(async (values) =>
+    mutate({
+      title: values.title,
+      content: values.content,
+      htmlcontent: values.htmlcontent,
+      jsoncontent: values.jsoncontent,
+    }),
+  )
+
+  return {
+    register,
+    errors,
+    onUpdate,
+    onJsonDescription,
+    setJsonDescription,
+    onDescription,
+    setOnDescription,
+    onHtmlDescription,
+    setOnHtmlDescription,
+    isPending,
+  }
+}
+
+export const useDeletePost = (postid: string) => {
+  const client = useQueryClient()
+  const dispatch: AppDispatch = useDispatch()
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => onDeletePost(postid),
+    onSuccess: (data) => {
+      // Remove from infinite scroll list immediately
+      dispatch(onRemoveItem({ id: postid }))
+      return toast(data.status !== 200 ? "Error" : "Success", {
+        description: data.message,
+      })
+    },
+    onSettled: async () => {
+      // Refresh initial feed query
+      await client.invalidateQueries({ queryKey: ["channel-info"] })
+      await client.invalidateQueries({ queryKey: ["unique-post", postid] })
+    },
+  })
+  return { mutate, isPending }
 }

@@ -1,9 +1,19 @@
 "use client"
+import { onUpdatePost } from "@/actions/groups"
 import { HtmlParser } from "@/components/global/html-parser"
+import { PostContent } from "@/components/global/post-content"
+import { SimpleModal } from "@/components/global/simple-modal"
 import { Card, CardContent } from "@/components/ui/card"
+import { DialogClose } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { useDeletePost } from "@/hooks/channels"
+import { cn } from "@/lib/utils"
+import { useQueryClient } from "@tanstack/react-query"
+import { Pencil, Trash2, Upload } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useMemo } from "react"
+import { toast } from "sonner"
 import { Interactions } from "./interactions"
 import { PostAuthor } from "./post-author"
 
@@ -18,6 +28,10 @@ type PostCardProps = {
   username?: string
   likedByMe?: boolean
   optimistic?: boolean
+  isAuthor?: boolean
+  initialHtml?: string | null
+  initialJson?: string | null
+  initialContent?: string | null
 }
 
 export const PostCard = ({
@@ -31,10 +45,76 @@ export const PostCard = ({
   postid,
   likedByMe,
   optimistic,
+  isAuthor,
+  initialHtml,
+  initialJson,
+  initialContent,
 }: PostCardProps) => {
   const pathname = usePathname()
+  const formId = useMemo(() => `edit-post-form-${postid}`, [postid])
+  const { mutate: deletePost } = useDeletePost(postid)
+  const client = useQueryClient()
+  const onEditSubmit = async (values: {
+    title: string
+    content?: string
+    htmlcontent?: string
+    jsoncontent?: string
+  }) => {
+    const res = await onUpdatePost(
+      postid,
+      values.title,
+      values.htmlcontent,
+      values.jsoncontent,
+      values.content,
+    )
+    toast(res.status !== 200 ? "Error" : "Success", { description: res.message })
+    await client.invalidateQueries({ queryKey: ["unique-post"] })
+    await client.invalidateQueries({ queryKey: ["channel-info"] })
+  }
+  const onDelete = () => {
+    if (window.confirm("Delete this post? This action cannot be undone.")) {
+      deletePost()
+    }
+  }
   return (
-    <Card className="border-themeGray bg-[#1A1A1D] first-letter:rounded-2xl overflow-hidden">
+    <Card className="relative border-themeGray bg-[#1A1A1D] first-letter:rounded-2xl overflow-hidden">
+      {isAuthor && (
+        <div className={cn("absolute right-3 top-3 z-10 flex gap-2")}>
+          <SimpleModal
+            trigger={
+              <button aria-label="Edit post" className="p-1 rounded-md hover:bg-[#2A2A2D]">
+                <Pencil size={16} />
+              </button>
+            }
+          >
+            <>
+              <PostContent
+                formId={formId}
+                initialTitle={title}
+                initialHtml={initialHtml ?? null}
+                initialJson={initialJson ?? null}
+                initialContent={initialContent ?? null}
+                onSubmit={onEditSubmit}
+              />
+              <div className="mt-2 border-t border-themeDarkGray pt-3 flex justify-end">
+                <DialogClose asChild>
+                  <button
+                    type="submit"
+                    form={formId}
+                    className="rounded-2xl bg-primary text-primary-foreground flex gap-x-2 px-4 py-2"
+                  >
+                    <Upload size={16} />
+                    Save
+                  </button>
+                </DialogClose>
+              </div>
+            </>
+          </SimpleModal>
+          <button aria-label="Delete post" onClick={onDelete} className="p-1 rounded-md hover:bg-[#2A2A2D]">
+            <Trash2 size={16} />
+          </button>
+        </div>
+      )}
       <CardContent className="p-3 flex flex-col gap-y-6 items-start">
         <PostAuthor
           image={userimage}

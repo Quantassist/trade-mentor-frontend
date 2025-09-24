@@ -668,6 +668,59 @@ export const onGetPostComments = async (postid: string) => {
   }
 }
 
+export const onUpdatePost = async (
+  postid: string,
+  title: string,
+  htmlContent?: string,
+  jsonContent?: string,
+  content?: string,
+) => {
+  try {
+    const user = await onAuthenticatedUser()
+    const post = await client.post.findUnique({
+      where: { id: postid },
+      select: { authorId: true },
+    })
+    if (!post) return { status: 404, message: "Post not found" }
+    if (post.authorId !== user.id)
+      return { status: 403, message: "Not authorized to edit this post" }
+
+    await client.post.update({
+      where: { id: postid },
+      data: {
+        title,
+        ...(typeof htmlContent !== "undefined" ? { htmlContent } : {}),
+        ...(typeof jsonContent !== "undefined" ? { jsonContent } : {}),
+        ...(typeof content !== "undefined" ? { content } : {}),
+      },
+    })
+
+    return { status: 200, message: "Post updated successfully" }
+  } catch (error) {
+    console.error("Error updating post:", error)
+    return { status: 500, message: "Internal server error" }
+  }
+}
+
+export const onDeletePost = async (postid: string) => {
+  try {
+    const user = await onAuthenticatedUser()
+    const post = await client.post.findUnique({
+      where: { id: postid },
+      select: { authorId: true },
+    })
+    if (!post) return { status: 404, message: "Post not found" }
+    if (post.authorId !== user.id)
+      return { status: 403, message: "Not authorized to delete this post" }
+
+    await client.post.delete({ where: { id: postid } })
+    return { status: 200, message: "Post deleted successfully" }
+  } catch (error) {
+    console.error("Error deleting post:", error)
+    return { status: 500, message: "Internal server error" }
+  }
+}
+
 export const onLikePress = async (postid: string, userid: string) => {
   try {
     const like = await client.like.findFirst({

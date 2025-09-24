@@ -7,20 +7,25 @@ type PaginatedPostsProps = {
 
 export const PaginatedPosts = ({ userid }: PaginatedPostsProps) => {
   const { data } = useAppSelector((state) => state.infiniteScrollReducer)
-  return data.map((data: any) => (
-    <PostCard
-      key={data.id}
-      {...data}
-      html={data.htmlContent}
-      likedUser={data.likes.length > 0 ? data.likes[0].userId : undefined}
-      likeid={data.likes.length > 0 ? data.likes[0].id : undefined}
-      channelname={data.channel.name!}
-      username={data.author.firstname + data.author.lastname}
-      userimage={data.author.image!}
-      likes={data._count.likes}
-      comments={data._count.comments}
-      postid={data.id}
-      userid={userid}
-    />
-  ))
+  return data.map((post: any) => {
+    const likedByMe = post.likes && post.likes.length > 0
+    return (
+      <PostCard
+        key={post.id}
+        postid={post.id}
+        html={post.htmlContent}
+        title={post.title}
+        channelname={post.channel.name!}
+        username={post.author.firstname + post.author.lastname}
+        userimage={post.author.image!}
+        likes={post._count.likes}
+        comments={post._count.comments}
+        likedByMe={likedByMe}
+        isAuthor={post.authorId === userid}
+        initialHtml={post.htmlContent}
+        initialJson={post.jsonContent}
+        initialContent={post.content}
+      />
+    )
+  })
 }
