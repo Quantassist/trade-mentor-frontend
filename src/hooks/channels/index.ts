@@ -149,15 +149,40 @@ export const useChannelPage = (channelid: string) => {
   return { data, mutation }
 }
 
-export const useCreateChannelPost = (channelid: string) => {
-  const [onJsonDescription, setJsonDescription] = useState<
-    JSONContent | undefined
-  >(undefined)
-  const [onHtmlDescription, setOnHtmlDescription] = useState<
-    string | undefined
-  >(undefined)
+export const useCreateChannelPost = (
+  params:
+    | { mode?: "create"; channelid: string }
+    | {
+        mode: "edit"
+        postid: string
+        initial: {
+          title: string
+          htmlcontent?: string | null
+          jsoncontent?: string | null
+          content?: string | null
+        }
+      },
+) => {
+  const mode = ("mode" in params ? params.mode : "create") as "create" | "edit"
+  const channelid = (params as any).channelid as string | undefined
+  const postid = (params as any).postid as string | undefined
+  const initial = (params as any).initial as
+    | {
+        title: string
+        htmlcontent?: string | null
+        jsoncontent?: string | null
+        content?: string | null
+      }
+    | undefined
+
+  const [onJsonDescription, setJsonDescription] = useState<JSONContent | undefined>(
+    initial?.jsoncontent ? (JSON.parse(initial.jsoncontent) as JSONContent) : undefined,
+  )
+  const [onHtmlDescription, setOnHtmlDescription] = useState<string | undefined>(
+    initial?.htmlcontent ?? undefined,
+  )
   const [onDescription, setOnDescription] = useState<string | undefined>(
-    undefined,
+    initial?.content ?? undefined,
   )
 
   const {
@@ -167,6 +192,9 @@ export const useCreateChannelPost = (channelid: string) => {
     setValue,
   } = useForm<z.infer<typeof CreateChannelPostSchema>>({
     resolver: zodResolver(CreateChannelPostSchema),
+    defaultValues: {
+      title: initial?.title ?? "",
+    },
   })
 
   const onSetDescription = () => {
@@ -181,49 +209,61 @@ export const useCreateChannelPost = (channelid: string) => {
     return () => {
       onSetDescription()
     }
-  }, [onJsonDescription, onDescription])
+  }, [onJsonDescription, onDescription, onHtmlDescription])
 
   const client = useQueryClient()
 
   const { mutate, variables, isPending } = useMutation({
-    mutationKey: ["create-post"],
+    mutationKey:
+      mode === "create" ? ["create-post"] : (["update-post", postid] as const),
     mutationFn: (data: {
       title: string
-      content: string
-      htmlcontent: string
-      jsoncontent: string
-      postid: string
+      content?: string
+      htmlcontent?: string
+      jsoncontent?: string
+      postid?: string
     }) =>
-      onCreateChannelPost(
-        channelid,
-        data.title,
-        data.content,
-        data.htmlcontent,
-        data.jsoncontent,
-        data.postid,
-      ),
+      mode === "create"
+        ? onCreateChannelPost(
+            channelid!,
+            data.title,
+            data.content || "",
+            data.htmlcontent || "",
+            data.jsoncontent || "",
+            data.postid!,
+          )
+        : onUpdatePost(
+            postid!,
+            data.title,
+            data.htmlcontent,
+            data.jsoncontent,
+            data.content,
+          ),
     onSuccess: (data) => {
-      setJsonDescription(undefined)
-      setOnHtmlDescription(undefined)
-      setOnDescription(undefined)
+      if (mode === "create") {
+        setJsonDescription(undefined)
+        setOnHtmlDescription(undefined)
+        setOnDescription(undefined)
+      }
       return toast(data.status !== 200 ? "Error" : "Success", {
         description: data.message,
       })
     },
     onSettled: async () => {
-      return await client.invalidateQueries({
-        queryKey: ["channel-info"],
-      })
+      await client.invalidateQueries({ queryKey: ["channel-info"] })
+      if (mode === "edit") {
+        await client.invalidateQueries({ queryKey: ["unique-post", postid] })
+      }
     },
   })
 
-  const onCreatePost = handleSubmit(async (values) =>
+  const onSubmitPost = handleSubmit(async (values) =>
     mutate({
       title: values.title,
-      content: values.content!,
-      htmlcontent: values.htmlcontent!,
-      jsoncontent: values.jsoncontent!,
-      postid: v4(),
+      content: values.content,
+      htmlcontent: values.htmlcontent,
+      jsoncontent: values.jsoncontent,
+      postid: mode === "create" ? v4() : undefined,
     }),
   )
 
@@ -234,9 +274,11 @@ export const useCreateChannelPost = (channelid: string) => {
     setJsonDescription,
     setOnHtmlDescription,
     setOnDescription,
-    onCreatePost,
+    onSubmitPost,
     register,
     errors,
+    variables,
+    isPending,
   }
 }
 

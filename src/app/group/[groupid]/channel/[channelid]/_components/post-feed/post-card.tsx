@@ -1,5 +1,4 @@
 "use client"
-import { onUpdatePost } from "@/actions/groups"
 import { HtmlParser } from "@/components/global/html-parser"
 import { PostContent } from "@/components/global/post-content"
 import { SimpleModal } from "@/components/global/simple-modal"
@@ -8,12 +7,10 @@ import { DialogClose } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 import { useDeletePost } from "@/hooks/channels"
 import { cn } from "@/lib/utils"
-import { useQueryClient } from "@tanstack/react-query"
 import { Pencil, Trash2, Upload } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useMemo } from "react"
-import { toast } from "sonner"
 import { Interactions } from "./interactions"
 import { PostAuthor } from "./post-author"
 
@@ -53,24 +50,7 @@ export const PostCard = ({
   const pathname = usePathname()
   const formId = useMemo(() => `edit-post-form-${postid}`, [postid])
   const { mutate: deletePost } = useDeletePost(postid)
-  const client = useQueryClient()
-  const onEditSubmit = async (values: {
-    title: string
-    content?: string
-    htmlcontent?: string
-    jsoncontent?: string
-  }) => {
-    const res = await onUpdatePost(
-      postid,
-      values.title,
-      values.htmlcontent,
-      values.jsoncontent,
-      values.content,
-    )
-    toast(res.status !== 200 ? "Error" : "Success", { description: res.message })
-    await client.invalidateQueries({ queryKey: ["unique-post"] })
-    await client.invalidateQueries({ queryKey: ["channel-info"] })
-  }
+
   const onDelete = () => {
     if (window.confirm("Delete this post? This action cannot be undone.")) {
       deletePost()
@@ -90,11 +70,11 @@ export const PostCard = ({
             <>
               <PostContent
                 formId={formId}
+                postid={postid}
                 initialTitle={title}
                 initialHtml={initialHtml ?? null}
                 initialJson={initialJson ?? null}
                 initialContent={initialContent ?? null}
-                onSubmit={onEditSubmit}
               />
               <div className="mt-2 border-t border-themeDarkGray pt-3 flex justify-end">
                 <DialogClose asChild>

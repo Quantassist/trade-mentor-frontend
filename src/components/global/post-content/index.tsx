@@ -1,109 +1,32 @@
 "use client"
 import { Input } from "@/components/ui/input"
 import { useCreateChannelPost } from "@/hooks/channels"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { JSONContent } from "novel"
-import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { useEffect } from "react"
 import BlockTextEditor from "../rich-text-editor"
-import { CreateChannelPostSchema } from "./schema"
-
-type SubmitPayload = {
-  title: string
-  content?: string
-  htmlcontent?: string
-  jsoncontent?: string
-}
 
 type PostContentProps = {
   channelid?: string
   formId?: string
+  postid?: string
   initialTitle?: string
   initialJson?: string | null
   initialHtml?: string | null
   initialContent?: string | null
-  onSubmit?: (values: SubmitPayload) => void | Promise<void>
 }
 
 export const PostContent = ({
   channelid,
   formId,
+  postid,
   initialTitle,
   initialJson,
   initialHtml,
   initialContent,
-  onSubmit,
 }: PostContentProps) => {
-  // Edit mode: when onSubmit is provided, manage local state and submit to callback
-  if (onSubmit) {
-    const [onJsonDescription, setJsonDescription] = useState<JSONContent | undefined>(
-      initialJson ? (JSON.parse(initialJson) as JSONContent) : undefined,
-    )
-    const [onHtmlDescription, setOnHtmlDescription] = useState<string | undefined>(
-      initialHtml ?? undefined,
-    )
-    const [onDescription, setOnDescription] = useState<string | undefined>(
-      initialContent ?? undefined,
-    )
+  // Decide mode based on presence of postid
+  const isEdit = Boolean(postid)
 
-    const {
-      formState: { errors },
-      register,
-      handleSubmit,
-      setValue,
-    } = useForm<SubmitPayload>({
-      resolver: zodResolver(CreateChannelPostSchema),
-      defaultValues: {
-        title: initialTitle ?? "",
-      },
-    })
-
-    const onSetDescription = () => {
-      const jsonContent = JSON.stringify(onJsonDescription)
-      setValue("jsoncontent", jsonContent)
-      setValue("htmlcontent", onHtmlDescription)
-      setValue("content", onDescription)
-    }
-
-    useEffect(() => {
-      onSetDescription()
-      return () => {
-        onSetDescription()
-      }
-    }, [onJsonDescription, onDescription, onHtmlDescription])
-
-    const submit = handleSubmit(async (values) => onSubmit(values))
-
-    return (
-      <form
-        className="flex flex-col w-full flex-1 overflow-auto gap-y-5"
-        onSubmit={submit}
-        id={formId}
-      >
-        <Input
-          placeholder="Title"
-          className="bg-transparent outline-none border-none text-2xl p-0"
-          {...register("title")}
-        />
-        <BlockTextEditor
-          errors={errors as any}
-          name="jsoncontent"
-          min={0}
-          max={10000}
-          inline
-          onEdit
-          textContent={onDescription}
-          setTextContent={setOnDescription}
-          content={onJsonDescription}
-          setContent={setJsonDescription}
-          htmlContent={onHtmlDescription}
-          setHtmlContent={setOnHtmlDescription}
-        />
-      </form>
-    )
-  }
-
-  // Create mode: default to existing behavior
   const {
     errors,
     register,
@@ -113,12 +36,31 @@ export const PostContent = ({
     setOnDescription,
     setJsonDescription,
     setOnHtmlDescription,
-    onCreatePost,
-  } = useCreateChannelPost(channelid!)
+    onSubmitPost,
+  } = useCreateChannelPost(
+    isEdit
+      ? {
+          mode: "edit",
+          postid: postid!,
+          initial: {
+            title: initialTitle ?? "",
+            htmlcontent: initialHtml ?? undefined,
+            jsoncontent: initialJson ?? undefined,
+            content: initialContent ?? undefined,
+          },
+        }
+      : { mode: "create", channelid: channelid! },
+  )
+
+  // Ensure initial content is pushed into RHF values on mount if needed (hook handles setValue on state change)
+  useEffect(() => {
+    // no-op: hook internally syncs values when state changes
+  }, [])
+
   return (
     <form
       className="flex flex-col w-full flex-1 overflow-auto gap-y-5"
-      onSubmit={onCreatePost}
+      onSubmit={onSubmitPost}
       id={formId}
     >
       <Input
@@ -135,7 +77,7 @@ export const PostContent = ({
         onEdit
         textContent={onDescription}
         setTextContent={setOnDescription}
-        content={onJsonDescription}
+        content={onJsonDescription as JSONContent | undefined}
         setContent={setJsonDescription}
         htmlContent={onHtmlDescription}
         setHtmlContent={setOnHtmlDescription}
