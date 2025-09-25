@@ -407,7 +407,7 @@ export const useCourseContent = (
     return () => {
       onSetDescriptions()
     }
-  }, [onJsonDescription, onDescription])
+  }, [onJsonDescription, onDescription, onHtmlDescription])
 
   const onEditTextEditor = (event: Event) => {
     if (editor.current) {

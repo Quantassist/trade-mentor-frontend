@@ -26,6 +26,8 @@ export const CourseContentForm = ({
     editor,
     isPending,
     setOnHtmlDescription,
+    onJsonDescription,
+    onDescription,
   } = useCourseContent(
     sectionid,
     data?.section?.content || null,
@@ -40,13 +42,13 @@ export const CourseContentForm = ({
         inline
         min={10}
         disabled={userid === groupid ? false : true}
-        name="jsoncontent"
+        name="content"
         errors={errors}
         setContent={setJsonDescription || undefined}
-        content={JSON.parse(data?.section?.jsonContent!) || undefined}
+        content={onJsonDescription}
         htmlContent={data?.section?.htmlContent || undefined}
         setHtmlContent={setOnHtmlDescription}
-        textContent={data?.section?.content || undefined}
+        textContent={onDescription}
         setTextContent={setOnDescription}
       />
       {onEditDescription && (

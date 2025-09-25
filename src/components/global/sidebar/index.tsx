@@ -7,6 +7,7 @@ import { CarotSort } from "@/icons"
 import { cn } from "@/lib/utils"
 import { Group } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { DropDown } from "../drop-down"
 import { SideBarMenu } from "./menu"
 
@@ -63,6 +64,11 @@ export interface IGroups {
 }
 
 export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
+  const pathname = usePathname()
+  // Hide sidebar completely in Courses section
+  if (pathname?.includes("/courses")) {
+    return null
+  }
   const { groupInfo, groups, mutate, variables, isPending, channels } =
     useSideBar(groupid)
 
