@@ -5,9 +5,8 @@ import { useGroupChatOnline } from "@/hooks/groups"
 import { useSideBar } from "@/hooks/navigation"
 import { CarotSort } from "@/icons"
 import { cn } from "@/lib/utils"
-import { Group, Plus } from "lucide-react"
+import { Group } from "lucide-react"
 import Link from "next/link"
-import { v4 as uuidv4 } from "uuid"
 import { DropDown } from "../drop-down"
 import { SideBarMenu } from "./menu"
 
@@ -114,8 +113,8 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
             ))}
         </DropDown>
       )}
-      <div className="flex flex-col gap-y-5">
-        <div className="flex justify-between items-center">
+      {/* <div className="flex flex-col gap-y-5"> */}
+        {/* <div className="flex justify-between items-center">
           <p className="text-xs text-[#F7ECE9]">CHANNELS</p>
           {userid === groupInfo.group?.userId && (
             <Plus
@@ -136,7 +135,7 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
               })}
             />
           )}
-        </div>
+        </div> */}
         <SideBarMenu
           channels={channels.channels}
           optimisticChannel={variables}
@@ -144,8 +143,9 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
           groupid={groupid}
           groupUserid={groupInfo.group?.userId!}
           userId={userid}
+          mutate={mutate}
         />
-      </div>
+      {/* </div> */}
     </div>
   )
 }

@@ -94,7 +94,7 @@ export const SIDEBAR_SETTINGS_MENU: MenuProps[] = [
     label: "General",
     // icon: <IDuotoneBlack />,
     icon: <Chat />,
-    path: "",
+    path: "general",
   },
   {
     id: 1,
@@ -107,7 +107,7 @@ export const SIDEBAR_SETTINGS_MENU: MenuProps[] = [
     label: "Affiliates",
     // icon: <AffiliateDuoToneBlack />,
     icon: <Chat />,
-    path: "/affiliates",
+    path: "affiliates",
   },
   {
     id: 3,
