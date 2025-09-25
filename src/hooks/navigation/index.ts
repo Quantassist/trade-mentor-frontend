@@ -39,12 +39,12 @@ export const useSideBar = (groupid: string) => {
   }) as { data: IGroups }
 
   const { data: groupInfo } = useQuery({
-    queryKey: ["group-info"],
+    queryKey: ["group-info", groupid],
     queryFn: () => onGetGroupInfo(groupid), // This will be overridden by prefetched data
   }) as { data: IGroupInfo }
 
   const { data: channels } = useQuery({
-    queryKey: ["group-channels"],
+    queryKey: ["group-channels", groupid],
     queryFn: () => onGetGroupChannels(groupid),
   }) as { data: IChannelInfo }
 
@@ -67,10 +67,44 @@ export const useSideBar = (groupid: string) => {
         name: data.name.toLowerCase(),
         icon: data.icon,
       }),
-    onSettled: async () => {
-      return await client.invalidateQueries({
-        queryKey: ["group-channels", "channel-info"],
+    onMutate: async (data) => {
+      // Cancel any outgoing refetches so we don't overwrite our optimistic update
+      await client.cancelQueries({ queryKey: ["group-channels", groupid] })
+
+      // Snapshot the previous value
+      const previous = client.getQueryData(["group-channels", groupid]) as
+        | IChannelInfo
+        | undefined
+
+      // Optimistically update to the new value
+      const optimisticChannel = {
+        id: data.id,
+        name: data.name.toLowerCase(),
+        icon: data.icon,
+        createdAt: data.createdAt,
+        groupId: data.groupId,
+      }
+
+      client.setQueryData(["group-channels", groupid], (old: IChannelInfo | undefined) => {
+        if (!old) return { status: 200, channels: [optimisticChannel] } as IChannelInfo
+        // De-duplication guard: if the optimistic id already exists, don't add again
+        if (old.channels.some((c) => c.id === optimisticChannel.id)) return old
+        return { ...old, channels: [...old.channels, optimisticChannel] }
       })
+
+      // Return context for potential rollback
+      return { previous }
+    },
+    onError: (_err, _variables, context: any) => {
+      // Rollback to previous cache on error
+      if (context?.previous) {
+        client.setQueryData(["group-channels", groupid], context.previous)
+      }
+    },
+    onSettled: async () => {
+      // Refetch channels and any dependent info after mutation completes
+      await client.invalidateQueries({ queryKey: ["group-channels"] })
+      await client.invalidateQueries({ queryKey: ["channel-info"] })
     },
   })
 

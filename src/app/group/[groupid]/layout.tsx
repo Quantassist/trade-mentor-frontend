@@ -32,7 +32,7 @@ const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
   if (!user.id) redirect("/sign-in")
 
   await query.prefetchQuery({
-    queryKey: ["group-info"],
+    queryKey: ["group-info", groupid],
     queryFn: () => onGetGroupInfo(groupid),
   })
 
@@ -42,7 +42,7 @@ const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
   })
 
   await query.prefetchQuery({
-    queryKey: ["group-channels"],
+    queryKey: ["group-channels", groupid],
     queryFn: () => onGetGroupChannels(groupid),
   })
 

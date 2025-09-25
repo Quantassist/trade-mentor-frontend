@@ -42,7 +42,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
         </Avatar>
       }
     >
-      <Link href={`/group/${groupid}/settings`} className="flex gap-x-2 px-2">
+      <Link href={`/group/${groupid}/settings/general`} className="flex gap-x-2 px-2">
         <Settings />
         Settings
       </Link>

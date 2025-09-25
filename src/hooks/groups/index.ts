@@ -182,7 +182,7 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
 
 export const useGroupSettings = (groupid: string) => {
   const { data } = useQuery({
-    queryKey: ["group-info"],
+    queryKey: ["group-info", groupid],
     queryFn: () => onGetGroupInfo(groupid),
   })
 
@@ -596,7 +596,7 @@ export const useSideBar = (groupid: string) => {
   }) as { data: IGroups }
 
   const { data: groupInfo } = useQuery({
-    queryKey: ["group-info"],
+    queryKey: ["group-info", groupid],
   }) as { data: IGroupInfo }
 
   const client = new QueryClient()
@@ -616,7 +616,7 @@ export const useSideBar = (groupid: string) => {
         icon: data.icon,
       }),
     onSettled: async () => {
-      return await client.invalidateQueries({ queryKey: ["group-info"] })
+      return await client.invalidateQueries({ queryKey: ["group-info", groupid] })
     },
   })
 

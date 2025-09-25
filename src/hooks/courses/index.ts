@@ -54,7 +54,7 @@ export const useCreateCourse = (groupid: string) => {
   const client = useQueryClient()
 
   const { data } = useQuery({
-    queryKey: ["group-info"],
+    queryKey: ["group-info", groupid],
     queryFn: () => onGetGroupInfo(groupid),
   })
 
@@ -130,7 +130,7 @@ export const useCourses = (groupid: string) => {
 export const useCreateModule = (courseid: string, groupid: string) => {
   const client = useQueryClient()
   const { data } = useQuery({
-    queryKey: ["group-info"],
+    queryKey: ["group-info", groupid],
     queryFn: () => onGetGroupInfo(groupid),
   })
   const { mutate, isPending, variables } = useMutation({
@@ -185,7 +185,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
   })
 
   const { data: groupOwner } = useQuery({
-    queryKey: ["group-info"],
+    queryKey: ["group-info", groupid],
     queryFn: () => onGetGroupInfo(groupid),
   })
 
