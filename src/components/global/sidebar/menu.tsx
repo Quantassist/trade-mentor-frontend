@@ -12,7 +12,6 @@ import { IChannels } from "."
 import { IconRenderer } from "../icon-renderer"
 import { IconDropDown } from "./icon-dropdown"
 
-
 type SideBarMenuProps = {
   channels: IChannels[]
   optimisticChannel:
@@ -101,28 +100,28 @@ export const SideBarMenu = ({
   //under the loop/map we add our optimistic ui
   return (
     <div className="flex flex-col gap-y-5">
-        <div className="flex justify-between items-center">
-          <p className="text-xs text-[#F7ECE9]">CHANNELS</p>
-          {userId === groupUserid && (
-            <Plus
-              size={16}
-              className={cn(
-                "text-themeTextGray cursor-pointer",
-                isPending && "opacity-70",
-              )}
-              {...(!isPending && {
-                onClick: () =>
-                  mutate({
-                    id: uuidv4(),
-                    icon: "general",
-                    name: "unnamed",
-                    createdAt: new Date(),
-                    groupId: groupid,
-                  }),
-              })}
-            />
-          )}
-        </div>
+      <div className="flex justify-between items-center">
+        <p className="text-xs text-[#F7ECE9]">CHANNELS</p>
+        {userId === groupUserid && (
+          <Plus
+            size={16}
+            className={cn(
+              "text-themeTextGray cursor-pointer",
+              isPending && "opacity-70",
+            )}
+            {...(!isPending && {
+              onClick: () =>
+                mutate({
+                  id: uuidv4(),
+                  icon: "general",
+                  name: "unnamed",
+                  createdAt: new Date(),
+                  groupId: groupid,
+                }),
+            })}
+          />
+        )}
+      </div>
       <div className="flex flex-col">
         {channels && channels.length > 0 ? (
           <>
@@ -158,7 +157,9 @@ export const SideBarMenu = ({
                         ) : (
                           <IconRenderer
                             icon={channel.icon}
-                            mode={currentSection === channel.id ? "LIGHT" : "DARK"}
+                            mode={
+                              currentSection === channel.id ? "LIGHT" : "DARK"
+                            }
                           />
                         )}
                         {channel.id === current && edit ? (
@@ -176,7 +177,9 @@ export const SideBarMenu = ({
                                 : "text-themeTextGray",
                             )}
                           >
-                            {isPending && variables && currentSection === channel.id
+                            {isPending &&
+                            variables &&
+                            currentSection === channel.id
                               ? variables.name
                               : channel.name}
                           </p>

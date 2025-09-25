@@ -24,10 +24,13 @@ export const InfiniteScroll = createSlice({
       state.data = action.payload.data
     },
     onRemoveItem: (state, action: PayloadAction<{ id: string }>) => {
-      state.data = state.data.filter((item: any) => item.id !== action.payload.id)
+      state.data = state.data.filter(
+        (item: any) => item.id !== action.payload.id,
+      )
     },
   },
 })
 
-export const { onInfiniteScroll, onClearList, onRemoveItem } = InfiniteScroll.actions
+export const { onInfiniteScroll, onClearList, onRemoveItem } =
+  InfiniteScroll.actions
 export default InfiniteScroll.reducer

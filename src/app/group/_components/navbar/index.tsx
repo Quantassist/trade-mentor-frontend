@@ -2,11 +2,9 @@ import { GlassSheet } from "@/components/global/glass-sheet"
 import { Search } from "@/components/global/search"
 import { SideBar } from "@/components/global/sidebar"
 import { UserWidget } from "@/components/global/user-widget"
-import { Button } from "@/components/ui/button"
-import { CheckBadge } from "@/icons"
 import { currentUser } from "@clerk/nextjs/server"
-import { Menu } from "lucide-react"
-import Link from "next/link"
+import { Menu as MenuIcon } from "lucide-react"
+import { Menu } from "../group-navbar"
 
 type NavbarProps = {
   groupid: string
@@ -15,26 +13,26 @@ type NavbarProps = {
 export const Navbar = async ({ groupid, userid }: NavbarProps) => {
   const user = await currentUser()
   return (
-    <div className="bg-[#1A1A1D] py-2 px-7 sm:py-5 sm:px-16 flex gap-5 justify-end items-center">
-      <GlassSheet trigger={<Menu className="md:hidden cursor-pointer" />}>
-        <SideBar groupid={groupid} userid={userid} mobile />
-      </GlassSheet>
+    <div className="sticky top-0 z-40 bg-[#1A1A1D]/95 backdrop-blur supports-[backdrop-filter]:bg-[#1A1A1D]/80 py-2 px-4 sm:py-4 sm:px-6 flex items-center gap-3 justify-between">
+      {/* Left cluster: group menu + sidebar trigger */}
+      <div className="flex items-center gap-3 shrink-0">
+        <div className="shrink-0 overflow-x-auto">
+          <Menu orientation="desktop" />
+        </div>
+        <GlassSheet trigger={<MenuIcon className="md:hidden cursor-pointer" />}>
+          <SideBar groupid={groupid} userid={userid} mobile />
+        </GlassSheet>
+      </div>
 
-      <Search
-        searchType="POSTS"
-        className="rounded-full border-themeGray bg-black !opacity-100 px-3"
-        placeholder="Search..."
-      />
-      <Link href={`/group/create`} className="hidden md:inline">
-        <Button
-          variant="outline"
-          className="bg-themeBlack rounded-2xl flex gap-2 border-themeGray hover:bg-themeGray"
-        >
-          <CheckBadge />
-          Create Group
-        </Button>
-      </Link>
-      <UserWidget userid={userid} groupid={groupid} image={user?.imageUrl!} />
+      {/* Right cluster: search + user widget */}
+      <div className="flex items-center gap-3 flex-1 min-w-0 justify-end">
+        <Search
+          searchType="POSTS"
+          className="rounded-full border-themeGray bg-black !opacity-100 px-3 flex-1 min-w-[140px] sm:min-w-[180px] md:min-w-[220px] max-w-[420px]"
+          placeholder="Search..."
+        />
+        <UserWidget userid={userid} groupid={groupid} image={user?.imageUrl!} />
+      </div>
     </div>
   )
 }

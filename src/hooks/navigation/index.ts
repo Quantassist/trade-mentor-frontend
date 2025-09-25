@@ -85,12 +85,20 @@ export const useSideBar = (groupid: string) => {
         groupId: data.groupId,
       }
 
-      client.setQueryData(["group-channels", groupid], (old: IChannelInfo | undefined) => {
-        if (!old) return { status: 200, channels: [optimisticChannel] } as IChannelInfo
-        // De-duplication guard: if the optimistic id already exists, don't add again
-        if (old.channels.some((c) => c.id === optimisticChannel.id)) return old
-        return { ...old, channels: [...old.channels, optimisticChannel] }
-      })
+      client.setQueryData(
+        ["group-channels", groupid],
+        (old: IChannelInfo | undefined) => {
+          if (!old)
+            return {
+              status: 200,
+              channels: [optimisticChannel],
+            } as IChannelInfo
+          // De-duplication guard: if the optimistic id already exists, don't add again
+          if (old.channels.some((c) => c.id === optimisticChannel.id))
+            return old
+          return { ...old, channels: [...old.channels, optimisticChannel] }
+        },
+      )
 
       // Return context for potential rollback
       return { previous }

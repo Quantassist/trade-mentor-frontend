@@ -11,7 +11,7 @@ type UserWidgetProps = {
 
 export const UserWidget = ({ image, groupid, userid }: UserWidgetProps) => {
   return (
-    <div className="gap-5 items-center hidden sm:flex">
+    <div className="items-center flex gap-4 sm:gap-5">
       <Notification />
       <Link href={`group/${groupid}/messages`}>
         <Message />

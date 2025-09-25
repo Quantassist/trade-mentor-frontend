@@ -14,7 +14,7 @@ import {
 } from "@tanstack/react-query"
 import { redirect } from "next/navigation"
 import React from "react"
-import { MobileNav } from "../_components/mobile-nav"
+import { MobileBottomGroupNav } from "../_components/group-navbar"
 import { Navbar } from "../_components/navbar"
 
 type GroupLayoutProps = {
@@ -60,10 +60,10 @@ const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
     <HydrationBoundary state={dehydrate(query)}>
       <div className="flex min-h-screen md:pt-5">
         <SideBar groupid={groupid} userid={user.id} />
-        <div className="md:ml-[300px] flex flex-col ml-[70px] flex-1 bg-[#101011] rounded-tl-xl overflow-hidden border-l-[1px] border-t-[1px] border-[#28282D]">
+        <div className="md:ml-[300px] flex flex-col ml-[70px] flex-1 bg-[#101011] rounded-tl-xl overflow-hidden border-l-[1px] border-t-[1px] border-[#28282D] pb-16 sm:pb-0">
           <Navbar groupid={groupid} userid={user.id} />
           {children}
-          <MobileNav groupid={groupid} />
+          <MobileBottomGroupNav />
         </div>
       </div>
     </HydrationBoundary>

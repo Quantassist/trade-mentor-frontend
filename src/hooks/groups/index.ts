@@ -616,7 +616,9 @@ export const useSideBar = (groupid: string) => {
         icon: data.icon,
       }),
     onSettled: async () => {
-      return await client.invalidateQueries({ queryKey: ["group-info", groupid] })
+      return await client.invalidateQueries({
+        queryKey: ["group-info", groupid],
+      })
     },
   })
 

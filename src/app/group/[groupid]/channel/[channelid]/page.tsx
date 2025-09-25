@@ -9,7 +9,6 @@ import {
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query"
-import { Menu } from "../../_components/group-navbar"
 import CreateNewPost from "./_components/create-post"
 import { PostFeed } from "./_components/post-feed"
 
@@ -24,7 +23,7 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
   const { groupid, channelid } = await params
 
   await client.prefetchQuery({
-    queryKey: ["channel-info"],
+    queryKey: ["channel-info", channelid],
     queryFn: () => onGetChannelInfo(channelid),
   })
 
@@ -45,7 +44,7 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
           <LeaderBoardCard light />
         </div>
         <div className="lg:col-span-2 flex flex-col gap-y-5 py-5">
-          <Menu orientation="desktop" />
+          {/* <Menu orientation="desktop" /> */}
           <CreateNewPost
             userImage={user?.imageUrl!}
             channelid={channelid}

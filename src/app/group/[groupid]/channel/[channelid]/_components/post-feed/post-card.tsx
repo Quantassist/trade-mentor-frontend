@@ -62,7 +62,10 @@ export const PostCard = ({
         <div className={cn("absolute right-3 top-3 z-10 flex gap-2")}>
           <SimpleModal
             trigger={
-              <button aria-label="Edit post" className="p-1 rounded-md hover:bg-[#2A2A2D]">
+              <button
+                aria-label="Edit post"
+                className="p-1 rounded-md hover:bg-[#2A2A2D]"
+              >
                 <Pencil size={16} />
               </button>
             }
@@ -90,7 +93,11 @@ export const PostCard = ({
               </div>
             </>
           </SimpleModal>
-          <button aria-label="Delete post" onClick={onDelete} className="p-1 rounded-md hover:bg-[#2A2A2D]">
+          <button
+            aria-label="Delete post"
+            onClick={onDelete}
+            className="p-1 rounded-md hover:bg-[#2A2A2D]"
+          >
             <Trash2 size={16} />
           </button>
         </div>
