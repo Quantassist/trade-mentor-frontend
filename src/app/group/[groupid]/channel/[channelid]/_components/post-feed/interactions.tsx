@@ -42,7 +42,9 @@ export const Interactions = ({
     >
       <div className="flex gap-5 text-[#757272] text-sm">
         <span className="flex gap-1 justify-center items-center">
-          <span onClick={() => mutate()} className={cn("cursor-pointer")}>{renderIcon()}</span>
+          <span onClick={() => mutate()} className={cn("cursor-pointer")}>
+            {renderIcon()}
+          </span>
           {displayLikes}
         </span>
 

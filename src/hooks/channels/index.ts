@@ -132,7 +132,7 @@ export const useChannelInfo = () => {
 
 export const useChannelPage = (channelid: string) => {
   const { data } = useQuery({
-    queryKey: ["channel-info"],
+    queryKey: ["channel-info", channelid],
     queryFn: () => onGetChannelInfo(channelid),
   })
 
@@ -175,12 +175,16 @@ export const useCreateChannelPost = (
       }
     | undefined
 
-  const [onJsonDescription, setJsonDescription] = useState<JSONContent | undefined>(
-    initial?.jsoncontent ? (JSON.parse(initial.jsoncontent) as JSONContent) : undefined,
+  const [onJsonDescription, setJsonDescription] = useState<
+    JSONContent | undefined
+  >(
+    initial?.jsoncontent
+      ? (JSON.parse(initial.jsoncontent) as JSONContent)
+      : undefined,
   )
-  const [onHtmlDescription, setOnHtmlDescription] = useState<string | undefined>(
-    initial?.htmlcontent ?? undefined,
-  )
+  const [onHtmlDescription, setOnHtmlDescription] = useState<
+    string | undefined
+  >(initial?.htmlcontent ?? undefined)
   const [onDescription, setOnDescription] = useState<string | undefined>(
     initial?.content ?? undefined,
   )
@@ -250,7 +254,7 @@ export const useCreateChannelPost = (
       })
     },
     onSettled: async () => {
-      await client.invalidateQueries({ queryKey: ["channel-info"] })
+      await client.invalidateQueries({ queryKey: ["channel-info", channelid] })
       if (mode === "edit") {
         await client.invalidateQueries({ queryKey: ["unique-post", postid] })
       }
@@ -449,12 +453,16 @@ export const useEditPost = (
     content?: string | null
   },
 ) => {
-  const [onJsonDescription, setJsonDescription] = useState<JSONContent | undefined>(
-    initial.jsoncontent ? (JSON.parse(initial.jsoncontent) as JSONContent) : undefined,
+  const [onJsonDescription, setJsonDescription] = useState<
+    JSONContent | undefined
+  >(
+    initial.jsoncontent
+      ? (JSON.parse(initial.jsoncontent) as JSONContent)
+      : undefined,
   )
-  const [onHtmlDescription, setOnHtmlDescription] = useState<string | undefined>(
-    initial.htmlcontent ?? undefined,
-  )
+  const [onHtmlDescription, setOnHtmlDescription] = useState<
+    string | undefined
+  >(initial.htmlcontent ?? undefined)
   const [onDescription, setOnDescription] = useState<string | undefined>(
     initial.content ?? undefined,
   )
@@ -492,7 +500,14 @@ export const useEditPost = (
       content?: string
       htmlcontent?: string
       jsoncontent?: string
-    }) => onUpdatePost(postid, data.title, data.htmlcontent, data.jsoncontent, data.content),
+    }) =>
+      onUpdatePost(
+        postid,
+        data.title,
+        data.htmlcontent,
+        data.jsoncontent,
+        data.content,
+      ),
     onSuccess: (data) => {
       return toast(data.status !== 200 ? "Error" : "Success", {
         description: data.message,

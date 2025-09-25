@@ -43,7 +43,7 @@ export const LANDING_PAGE_MENU: MenuProps[] = [
 export const GROUP_PAGE_MENU: GroupMenuProps[] = [
   {
     id: 0,
-    label: "Group",
+    label: "Home",
     icon: <Home />,
     path: "/",
   },
@@ -59,23 +59,29 @@ export const GROUP_PAGE_MENU: GroupMenuProps[] = [
     icon: <Explore />,
     path: "events",
   },
+  // {
+  //   id: 3,
+  //   label: "Members",
+  //   icon: <Explore />,
+  //   path: "members",
+  // },
+  // {
+  //   id: 5,
+  //   label: "Huddle",
+  //   icon: <Explore />,
+  //   path: "huddle",
+  // },
   {
     id: 3,
-    label: "Members",
+    label: "Leaderboard",
     icon: <Explore />,
-    path: "members",
+    path: "leaderboard",
   },
   {
     id: 4,
     label: "About",
     icon: <Explore />,
     path: "about",
-  },
-  {
-    id: 5,
-    label: "Huddle",
-    icon: <Explore />,
-    path: "huddle",
   },
 ]
 
