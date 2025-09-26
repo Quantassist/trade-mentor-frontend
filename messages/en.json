@@ -1,0 +1,11 @@
+{
+  "sectionTypes": {
+    "doc": "Text",
+    "video": "Video",
+    "text": "Text",
+    "resource": "Resources",
+    "reflection": "Reflection",
+    "quiz": "Quiz",
+    "assessment": "Assessment"
+  }
+}

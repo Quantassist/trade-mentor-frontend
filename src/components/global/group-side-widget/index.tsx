@@ -1,10 +1,11 @@
 "use client"
 
-import { JoinButton } from "@/app/(discover)/about/_components/join-button"
+import { JoinButton } from "@/app/[locale]/(discover)/about/_components/join-button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useGroupInfo } from "@/hooks/groups"
 import { cn, truncateString } from "@/lib/utils"
+import { useLocale } from "next-intl"
 
 export const GroupSideWidget = ({
   userid,
@@ -15,7 +16,11 @@ export const GroupSideWidget = ({
   light?: boolean
   groupid?: string
 }) => {
-  const { group } = useGroupInfo(groupid as string)
+  const locale = useLocale()
+  const { group } = useGroupInfo(groupid as string, locale)
+
+  const stripHtml = (html?: string | null) =>
+    typeof html === "string" ? html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : undefined
 
   return (
     <Card
@@ -32,7 +37,7 @@ export const GroupSideWidget = ({
       <div className="flex flex-col p-5 gap-y-2">
         <h2 className="font-bold text-lg">{group.name}</h2>
         <p className="text-sm text-themeTextGray">
-          {group.description && truncateString(group.description)}
+          {truncateString(stripHtml(group.htmlDescription) || group.description || "")}
         </p>
       </div>
       <Separator orientation="horizontal" className="bg-themeGray" />

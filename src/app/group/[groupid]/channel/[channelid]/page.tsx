@@ -13,14 +13,14 @@ import CreateNewPost from "./_components/create-post"
 import { PostFeed } from "./_components/post-feed"
 
 type GroupChannelPageProps = {
-  params: Promise<{ groupid: string; channelid: string }>
+  params: Promise<{ groupid: string; channelid: string; locale: string }>
 }
 
 const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
   const client = new QueryClient()
   const user = await currentUser()
   const authUser = await onAuthenticatedUser()
-  const { groupid, channelid } = await params
+  const { groupid, channelid, locale } = await params
 
   await client.prefetchQuery({
     queryKey: ["channel-info", channelid],
@@ -28,8 +28,8 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
   })
 
   await client.prefetchQuery({
-    queryKey: ["about-group-info"],
-    queryFn: () => onGetGroupInfo(groupid),
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
   })
 
   await client.prefetchQuery({

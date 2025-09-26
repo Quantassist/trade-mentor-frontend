@@ -1,0 +1,11 @@
+{
+  "sectionTypes": {
+    "doc": "पाठ",
+    "video": "वीडियो",
+    "text": "पाठ",
+    "resource": "संसाधन",
+    "reflection": "चिंतन",
+    "quiz": "प्रश्नोत्तरी",
+    "assessment": "मूल्यांकन"
+  }
+}

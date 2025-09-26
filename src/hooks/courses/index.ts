@@ -398,7 +398,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
 
 export const useSectionNavBar = (sectionid: string) => {
   const { data } = useQuery({
-    queryKey: ["section-info"],
+    queryKey: ["section-info", sectionid],
     queryFn: () => onGetSectionInfo(sectionid),
   })
 
@@ -425,10 +425,10 @@ export const useSectionNavBar = (sectionid: string) => {
   }
 }
 
-export const useCourseSectionInfo = (sectionid: string) => {
+export const useCourseSectionInfo = (sectionid: string, locale?: string) => {
   const { data } = useQuery({
-    queryKey: ["section-info"],
-    queryFn: () => onGetSectionInfo(sectionid),
+    queryKey: ["section-info", sectionid, locale],
+    queryFn: () => onGetSectionInfo(sectionid, locale),
   })
   return { data }
 }
@@ -438,6 +438,7 @@ export const useCourseContent = (
   description: string | null,
   jsonDescription: string | null,
   htmlDescription: string | null,
+  locale?: string,
 ) => {
   const jsonContent =
     jsonDescription !== null ? JSON.parse(jsonDescription as string) : undefined
@@ -501,6 +502,7 @@ export const useCourseContent = (
         data.values.htmlContent!,
         data.values.jsoncontent!,
         data.values.content!,
+        locale,
       ),
     onSuccess: (data) => {
       toast(data?.status !== 200 ? "Error" : "Success", {
@@ -508,9 +510,7 @@ export const useCourseContent = (
       })
     },
     onSettled: async () => {
-      return await client.invalidateQueries({
-        queryKey: ["section-info"],
-      })
+      return await client.invalidateQueries({ queryKey: ["section-info", sectionid] })
     },
   })
 

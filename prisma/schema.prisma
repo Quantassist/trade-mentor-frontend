@@ -54,6 +54,7 @@ model Group {
   User            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   member          Members[]
   subscription    Subscription[]
+  translations    GroupTranslation[]
 }
 
 model Members {
@@ -79,6 +80,7 @@ model Post {
   title       String
   comments    Comment[]
   likes       Like[]
+  translations PostTranslation[]
   author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   channel     Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
 }
@@ -128,6 +130,7 @@ model Course {
   groupId     String?  @db.Uuid
   Group       Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   modules     Module[]
+  translations CourseTranslation[]
 }
 
 model Module {
@@ -138,6 +141,7 @@ model Module {
   order     Int       @default(0)
   Course    Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   section   Section[]
+  translations ModuleTranslation[]
 }
 
 model Section {
@@ -152,6 +156,7 @@ model Section {
   createdAt   DateTime @default(now())
   order       Int      @default(0)
   Module      Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  translations SectionTranslation[]
 }
 
 model Affiliate {
@@ -168,6 +173,70 @@ model Message {
   senderId   String?  @db.Uuid
   receiverId String?  @db.Uuid
   sender     User?    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model GroupTranslation {
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupId           String  @db.Uuid
+  locale            String
+  name              String?
+  descriptionJson   Json?
+  descriptionHtml   String?
+  Group             Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, locale])
+  @@index([locale])
+}
+
+model CourseTranslation {
+  id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId        String  @db.Uuid
+  locale          String
+  name            String?
+  descriptionJson Json?
+  descriptionHtml String?
+  Course          Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, locale])
+  @@index([locale])
+}
+
+model ModuleTranslation {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId  String @db.Uuid
+  locale    String
+  title     String?
+  Module    Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([moduleId, locale])
+  @@index([locale])
+}
+
+model SectionTranslation {
+  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sectionId     String @db.Uuid
+  locale        String
+  name          String?
+  contentJson   Json?
+  contentHtml   String?
+  contentText   String?
+  Section       Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([sectionId, locale])
+  @@index([locale])
+}
+
+model PostTranslation {
+  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId        String @db.Uuid
+  locale        String
+  title         String?
+  contentJson   Json?
+  contentHtml   String?
+  Post          Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, locale])
+  @@index([locale])
 }
 
 enum GROUP_PRIVACY {

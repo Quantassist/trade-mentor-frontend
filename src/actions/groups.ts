@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache"
 import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
 import { onAuthenticatedUser } from "./auth"
+import { defaultLocale } from "@/i18n/config"
 
 export const onGetAffiliateInfo = async (id: string) => {
   try {
@@ -319,6 +320,7 @@ export const onUpDateGroupSettings = async (
     | "HTMLDESCRIPTION",
   content: string,
   path: string,
+  locale?: string,
 ) => {
   try {
     if (type === "IMAGE") {
@@ -343,14 +345,15 @@ export const onUpDateGroupSettings = async (
       console.log("uploaded image")
     }
     if (type === "DESCRIPTION") {
-      await client.group.update({
-        where: {
-          id: groupid,
-        },
-        data: {
-          description: content,
-        },
-      })
+      // Only update base field for default locale; no separate translation text column
+      if (!locale || locale === defaultLocale) {
+        await client.group.update({
+          where: { id: groupid },
+          data: { description: content },
+        })
+      } else {
+        // No-op for non-default locale; HTML/JSON should carry the translated content
+      }
     }
     if (type === "NAME") {
       await client.group.update({
@@ -363,24 +366,44 @@ export const onUpDateGroupSettings = async (
       })
     }
     if (type === "JSONDESCRIPTION") {
-      await client.group.update({
-        where: {
-          id: groupid,
-        },
-        data: {
-          jsonDescription: content,
-        },
-      })
+      if (locale && locale !== defaultLocale) {
+        await client.groupTranslation.upsert({
+          where: { groupId_locale: { groupId: groupid, locale } },
+          update: {
+            descriptionJson: JSON.parse(content),
+          },
+          create: {
+            groupId: groupid,
+            locale,
+            descriptionJson: JSON.parse(content),
+          },
+        })
+      } else {
+        await client.group.update({
+          where: { id: groupid },
+          data: { jsonDescription: content },
+        })
+      }
     }
     if (type === "HTMLDESCRIPTION") {
-      await client.group.update({
-        where: {
-          id: groupid,
-        },
-        data: {
-          htmlDescription: content,
-        },
-      })
+      if (locale && locale !== defaultLocale) {
+        await client.groupTranslation.upsert({
+          where: { groupId_locale: { groupId: groupid, locale } },
+          update: {
+            descriptionHtml: content,
+          },
+          create: {
+            groupId: groupid,
+            locale,
+            descriptionHtml: content,
+          },
+        })
+      } else {
+        await client.group.update({
+          where: { id: groupid },
+          data: { htmlDescription: content },
+        })
+      }
     }
     revalidatePath(path)
     return { status: 200 }
@@ -390,7 +413,7 @@ export const onUpDateGroupSettings = async (
   }
 }
 
-export const onGetGroupInfo = async (groupid: string) => {
+export const onGetGroupInfo = async (groupid: string, locale?: string) => {
   // console.log(groupid)
   try {
     const user = await onAuthenticatedUser()
@@ -403,12 +426,32 @@ export const onGetGroupInfo = async (groupid: string) => {
       // },
     })
 
-    if (group)
+    if (group) {
+      if (locale && locale !== defaultLocale) {
+        const translation = await client.groupTranslation.findUnique({
+          where: { groupId_locale: { groupId: groupid, locale } },
+        })
+        const effective = {
+          ...group,
+          name: translation?.name ?? group.name,
+          htmlDescription: translation?.descriptionHtml ?? group.htmlDescription ?? undefined,
+          jsonDescription:
+            translation?.descriptionJson !== undefined && translation?.descriptionJson !== null
+              ? JSON.stringify(translation.descriptionJson)
+              : group.jsonDescription ?? undefined,
+        }
+        return {
+          status: 200,
+          group: effective,
+          groupOwner: user.id === group.userId ? true : false,
+        }
+      }
       return {
         status: 200,
         group,
         groupOwner: user.id === group.userId ? true : false,
       }
+    }
 
     return { status: 404 }
   } catch (error) {
