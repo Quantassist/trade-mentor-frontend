@@ -44,7 +44,7 @@ export const Menu = ({ orientation }: MenuProps) => {
             else onSetSection(item.url)
           }}
           position="inline"
-          className="hidden sm:flex"
+          className="hidden md:flex"
         />
       )
     case "mobile":
@@ -124,7 +124,7 @@ export const MobileBottomGroupNav = () => {
         else onSetSection(item.url)
       }}
       position="fixed"
-      className="sm:hidden"
+      className="md:hidden"
     />
   )
 }

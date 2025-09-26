@@ -3,9 +3,13 @@ import {
   onCreateCourseModule,
   onCreateGroupCourse,
   onCreateModuleSection,
+  onDeleteModule,
+  onDeleteSection,
   onGetCourseModules,
   onGetGroupCourses,
   onGetSectionInfo,
+  onReorderModules,
+  onReorderSections,
   onUpdateCourseSectionContent,
   onUpdateModule,
   onUpdateSection,
@@ -13,6 +17,7 @@ import {
 import { onGetGroupInfo } from "@/actions/groups"
 import { CourseContentSchema } from "@/components/form/course-content/schema"
 import { CreateCourseSchema } from "@/components/form/create-course/schema"
+import { SECTION_TYPES } from "@/constants/icons"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
@@ -213,9 +218,25 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     isPending: sectionUpdatePending,
     variables: updateVariables,
   } = useMutation({
-    mutationFn: (data: { type: "NAME"; content: string }) =>
+    mutationFn: (data: { type: "NAME" | "ICON"; content: string }) =>
       onUpdateSection(activeSection!, data.type, data.content),
     onMutate: () => setEditSection(false),
+    onSuccess: (data) => {
+      return toast(data?.status !== 200 ? "Error" : "Success", {
+        description: data?.message,
+      })
+    },
+    onSettled: async () => {
+      return await client.invalidateQueries({
+        queryKey: ["course-modules"],
+      })
+    },
+  })
+
+  // Update a section by explicit id (used by inline edit sheets)
+  const { mutate: updateSectionById } = useMutation({
+    mutationFn: (data: { sectionid: string; type: "NAME" | "ICON"; content: string }) =>
+      onUpdateSection(data.sectionid, data.type, data.content),
     onSuccess: (data) => {
       return toast(data?.status !== 200 ? "Error" : "Success", {
         description: data?.message,
@@ -233,8 +254,8 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     isPending: pendingSection,
     variables: sectionVariables,
   } = useMutation({
-    mutationFn: (data: { moduleid: string; sectionid: string }) =>
-      onCreateModuleSection(data.moduleid, data.sectionid),
+    mutationFn: (data: { moduleid: string; sectionid: string; name?: string; icon?: string }) =>
+      onCreateModuleSection(data.moduleid, data.sectionid, data.name, data.icon),
     onSuccess: (data) => {
       return toast(data?.status !== 200 ? "Error" : "Success", {
         description: data?.message,
@@ -245,6 +266,43 @@ export const useCourseModule = (courseId: string, groupid: string) => {
         queryKey: ["course-modules"],
       })
     },
+  })
+
+  // Delete a single section
+  const { mutate: deleteSection, isPending: deleteSectionPending } = useMutation({
+    mutationFn: (sectionid: string) => onDeleteSection(sectionid),
+    onSuccess: (data) =>
+      toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
+    onSettled: async () =>
+      await client.invalidateQueries({ queryKey: ["course-modules"] }),
+  })
+
+  // Delete a module (sections cascade by Prisma settings)
+  const { mutate: deleteModule, isPending: deleteModulePending } = useMutation({
+    mutationFn: (moduleid: string) => onDeleteModule(moduleid),
+    onSuccess: (data) =>
+      toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
+    onSettled: async () =>
+      await client.invalidateQueries({ queryKey: ["course-modules"] }),
+  })
+
+  // Reorder modules
+  const { mutate: reorderModules, isPending: reorderModulesPending } = useMutation({
+    mutationFn: (orderedIds: string[]) => onReorderModules(courseId, orderedIds),
+    onSuccess: (data) =>
+      toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
+    onSettled: async () =>
+      await client.invalidateQueries({ queryKey: ["course-modules"] }),
+  })
+
+  // Reorder sections in a module
+  const { mutate: reorderSections, isPending: reorderSectionsPending } = useMutation({
+    mutationFn: (data: { moduleId: string; orderedIds: string[] }) =>
+      onReorderSections(data.moduleId, data.orderedIds),
+    onSuccess: (data) =>
+      toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
+    onSettled: async () =>
+      await client.invalidateQueries({ queryKey: ["course-modules"] }),
   })
 
   const onEditModuleName = (event: Event) => {
@@ -325,6 +383,16 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     editSection,
     sectionUpdatePending,
     updateVariables,
+    updateSection,
+    updateSectionById,
+    deleteSection,
+    deleteSectionPending,
+    deleteModule,
+    deleteModulePending,
+    reorderModules,
+    reorderModulesPending,
+    reorderSections,
+    reorderSectionsPending,
   }
 }
 
@@ -407,7 +475,7 @@ export const useCourseContent = (
     return () => {
       onSetDescriptions()
     }
-  }, [onJsonDescription, onDescription])
+  }, [onJsonDescription, onDescription, onHtmlDescription])
 
   const onEditTextEditor = (event: Event) => {
     if (editor.current) {
@@ -461,4 +529,87 @@ export const useCourseContent = (
     editor,
     isPending,
   }
+}
+
+// Schema and hooks for Section forms
+export const SectionFormSchema = z.object({
+  name: z.string().min(1, { message: "Please enter a section name" }),
+  typeId: z.string().min(1),
+})
+
+export const useCreateSectionForm = (moduleid: string) => {
+  const client = useQueryClient()
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<z.infer<typeof SectionFormSchema>>({
+    resolver: zodResolver(SectionFormSchema),
+    defaultValues: { name: "", typeId: SECTION_TYPES[1]?.id || "text" },
+  })
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["create-section", moduleid],
+    mutationFn: async (data: { name: string; icon: string }) =>
+      onCreateModuleSection(moduleid, v4(), data.name || "New Section", data.icon),
+    onSuccess: (data) =>
+      toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
+    onSettled: async () =>
+      await client.invalidateQueries({ queryKey: ["course-modules"] }),
+  })
+
+  const onCreateSection = handleSubmit(async (values) => {
+    const selected = SECTION_TYPES.find((t) => t.id === values.typeId)
+    mutate({ name: values.name, icon: selected?.icon || "doc" })
+  })
+
+  return { register, setValue, errors, onCreateSection, isPending }
+}
+
+export const useEditSectionForm = (
+  sectionid: string,
+  initialName: string,
+  initialIcon: string,
+) => {
+  const client = useQueryClient()
+  const initial = useRef({ name: initialName, icon: initialIcon })
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<z.infer<typeof SectionFormSchema>>({
+    resolver: zodResolver(SectionFormSchema),
+    defaultValues: {
+      name: initialName,
+      typeId:
+        SECTION_TYPES.find((t) => t.icon === initialIcon)?.id || SECTION_TYPES[1]?.id || "text",
+    },
+  })
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["update-section", sectionid],
+    mutationFn: async (data: { name: string; icon: string }) => {
+      if (data.name !== initial.current.name) {
+        await onUpdateSection(sectionid, "NAME", data.name)
+      }
+      if (data.icon !== initial.current.icon) {
+        await onUpdateSection(sectionid, "ICON", data.icon)
+      }
+      return { status: 200, message: "Section updated" }
+    },
+    onSuccess: (data) =>
+      toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
+    onSettled: async () =>
+      await client.invalidateQueries({ queryKey: ["course-modules"] }),
+  })
+
+  const onUpdateSectionSubmit = handleSubmit(async (values) => {
+    const selected = SECTION_TYPES.find((t) => t.id === values.typeId)
+    mutate({ name: values.name, icon: selected?.icon || initialIcon })
+  })
+
+  return { register, setValue, errors, onUpdateSectionSubmit, isPending }
 }

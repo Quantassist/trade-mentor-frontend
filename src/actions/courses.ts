@@ -40,6 +40,65 @@ export const onCreateGroupCourse = async (
   }
 }
 
+export const onDeleteSection = async (sectionId: string) => {
+  try {
+    const deleted = await client.section.delete({
+      where: { id: sectionId },
+    })
+    if (deleted) return { status: 200, message: "Section deleted" }
+    return { status: 404, message: "Section not found" }
+  } catch (error) {
+    return { status: 400, message: "Oops! something went wrong" }
+  }
+}
+
+export const onDeleteModule = async (moduleId: string) => {
+  try {
+    const deleted = await client.module.delete({
+      where: { id: moduleId },
+    })
+    // Section rows are set to cascade on module deletion in Prisma schema
+    if (deleted) return { status: 200, message: "Module deleted" }
+    return { status: 404, message: "Module not found" }
+  } catch (error) {
+    return { status: 400, message: "Oops! something went wrong" }
+  }
+}
+
+// Persist module ordering within a course
+export const onReorderModules = async (
+  courseId: string,
+  orderedIds: string[],
+) => {
+  try {
+    await client.$transaction(
+      orderedIds.map((id, index) =>
+        client.module.update({ where: { id }, data: { order: index } }),
+      ),
+    )
+    return { status: 200, message: "Modules reordered" }
+  } catch (error) {
+    return { status: 400, message: "Oops! something went wrong" }
+  }
+}
+
+// Persist section ordering within a module
+export const onReorderSections = async (
+  moduleId: string,
+  orderedIds: string[],
+) => {
+  try {
+    await client.$transaction(
+      orderedIds.map((id, index) =>
+        client.section.update({ where: { id }, data: { order: index } }),
+      ),
+    )
+    return { status: 200, message: "Sections reordered" }
+  } catch (error) {
+    return { status: 400, message: "Oops! something went wrong" }
+  }
+}
+
 export const onGetGroupCourses = async (groupid: string) => {
   try {
     const courses = await client.course.findMany({
@@ -74,14 +133,10 @@ export const onGetCourseModules = async (courseId: string) => {
       where: {
         courseId,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
       include: {
         section: {
-          orderBy: {
-            createdAt: "asc",
-          },
+          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
         },
       },
     })
@@ -108,6 +163,7 @@ export const onCreateCourseModule = async (
   moduleId: string,
 ) => {
   try {
+    const count = await client.module.count({ where: { courseId } })
     const courseModule = await client.course.update({
       where: {
         id: courseId,
@@ -117,6 +173,7 @@ export const onCreateCourseModule = async (
           create: {
             title: name,
             id: moduleId,
+            order: count,
           },
         },
       },
@@ -177,7 +234,7 @@ export const onUpdateModule = async (
 
 export const onUpdateSection = async (
   sectionId: string,
-  type: "NAME" | "COMPLETE",
+  type: "NAME" | "COMPLETE" | "ICON",
   content: string,
 ) => {
   try {
@@ -192,6 +249,20 @@ export const onUpdateSection = async (
       })
       if (title) {
         return { status: 200, message: "Section successfully updated" }
+      }
+      return { status: 404, message: "No sections found" }
+    }
+    if (type === "ICON") {
+      const updated = await client.section.update({
+        where: {
+          id: sectionId,
+        },
+        data: {
+          icon: content,
+        },
+      })
+      if (updated) {
+        return { status: 200, message: "Section icon updated" }
       }
       return { status: 404, message: "No sections found" }
     }
@@ -221,8 +292,11 @@ export const onUpdateSection = async (
 export const onCreateModuleSection = async (
   moduleid: string,
   sectionid: string,
+  name?: string,
+  icon?: string,
 ) => {
   try {
+    const count = await client.section.count({ where: { moduleId: moduleid } })
     const section = await client.module.update({
       where: {
         id: moduleid,
@@ -231,6 +305,9 @@ export const onCreateModuleSection = async (
         section: {
           create: {
             id: sectionid,
+            ...(name ? { name } : {}),
+            ...(icon ? { icon } : {}),
+            order: count,
           },
         },
       },

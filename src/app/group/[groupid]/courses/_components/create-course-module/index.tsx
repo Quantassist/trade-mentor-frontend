@@ -3,7 +3,7 @@
 import { GlobalAccordion } from "@/components/global/accordion"
 import { Button } from "@/components/ui/button"
 import { useCreateModule } from "@/hooks/courses"
-import { Plus, PlusCircle } from "lucide-react"
+import { Plus } from "lucide-react"
 
 type CreateCourseModuleProps = {
   courseid: string
@@ -22,20 +22,29 @@ export const CreateCourseModule = ({
   if (!data?.groupOwner) return <></>
 
   return (
-    <div className="flex flex-col gap-y-2">
-      <div className="flex justify-end">
-        <PlusCircle
-          onClick={() => onCreateModule()}
-          className="text-themeGray cursor-pointer hover:text-themeGray/60"
-        />
-      </div>
+    <div className="flex flex-col gap-y-3">
+      <Button
+        onClick={() => onCreateModule()}
+        variant="outline"
+        className="w-full justify-center rounded-lg border-2 border-dashed border-[#2F2F36] bg-transparent text-themeTextGray hover:border-[#3A3A41] hover:bg-[#0F0F14]"
+      >
+        <Plus className="h-4 w-4" />
+        <span className="ml-2">Add New Module</span>
+      </Button>
+
       {variables && isPending && (
-        <GlobalAccordion id={variables.moduleId} title={variables.title}>
+        <GlobalAccordion
+          id={variables.moduleId}
+          title={variables.title}
+          itemClassName="rounded-xl border border-[#2A2A33] bg-[#0C0C10]/80"
+          triggerClassName="px-3 py-2 text-sm font-semibold text-themeTextGray"
+        >
           <Button
             variant="outline"
-            className="bg-transparent border-themeGray text-themeGray mt-2"
+            className="mt-2 w-full justify-center rounded-lg border-2 border-dashed border-[#2F2F36] bg-transparent text-themeTextGray hover:border-[#3A3A41] hover:bg-[#0F0F14]"
           >
-            <Plus />
+            <Plus className="h-4 w-4" />
+            <span className="ml-2">Add Section</span>
           </Button>
         </GlobalAccordion>
       )}

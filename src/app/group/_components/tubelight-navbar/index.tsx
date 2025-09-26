@@ -54,7 +54,7 @@ export function NavBar({
 
   const containerPositionClass =
     position === "fixed"
-      ? "fixed inset-x-0 bottom-3 z-50 flex justify-center"
+      ? "fixed inset-x-0 bottom-0 z-50 flex justify-center"
       : "relative"
 
   return (
@@ -79,7 +79,7 @@ export function NavBar({
                 isActive && "bg-muted text-primary",
               )}
             >
-              <span className="hidden md:inline-flex items-center">
+              <span className="hidden sm:inline-flex items-center">
                 {isActive && (
                   <span className="mr-2 inline-flex items-center">
                     {Icon ? (
@@ -91,7 +91,7 @@ export function NavBar({
                 )}
                 {item.name}
               </span>
-              <span className="md:hidden">
+              <span className="sm:hidden">
                 {Icon ? (
                   <Icon size={18} strokeWidth={2.5} />
                 ) : (

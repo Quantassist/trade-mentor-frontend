@@ -135,6 +135,7 @@ model Module {
   courseId  String?   @db.Uuid
   title     String
   createdAt DateTime  @default(now())
+  order     Int       @default(0)
   Course    Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   section   Section[]
 }
@@ -149,6 +150,7 @@ model Section {
   htmlContent String?
   jsonContent String?
   createdAt   DateTime @default(now())
+  order       Int      @default(0)
   Module      Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 }
 

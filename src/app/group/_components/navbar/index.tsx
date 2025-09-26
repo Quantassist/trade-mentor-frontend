@@ -28,7 +28,7 @@ export const Navbar = async ({ groupid, userid }: NavbarProps) => {
       <div className="flex items-center gap-3 flex-1 min-w-0 justify-end">
         <Search
           searchType="POSTS"
-          className="rounded-full border-themeGray bg-black !opacity-100 px-3 flex-1 min-w-[140px] sm:min-w-[180px] md:min-w-[220px] max-w-[420px]"
+          className="rounded-full border-themeGray bg-black !opacity-100 px-3 flex-1 min-w-[100px] max-w-[140px]"
           placeholder="Search..."
         />
         <UserWidget userid={userid} groupid={groupid} image={user?.imageUrl!} />
