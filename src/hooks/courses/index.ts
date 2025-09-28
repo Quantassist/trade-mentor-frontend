@@ -396,10 +396,10 @@ export const useCourseModule = (courseId: string, groupid: string) => {
   }
 }
 
-export const useSectionNavBar = (sectionid: string) => {
+export const useSectionNavBar = (sectionid: string, locale: string) => {
   const { data } = useQuery({
-    queryKey: ["section-info", sectionid],
-    queryFn: () => onGetSectionInfo(sectionid),
+    queryKey: ["section-info", sectionid, locale],
+    queryFn: () => onGetSectionInfo(sectionid, locale),
   })
 
   const client = useQueryClient()
@@ -510,7 +510,7 @@ export const useCourseContent = (
       })
     },
     onSettled: async () => {
-      return await client.invalidateQueries({ queryKey: ["section-info", sectionid] })
+      return await client.invalidateQueries({ queryKey: ["section-info", sectionid, locale] })
     },
   })
 

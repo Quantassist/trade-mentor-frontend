@@ -22,6 +22,7 @@ model User {
   membership Members[]
   message    Message[]
   posts      Post[]
+  progress   UserCourseProgress[]
 }
 
 model Subscription {
@@ -131,6 +132,7 @@ model Course {
   Group       Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   modules     Module[]
   translations CourseTranslation[]
+  progress     UserCourseProgress[]
 }
 
 model Module {
@@ -149,7 +151,6 @@ model Section {
   moduleId    String?  @db.Uuid
   name        String   @default("New Section")
   icon        String   @default("doc")
-  complete    Boolean  @default(false)
   content     String?
   htmlContent String?
   jsonContent String?
@@ -157,6 +158,22 @@ model Section {
   order       Int      @default(0)
   Module      Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   translations SectionTranslation[]
+}
+
+model UserCourseProgress {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String   @db.Uuid
+  courseId         String   @db.Uuid
+  lastModuleId     String?  @db.Uuid
+  lastSectionId    String?  @db.Uuid
+  completedSections String[] @default([])
+  progress         Float    @default(0)
+  updatedAt        DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  User             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
 }
 
 model Affiliate {

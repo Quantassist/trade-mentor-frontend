@@ -1,4 +1,4 @@
-import { onGetSectionInfo } from "@/actions/courses";
+import { onGetCourseModules, onGetSectionInfo } from "@/actions/courses";
 import SectionNavBar from "@/app/[locale]/group/[groupid]/courses/[courseid]/[sectionid]/_components/section-navbar";
 import {
   dehydrate,
@@ -8,17 +8,23 @@ import {
 
 type CourseContentPageProps = {
   children: React.ReactNode;
-  params: Promise<{ sectionid: string; locale: string }>;
+  params: Promise<{ sectionid: string; courseid: string; locale: string }>;
 };
 
 const CourseContentPage = async ({ children, params }: CourseContentPageProps) => {
-  const { sectionid, locale } = await params;
+  const { sectionid, courseid, locale } = await params;
   const client = new QueryClient();
 
-  await client.prefetchQuery({
-    queryKey: ["section-info", sectionid, locale],
-    queryFn: () => onGetSectionInfo(sectionid, locale),
-  });
+  await Promise.all([
+    client.prefetchQuery({
+      queryKey: ["section-info", sectionid, locale],
+      queryFn: () => onGetSectionInfo(sectionid, locale),
+    }),
+    client.prefetchQuery({
+      queryKey: ["course-modules"],
+      queryFn: () => onGetCourseModules(courseid),
+    }),
+  ]);
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
