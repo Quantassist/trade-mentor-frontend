@@ -1,7 +1,96 @@
 "use server"
 
+import { onAuthenticatedUser } from "@/actions/auth"
 import { client } from "@/lib/prisma"
 const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || "en"
+
+// Resolve current app userId using existing auth action
+const getAuthedUserId = async (): Promise<string | null> => {
+  try {
+    const me = await onAuthenticatedUser()
+    if (me?.status === 200 && me.id) return me.id
+    return null
+  } catch {
+    return null
+  }
+}
+
+// Fetch user's ongoing courses (progress > 0 and < 100), ordered by recent activity
+export const onGetOngoingCourses = async (limit = 3) => {
+  try {
+    const userId = await getAuthedUserId()
+    if (!userId) return { status: 200 as const, courses: [] as any[] }
+
+    // Find progress rows for ongoing courses
+    const progresses = await client.userCourseProgress.findMany({
+      where: { userId, progress: { gt: 0, lt: 100 } },
+      orderBy: [{ updatedAt: "desc" }],
+      take: limit,
+      select: {
+        courseId: true,
+        completedSections: true,
+        progress: true,
+        lastSectionId: true,
+        Course: { select: { id: true, name: true, thumbnail: true } },
+      },
+    })
+
+    if (progresses.length === 0) return { status: 200 as const, courses: [] as any[] }
+
+    // Compute total sections per course (small N due to 'limit')
+    const totals = await Promise.all(
+      progresses.map((p) =>
+        client.section.count({ where: { Module: { is: { courseId: p.courseId } } } }),
+      ),
+    )
+
+    const courses = progresses.map((p, idx) => ({
+      courseId: p.courseId,
+      name: p.Course?.name ?? "Untitled Course",
+      thumbnail: p.Course?.thumbnail ?? null,
+      lastSectionId: p.lastSectionId ?? null,
+      completedCount: p.completedSections?.length ?? 0,
+      totalCount: totals[idx] ?? 0,
+      progress: p.progress ?? 0,
+    }))
+
+    return { status: 200 as const, courses }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+}
+
+// Returns the section id to land on for a course for the current user.
+// Prefers the user's last interacted section; falls back to the first section of the first module.
+export const onGetCourseLandingSection = async (courseId: string) => {
+  try {
+    const userId = await getAuthedUserId()
+    if (userId) {
+      const progress = await client.userCourseProgress.findUnique({
+        where: { userId_courseId: { userId, courseId } },
+        select: { lastSectionId: true },
+      })
+      if (progress?.lastSectionId) {
+        return { status: 200 as const, sectionId: progress.lastSectionId, source: "last" as const }
+      }
+    }
+
+    // Fallback: single query to first section ordered by module then section
+    const firstSection = await client.section.findFirst({
+      where: { Module: { is: { courseId } } },
+      orderBy: [{ Module: { order: "asc" } }, { order: "asc" }, { createdAt: "asc" }],
+      select: { id: true },
+    })
+    if (firstSection) {
+      return { status: 200 as const, sectionId: firstSection.id, source: "first" as const }
+    }
+
+    return { status: 204 as const, message: "No sections available" }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+}
+
 
 export const onCreateGroupCourse = async (
   groupid: string,
@@ -130,31 +219,56 @@ export const onGetGroupCourses = async (groupid: string) => {
 
 export const onGetCourseModules = async (courseId: string) => {
   try {
-    const modules = await client.module.findMany({
-      where: {
-        courseId,
-      },
-      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-      include: {
-        section: {
-          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    const [modules, userId] = await Promise.all([
+      client.module.findMany({
+        where: { courseId },
+        orderBy: [{ order: "asc" }],
+        select: {
+          id: true,
+          title: true,
+          order: true,
+          createdAt: true,
+          section: {
+            orderBy: [{ order: "asc" }],
+            select: {
+              id: true,
+              name: true,
+              icon: true,
+              order: true,
+              createdAt: true,
+              moduleId: true,
+            },
+          },
         },
-      },
-    })
+      }),
+      getAuthedUserId(),
+    ])
 
-    if (modules && modules.length > 0) {
+    if (!modules || modules.length === 0) {
+      return { status: 404, message: "No modules found" }
+    }
+
+    if (!userId) {
+      // Anonymous view: return as-is without completion flags
       return { status: 200, modules }
     }
 
-    return {
-      status: 404,
-      message: "No modules found",
-    }
+    // Fetch user's progress for this course
+    const progress = await client.userCourseProgress.findUnique({
+      where: { userId_courseId: { userId, courseId } },
+      select: { completedSections: true },
+    })
+    const completed = new Set(progress?.completedSections ?? [])
+
+    // Attach computed `complete` flag per section (non-persistent)
+    const mapped = modules.map((m: any) => ({
+      ...m,
+      section: m.section.map((s: any) => ({ ...s, complete: completed.has(s.id) })),
+    }))
+
+    return { status: 200, modules: mapped }
   } catch (error) {
-    return {
-      status: 400,
-      message: "Oops! something went wrong",
-    }
+    return { status: 400, message: "Oops! something went wrong" }
   }
 }
 
@@ -268,19 +382,51 @@ export const onUpdateSection = async (
       return { status: 404, message: "No sections found" }
     }
     if (type === "COMPLETE") {
-      const title = await client.section.update({
-        where: {
-          // TODO: Filter for the specifc user as well
-          id: sectionId,
+      const userId = await getAuthedUserId()
+      if (!userId) return { status: 401, message: "Unauthorized" }
+
+      // Resolve courseId and moduleId for the section
+      const section = await client.section.findUnique({
+        where: { id: sectionId },
+        include: { Module: { select: { id: true, courseId: true } } },
+      })
+      if (!section || !section.Module?.courseId) return { status: 404, message: "No sections found" }
+      const courseId = section.Module.courseId
+      const moduleId = section.Module.id
+
+      // Read existing progress
+      const existing = await client.userCourseProgress.findUnique({
+        where: { userId_courseId: { userId, courseId } },
+        select: { completedSections: true },
+      })
+
+      const prev = new Set(existing?.completedSections ?? [])
+      prev.add(sectionId)
+      const completedSections = Array.from(prev)
+
+      // Total sections in course to compute %
+      const totalSections = await client.section.count({ where: { Module: { is: { courseId } } } })
+      const progressPct = totalSections > 0 ? (completedSections.length / totalSections) * 100 : 0
+
+      await client.userCourseProgress.upsert({
+        where: { userId_courseId: { userId, courseId } },
+        create: {
+          userId,
+          courseId,
+          lastModuleId: moduleId,
+          lastSectionId: sectionId,
+          completedSections,
+          progress: progressPct,
         },
-        data: {
-          complete: true,
+        update: {
+          lastModuleId: moduleId,
+          lastSectionId: sectionId,
+          completedSections: { set: completedSections },
+          progress: progressPct,
         },
       })
-      if (title) {
-        return { status: 200, message: "Section successfully updated" }
-      }
-      return { status: 404, message: "No sections found" }
+
+      return { status: 200, message: "Section successfully updated" }
     }
   } catch (error) {
     return {
@@ -327,36 +473,58 @@ export const onCreateModuleSection = async (
 
 export const onGetSectionInfo = async (sectionid: string, locale?: string) => {
   try {
+    const userId = await getAuthedUserId()
     const section = await client.section.findUnique({
-      where: {
-        id: sectionid,
-      },
+      where: { id: sectionid },
+      include: { Module: { select: { id: true, courseId: true } } },
     })
-    if (section) {
-      if (locale && locale !== DEFAULT_LOCALE) {
-        const translation = await client.sectionTranslation.findUnique({
-          where: { sectionId_locale: { sectionId: sectionid, locale } },
-        })
-        const effective = {
-          ...section,
-          name: translation?.name ?? section.name,
-          htmlContent: translation?.contentHtml ?? section.htmlContent ?? undefined,
-          jsonContent:
-            translation?.contentJson !== undefined && translation?.contentJson !== null
-              ? JSON.stringify(translation.contentJson)
-              : section.jsonContent ?? undefined,
-          content: translation?.contentText ?? section.content ?? undefined,
-        }
-        return { status: 200, section: effective }
+    if (!section) return { status: 404, message: "No sections found" }
+
+    let completed = false
+    if (userId && section.Module?.courseId) {
+      const courseId = section.Module.courseId
+      const progress = await client.userCourseProgress.findUnique({
+        where: { userId_courseId: { userId, courseId } },
+        select: { completedSections: true },
+      })
+      completed = !!progress?.completedSections?.includes(sectionid)
+
+      // Update last interacted section/module
+      await client.userCourseProgress.upsert({
+        where: { userId_courseId: { userId, courseId } },
+        create: {
+          userId,
+          courseId,
+          lastModuleId: section.Module.id,
+          lastSectionId: sectionid,
+          completedSections: [],
+          progress: 0,
+        },
+        update: { lastModuleId: section.Module.id, lastSectionId: sectionid },
+      })
+    }
+
+    if (locale && locale !== DEFAULT_LOCALE) {
+      const translation = await client.sectionTranslation.findUnique({
+        where: { sectionId_locale: { sectionId: sectionid, locale } },
+      })
+      const effective = {
+        ...section,
+        name: translation?.name ?? section.name,
+        htmlContent: translation?.contentHtml ?? section.htmlContent ?? undefined,
+        jsonContent:
+          translation?.contentJson !== undefined && translation?.contentJson !== null
+            ? JSON.stringify(translation.contentJson)
+            : section.jsonContent ?? undefined,
+        content: translation?.contentText ?? section.content ?? undefined,
+        complete: completed,
       }
-      return { status: 200, section }
+      return { status: 200, section: effective }
     }
-    return { status: 404, message: "No sections found" }
+
+    return { status: 200, section: { ...section, complete: completed } }
   } catch (error) {
-    return {
-      status: 400,
-      message: "Oops! something went wrong",
-    }
+    return { status: 400, message: "Oops! something went wrong" }
   }
 }
 
