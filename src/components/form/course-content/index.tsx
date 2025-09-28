@@ -9,14 +9,16 @@ type CourseContentFormProps = {
   groupid: string
   sectionid: string
   userid: string
+  locale?: string
 }
 
 export const CourseContentForm = ({
   groupid,
   sectionid,
   userid,
+  locale,
 }: CourseContentFormProps) => {
-  const { data } = useCourseSectionInfo(sectionid)
+  const { data } = useCourseSectionInfo(sectionid, locale)
   const {
     errors,
     onUpdateContent,
@@ -33,6 +35,7 @@ export const CourseContentForm = ({
     data?.section?.content || null,
     data?.section?.jsonContent || null,
     data?.section?.htmlContent || null,
+    locale,
   )
   return groupid === userid ? (
     <form onSubmit={onUpdateContent} className="flex flex-col p-5" ref={editor}>

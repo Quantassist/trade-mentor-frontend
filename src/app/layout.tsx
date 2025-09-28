@@ -4,10 +4,11 @@ import { ReactQueryProvider } from "@/react-query/provider"
 import { ReduxProvider } from "@/redux/provider"
 import { ClerkProvider } from "@clerk/nextjs"
 import type { Metadata } from "next"
-import { Plus_Jakarta_Sans } from "next/font/google"
+import { Noto_Sans_Devanagari, Plus_Jakarta_Sans } from "next/font/google"
 import "./globals.css"
 
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] })
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-primary" })
+const notoHindi = Noto_Sans_Devanagari({ subsets: ["devanagari"], variable: "--font-hindi" })
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,7 +23,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className={`${jakarta.className}`}>
+        <body className={`${jakarta.variable} ${notoHindi.variable} ${jakarta.className}`}>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"

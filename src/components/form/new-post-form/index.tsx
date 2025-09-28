@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select"
 import { useNewPostForm } from "@/hooks/groups"
 import { Upload } from "@/icons"
+import { useLocale, useTranslations } from "next-intl"
 
 type NewPostFormProps = {
   user: {
@@ -43,6 +44,8 @@ const NewPostForm = ({ user, setOpen }: NewPostFormProps) => {
   status == "success" || status == "pending" ? setOpen(false) : null
 
   const channels = groupInfo?.group?.channel
+  const tr = useTranslations("channel")
+  const currentLocale = useLocale()
 
   return (
     <div>
@@ -54,10 +57,17 @@ const NewPostForm = ({ user, setOpen }: NewPostFormProps) => {
         <div className="text-gray-400 font-normal">
           <div className="text-sm">{user?.name!}</div>
           <div className="text-sm">
-            Posting in{" "}
-            <span className="text-white font-medium">
-              {channel?.name ?? "Channel Name"}
-            </span>{" "}
+            {currentLocale === "hi" ? (
+              <>
+                <span className="text-white font-medium">{channel?.name ?? "Channel Name"}</span>{" "}
+                {tr("postingIn")}
+              </>
+            ) : (
+              <>
+                {tr("postingIn")} {" "}
+                <span className="text-white font-medium">{channel?.name ?? "Channel Name"}</span>{" "}
+              </>
+            )}
           </div>
         </div>
       </div>

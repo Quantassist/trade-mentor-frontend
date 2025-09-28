@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import createIntlMiddleware from "next-intl/middleware"
 
 const isProtectedRoute = createRouteMatcher("/group(.*)")
 
@@ -25,7 +26,18 @@ export default clerkMiddleware(async (auth, request) => {
     }
   }
 
-  // return auth();
+  // Locale routing for group routes using next-intl
+  const intlMiddleware = createIntlMiddleware({
+    locales: ["en", "hi"],
+    defaultLocale: "en",
+  })
+
+  // Only apply locale middleware for /group and /(en|hi)/group paths
+  if (reqPath.startsWith("/group") || /^\/(en|hi)\/group/.test(reqPath)) {
+    return intlMiddleware(request)
+  }
+
+  return NextResponse.next()
 })
 
 export const config = {

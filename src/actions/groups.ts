@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache"
 import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
 import { onAuthenticatedUser } from "./auth"
+import { defaultLocale } from "@/i18n/config"
 
 export const onGetAffiliateInfo = async (id: string) => {
   try {
@@ -319,6 +320,7 @@ export const onUpDateGroupSettings = async (
     | "HTMLDESCRIPTION",
   content: string,
   path: string,
+  locale?: string,
 ) => {
   try {
     if (type === "IMAGE") {
@@ -343,14 +345,15 @@ export const onUpDateGroupSettings = async (
       console.log("uploaded image")
     }
     if (type === "DESCRIPTION") {
-      await client.group.update({
-        where: {
-          id: groupid,
-        },
-        data: {
-          description: content,
-        },
-      })
+      // Only update base field for default locale; no separate translation text column
+      if (!locale || locale === defaultLocale) {
+        await client.group.update({
+          where: { id: groupid },
+          data: { description: content },
+        })
+      } else {
+        // No-op for non-default locale; HTML/JSON should carry the translated content
+      }
     }
     if (type === "NAME") {
       await client.group.update({
@@ -363,24 +366,44 @@ export const onUpDateGroupSettings = async (
       })
     }
     if (type === "JSONDESCRIPTION") {
-      await client.group.update({
-        where: {
-          id: groupid,
-        },
-        data: {
-          jsonDescription: content,
-        },
-      })
+      if (locale && locale !== defaultLocale) {
+        await client.groupTranslation.upsert({
+          where: { groupId_locale: { groupId: groupid, locale } },
+          update: {
+            descriptionJson: JSON.parse(content),
+          },
+          create: {
+            groupId: groupid,
+            locale,
+            descriptionJson: JSON.parse(content),
+          },
+        })
+      } else {
+        await client.group.update({
+          where: { id: groupid },
+          data: { jsonDescription: content },
+        })
+      }
     }
     if (type === "HTMLDESCRIPTION") {
-      await client.group.update({
-        where: {
-          id: groupid,
-        },
-        data: {
-          htmlDescription: content,
-        },
-      })
+      if (locale && locale !== defaultLocale) {
+        await client.groupTranslation.upsert({
+          where: { groupId_locale: { groupId: groupid, locale } },
+          update: {
+            descriptionHtml: content,
+          },
+          create: {
+            groupId: groupid,
+            locale,
+            descriptionHtml: content,
+          },
+        })
+      } else {
+        await client.group.update({
+          where: { id: groupid },
+          data: { htmlDescription: content },
+        })
+      }
     }
     revalidatePath(path)
     return { status: 200 }
@@ -390,7 +413,7 @@ export const onUpDateGroupSettings = async (
   }
 }
 
-export const onGetGroupInfo = async (groupid: string) => {
+export const onGetGroupInfo = async (groupid: string, locale?: string) => {
   // console.log(groupid)
   try {
     const user = await onAuthenticatedUser()
@@ -403,12 +426,32 @@ export const onGetGroupInfo = async (groupid: string) => {
       // },
     })
 
-    if (group)
+    if (group) {
+      if (locale && locale !== defaultLocale) {
+        const translation = await client.groupTranslation.findUnique({
+          where: { groupId_locale: { groupId: groupid, locale } },
+        })
+        const effective = {
+          ...group,
+          name: translation?.name ?? group.name,
+          htmlDescription: translation?.descriptionHtml ?? group.htmlDescription ?? undefined,
+          jsonDescription:
+            translation?.descriptionJson !== undefined && translation?.descriptionJson !== null
+              ? JSON.stringify(translation.descriptionJson)
+              : group.jsonDescription ?? undefined,
+        }
+        return {
+          status: 200,
+          group: effective,
+          groupOwner: user.id === group.userId ? true : false,
+        }
+      }
       return {
         status: 200,
         group,
         groupOwner: user.id === group.userId ? true : false,
       }
+    }
 
     return { status: 404 }
   } catch (error) {
@@ -540,7 +583,7 @@ export const onCreateNewChannel = async (
 //     }
 // }
 
-export const inGetChannelPosts = async (channelId: string) => {
+export const inGetChannelPosts = async (channelId: string, locale?: string) => {
   try {
     const posts = await client.post.findMany({
       where: {
@@ -548,9 +591,18 @@ export const inGetChannelPosts = async (channelId: string) => {
       },
       select: {
         id: true,
+        title: true,
         htmlContent: true,
+        jsonContent: true,
+        content: true,
         createdAt: true,
         updatedAt: true,
+        translations: locale
+          ? {
+              where: { locale },
+              select: { locale: true, title: true, contentHtml: true, contentJson: true },
+            }
+          : false,
         channel: {
           select: {
             id: true,
@@ -576,8 +628,26 @@ export const inGetChannelPosts = async (channelId: string) => {
       },
     })
 
-    if (posts.length > 0) {
-      return { status: 200, posts }
+    const mapped = posts.map((p: any) => {
+      if (locale && locale !== defaultLocale) {
+        const t = Array.isArray(p.translations) ? p.translations[0] : undefined
+        if (t) {
+          return {
+            ...p,
+            title: t.title ?? p.title,
+            htmlContent: t.contentHtml ?? p.htmlContent,
+            jsonContent:
+              typeof t.contentJson !== "undefined" && t.contentJson !== null
+                ? JSON.stringify(t.contentJson)
+                : p.jsonContent,
+          }
+        }
+      }
+      return p
+    })
+
+    if (mapped.length > 0) {
+      return { status: 200, posts: mapped }
     } else {
       return { status: 200, message: "No posts found", posts: [] }
     }
@@ -587,7 +657,7 @@ export const inGetChannelPosts = async (channelId: string) => {
   }
 }
 
-export const onGetPostInfo = async (postid: string) => {
+export const onGetPostInfo = async (postid: string, locale?: string) => {
   try {
     const user = await onAuthenticatedUser()
     const post = await client.post.findUnique({
@@ -595,6 +665,17 @@ export const onGetPostInfo = async (postid: string) => {
         id: postid,
       },
       include: {
+        translations: locale
+          ? {
+              where: { locale },
+              select: {
+                locale: true,
+                title: true,
+                contentHtml: true,
+                contentJson: true,
+              },
+            }
+          : false,
         channel: {
           select: {
             name: true,
@@ -627,6 +708,23 @@ export const onGetPostInfo = async (postid: string) => {
     })
 
     if (post) {
+      if (locale && locale !== defaultLocale) {
+        const t = Array.isArray((post as any).translations)
+          ? (post as any).translations[0]
+          : undefined
+        if (t) {
+          const mapped = {
+            ...post,
+            title: t.title ?? post.title,
+            htmlContent: t.contentHtml ?? post.htmlContent,
+            jsonContent:
+              typeof t.contentJson !== "undefined" && t.contentJson !== null
+                ? JSON.stringify(t.contentJson)
+                : post.jsonContent,
+          }
+          return { status: 200, post: mapped }
+        }
+      }
       return { status: 200, post }
     } else {
       return { status: 404, message: "Post not found" }
@@ -780,6 +878,7 @@ export const onGetAllGroupMembers = async (groupid: string) => {
 export const onGetPaginatedPosts = async (
   identifier: string,
   paginate: number,
+  locale?: string,
 ) => {
   try {
     const user = await onAuthenticatedUser()
@@ -805,6 +904,12 @@ export const onGetPaginatedPosts = async (
             lastname: true,
           },
         },
+        translations: locale
+          ? {
+              where: { locale },
+              select: { locale: true, title: true, contentHtml: true, contentJson: true },
+            }
+          : false,
         _count: {
           select: {
             likes: true,
@@ -823,8 +928,26 @@ export const onGetPaginatedPosts = async (
       },
     })
 
-    if (posts && posts.length > 0) {
-      return { status: 200, posts }
+    const mapped = posts.map((p: any) => {
+      if (locale && locale !== defaultLocale) {
+        const t = Array.isArray(p.translations) ? p.translations[0] : undefined
+        if (t) {
+          return {
+            ...p,
+            title: t.title ?? p.title,
+            htmlContent: t.contentHtml ?? p.htmlContent,
+            jsonContent:
+              typeof t.contentJson !== "undefined" && t.contentJson !== null
+                ? JSON.stringify(t.contentJson)
+                : p.jsonContent,
+          }
+        }
+      }
+      return p
+    })
+
+    if (mapped && mapped.length > 0) {
+      return { status: 200, posts: mapped }
     }
 
     return { status: 404, message: "No posts found for this group" }

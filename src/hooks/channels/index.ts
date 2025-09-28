@@ -1,6 +1,7 @@
 "use client"
 import {
   onCreateChannelPost,
+  onCreateChannelPostMulti,
   onCreateCommentReply,
   onCreateNewComment,
   onDeleteChannel,
@@ -33,6 +34,10 @@ import { useDispatch } from "react-redux"
 import { toast } from "sonner"
 import { v4 } from "uuid"
 import z from "zod"
+import { defaultLocale, locales } from "@/i18n/config"
+import type { LocalePayload } from "@/components/global/post-content/multi"
+import { MultiChannelPostSchema } from "@/components/global/post-content/schema"
+import { onGetPostAllLocales, onUpdateChannelPostMulti } from "@/actions/channel"
 
 export const useChannelInfo = () => {
   const channelRef = useRef<HTMLAnchorElement | null>(null)
@@ -47,7 +52,6 @@ export const useChannelInfo = () => {
     setChannel(id)
     setEdit(true)
   }
-
   const onSetIcon = (icon: string | undefined) => setIcon(icon)
 
   const { isPending, mutate, variables } = useMutation({
@@ -130,10 +134,10 @@ export const useChannelInfo = () => {
   }
 }
 
-export const useChannelPage = (channelid: string) => {
+export const useChannelPage = (channelid: string, locale?: string) => {
   const { data } = useQuery({
-    queryKey: ["channel-info", channelid],
-    queryFn: () => onGetChannelInfo(channelid),
+    queryKey: ["channel-info", channelid, locale],
+    queryFn: () => onGetChannelInfo(channelid, locale),
   })
 
   const mutation = useMutationState({
@@ -254,7 +258,7 @@ export const useCreateChannelPost = (
       })
     },
     onSettled: async () => {
-      await client.invalidateQueries({ queryKey: ["channel-info", channelid] })
+      await client.invalidateQueries({ queryKey: ["channel-info"] })
       if (mode === "edit") {
         await client.invalidateQueries({ queryKey: ["unique-post", postid] })
       }
@@ -286,6 +290,201 @@ export const useCreateChannelPost = (
   }
 }
 
+// Multi-locale create hook. Keeps mutationKey ["create-post"] to preserve optimistic preview behavior.
+export const useCreateChannelPostMulti = (channelid: string) => {
+  // Per-locale editor states managed here and synced into RHF values like in course hooks
+  const [titles, setTitles] = useState<Record<string, string>>({})
+  const [jsonByLocale, setJsonByLocale] = useState<Record<string, JSONContent | undefined>>({})
+  const [htmlByLocale, setHtmlByLocale] = useState<Record<string, string | undefined>>({})
+  const [textByLocale, setTextByLocale] = useState<Record<string, string | undefined>>({})
+
+  const {
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<z.infer<typeof MultiChannelPostSchema>>({
+    resolver: zodResolver(MultiChannelPostSchema),
+    defaultValues: { payloads: [] },
+  })
+
+  const computePayloads = (): LocalePayload[] => {
+    return (locales as readonly string[]).map((l) => ({
+      locale: l,
+      title: titles[l] ?? "",
+      htmlcontent: htmlByLocale[l] ?? null,
+      jsoncontent: jsonByLocale[l] ? JSON.stringify(jsonByLocale[l]) : null,
+      content: textByLocale[l] ?? null,
+    }))
+  }
+
+  const onSetPayloads = () => setValue("payloads", computePayloads() as any)
+
+  useEffect(() => {
+    onSetPayloads()
+    return () => {
+      onSetPayloads()
+    }
+  }, [titles, jsonByLocale, htmlByLocale, textByLocale])
+
+  const client = useQueryClient()
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["create-post"],
+    mutationFn: (data: { postid: string; payloads: LocalePayload[]; title: string; htmlcontent: string }) =>
+      onCreateChannelPostMulti(channelid, data.postid, data.payloads),
+    onSuccess: (data) => {
+      toast(data.status !== 200 ? "Error" : "Success", { description: data.message })
+    },
+    onSettled: async () => {
+      await client.invalidateQueries({ queryKey: ["channel-info", channelid] })
+    },
+  })
+
+  const onSubmitMulti = handleSubmit(async (values) => {
+    const payloads = values.payloads as LocalePayload[]
+    const postid = v4()
+    const base = payloads.find((p) => p.locale === defaultLocale) ?? payloads[0]
+    ;(mutate as any)({ postid, payloads, title: base?.title ?? "", htmlcontent: base?.htmlcontent ?? "" })
+  })
+
+  return {
+    // RHF
+    errors,
+    onSubmitMulti,
+    // per-locale state and setters (consumed by the component)
+    titles,
+    setTitles,
+    jsonByLocale,
+    setJsonByLocale,
+    htmlByLocale,
+    setHtmlByLocale,
+    textByLocale,
+    setTextByLocale,
+    isPending,
+  }
+}
+
+export const useGetPostAllLocales = (postid: string) => {
+  const { data } = useQuery({
+    queryKey: ["post-all-locales", postid],
+    queryFn: () => onGetPostAllLocales(postid),
+  })
+  return { data }
+}
+
+export const useEditChannelPostMulti = (postid: string) => {
+  const [titles, setTitles] = useState<Record<string, string>>({})
+  const [jsonByLocale, setJsonByLocale] = useState<Record<string, JSONContent | undefined>>({})
+  const [htmlByLocale, setHtmlByLocale] = useState<Record<string, string | undefined>>({})
+  const [textByLocale, setTextByLocale] = useState<Record<string, string | undefined>>({})
+
+  const { data } = useQuery({
+    queryKey: ["post-all-locales", postid],
+    queryFn: () => onGetPostAllLocales(postid),
+  })
+
+  useEffect(() => {
+    const post = (data as any)?.post
+    if (!post) return
+    const nextTitles: Record<string, string> = {}
+    const nextJson: Record<string, JSONContent | undefined> = {}
+    const nextHtml: Record<string, string | undefined> = {}
+    const nextText: Record<string, string | undefined> = {}
+
+    nextTitles[defaultLocale] = post.title ?? ""
+    nextHtml[defaultLocale] = post.htmlContent ?? undefined
+    nextText[defaultLocale] = post.content ?? undefined
+    try {
+      nextJson[defaultLocale] = post.jsonContent ? (JSON.parse(post.jsonContent) as JSONContent) : undefined
+    } catch {
+      nextJson[defaultLocale] = undefined
+    }
+
+    const translations = post.translations || {}
+    for (const l of locales as readonly string[]) {
+      const t = translations[l]
+      if (l === defaultLocale) continue
+      if (!t) continue
+      nextTitles[l] = t.title ?? ""
+      nextHtml[l] = t.html ?? undefined
+      nextText[l] = t.content ?? undefined
+      try {
+        nextJson[l] = t.json ? (JSON.parse(t.json) as JSONContent) : undefined
+      } catch {
+        nextJson[l] = undefined
+      }
+    }
+
+    setTitles(nextTitles)
+    setJsonByLocale(nextJson)
+    setHtmlByLocale(nextHtml)
+    setTextByLocale(nextText)
+  }, [data])
+
+  const {
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<z.infer<typeof MultiChannelPostSchema>>({
+    resolver: zodResolver(MultiChannelPostSchema),
+    defaultValues: { payloads: [] },
+  })
+
+  const computePayloads = (): LocalePayload[] => {
+    return (locales as readonly string[]).map((l) => ({
+      locale: l,
+      title: titles[l] ?? "",
+      htmlcontent: htmlByLocale[l] ?? null,
+      jsoncontent: jsonByLocale[l] ? JSON.stringify(jsonByLocale[l]) : null,
+      content: textByLocale[l] ?? null,
+    }))
+  }
+
+  const onSetPayloads = () => setValue("payloads", computePayloads() as any)
+
+  useEffect(() => {
+    onSetPayloads()
+    return () => {
+      onSetPayloads()
+    }
+  }, [titles, jsonByLocale, htmlByLocale, textByLocale])
+
+  const client = useQueryClient()
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["update-post", postid],
+    mutationFn: (data: { payloads: LocalePayload[] }) =>
+      onUpdateChannelPostMulti(postid, data.payloads),
+    onSuccess: (data) => {
+      toast(data.status !== 200 ? "Error" : "Success", { description: data.message })
+    },
+    onSettled: async () => {
+      await client.invalidateQueries({ queryKey: ["unique-post", postid] })
+      await client.invalidateQueries({ queryKey: ["channel-info"] })
+    },
+  })
+
+  const onSubmitEdit = handleSubmit(async (values) => {
+    const payloads = values.payloads as LocalePayload[]
+    mutate({ payloads })
+  })
+
+  return {
+    errors,
+    onSubmitEdit,
+    titles,
+    setTitles,
+    jsonByLocale,
+    setJsonByLocale,
+    htmlByLocale,
+    setHtmlByLocale,
+    textByLocale,
+    setTextByLocale,
+    isPending,
+    isLoading: !data,
+  }
+}
+
 export const useLikeChannelPost = (postid: string) => {
   const client = useQueryClient()
   const { mutate, variables, isPending } = useMutation({
@@ -312,10 +511,10 @@ export const useLikeChannelPost = (postid: string) => {
   }
 }
 
-export const useGetPost = (postid: string) => {
+export const useGetPost = (postid: string, locale?: string) => {
   const { data } = useQuery({
-    queryKey: ["unique-post", postid],
-    queryFn: () => onGetPostInfo(postid),
+    queryKey: ["unique-post", postid, locale],
+    queryFn: () => onGetPostInfo(postid, locale),
   })
 
   return { data }

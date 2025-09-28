@@ -13,13 +13,14 @@ import {
   onUpDateGroupSettings,
   onUpdateGroupGallery,
 } from "@/actions/groups"
-import { GroupStateProps } from "@/app/(discover)/explore/_components/group-list"
-import { Post } from "@/app/group/[groupid]/_components/post-card"
+import { GroupStateProps } from "@/app/[locale]/(discover)/explore/_components/group-list"
+import { Post } from "@/app/[locale]/group/[groupid]/_components/post-card"
 import { AddCustomDomainSchema } from "@/components/form/domain/schema"
 import { GroupSettingsSchema } from "@/components/form/groups-settings/schema"
 import { UpdateGallerySchema } from "@/components/form/media-gallery/schema"
 import { NewPostSchema } from "@/components/form/new-post-form/schema"
 import { IGroupInfo, IGroups } from "@/components/global/sidebar"
+import { usePathname, useRouter } from "@/i18n/navigation"
 import { supabaseClient, validateURLString } from "@/lib/utils"
 import {
   onClearList,
@@ -37,7 +38,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
-import { usePathname, useRouter } from "next/navigation"
 import { JSONContent } from "novel"
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -351,10 +351,10 @@ export const useGroupSettings = (groupid: string) => {
   }
 }
 
-export const useGroupInfo = (groupid: string) => {
+export const useGroupInfo = (groupid: string, locale?: string) => {
   const { data } = useQuery({
-    queryKey: ["about-group-info"],
-    queryFn: () => onGetGroupInfo(groupid),
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
   })
 
   const router = useRouter()
@@ -376,6 +376,7 @@ export const useGroupAbout = (
   htmlDescription: string | null,
   currentMedia: string,
   groupid: string,
+  locale?: string,
 ) => {
   const mediaType = validateURLString(currentMedia)
 
@@ -450,7 +451,8 @@ export const useGroupAbout = (
           groupid,
           "DESCRIPTION",
           values.description,
-          `/about/${groupid}`,
+          `/${locale ?? 'en'}/about/${groupid}`,
+          locale,
         )
         if (updated.status !== 200) {
           return toast("Error", {
@@ -463,7 +465,8 @@ export const useGroupAbout = (
           groupid,
           "JSONDESCRIPTION",
           values.jsondescription,
-          `/about/${groupid}`,
+          `/${locale ?? 'en'}/about/${groupid}`,
+          locale,
         )
         if (updated.status !== 200) {
           return toast("Error", {
@@ -476,7 +479,8 @@ export const useGroupAbout = (
           groupid,
           "HTMLDESCRIPTION",
           values.htmldescription,
-          `/about/${groupid}`,
+          `/${locale ?? 'en'}/about/${groupid}`,
+          locale,
         )
         if (updated.status !== 200) {
           return toast("Error", {

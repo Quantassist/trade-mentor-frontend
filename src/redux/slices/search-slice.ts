@@ -1,4 +1,4 @@
-import { GroupStateProps } from "@/app/(discover)/explore/_components/group-list"
+import { GroupStateProps } from "@/app/[locale]/(discover)/explore/_components/group-list"
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 type InitialStateProps = {

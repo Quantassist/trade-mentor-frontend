@@ -15,6 +15,7 @@ export const useInfiniteScroll = (
   paginate: number,
   search?: boolean,
   query?: string,
+  locale?: string,
 ) => {
   const observerElement = useRef<HTMLDivElement | null>(null)
   const dispatch: AppDispatch = useDispatch()
@@ -26,7 +27,7 @@ export const useInfiniteScroll = (
     isFetched,
     data: paginatedData,
   } = useQuery({
-    queryKey: ["infinite-scroll"],
+    queryKey: ["infinite-scroll", action, identifier, paginate, search, query, locale],
     queryFn: async () => {
       if (search) {
         if (action === "GROUPS") {
@@ -52,6 +53,7 @@ export const useInfiniteScroll = (
           const response = await onGetPaginatedPosts(
             identifier,
             paginate + data.length,
+            locale,
           )
           if (response && response.posts) {
             return response.posts

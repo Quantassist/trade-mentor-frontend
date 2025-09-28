@@ -1,6 +1,6 @@
 "use client"
 
-import { GroupCard } from "@/app/(discover)/explore/_components/group-card"
+import { GroupCard } from "@/app/[locale]/(discover)/explore/_components/group-card"
 import { FormGenerator } from "@/components/global/form-generator"
 import { Loader } from "@/components/global/loader"
 import BlockTextEditor from "@/components/global/rich-text-editor"

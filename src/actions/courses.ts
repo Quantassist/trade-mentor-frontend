@@ -1,6 +1,7 @@
 "use server"
 
 import { client } from "@/lib/prisma"
+const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || "en"
 
 export const onCreateGroupCourse = async (
   groupid: string,
@@ -324,7 +325,7 @@ export const onCreateModuleSection = async (
   }
 }
 
-export const onGetSectionInfo = async (sectionid: string) => {
+export const onGetSectionInfo = async (sectionid: string, locale?: string) => {
   try {
     const section = await client.section.findUnique({
       where: {
@@ -332,6 +333,22 @@ export const onGetSectionInfo = async (sectionid: string) => {
       },
     })
     if (section) {
+      if (locale && locale !== DEFAULT_LOCALE) {
+        const translation = await client.sectionTranslation.findUnique({
+          where: { sectionId_locale: { sectionId: sectionid, locale } },
+        })
+        const effective = {
+          ...section,
+          name: translation?.name ?? section.name,
+          htmlContent: translation?.contentHtml ?? section.htmlContent ?? undefined,
+          jsonContent:
+            translation?.contentJson !== undefined && translation?.contentJson !== null
+              ? JSON.stringify(translation.contentJson)
+              : section.jsonContent ?? undefined,
+          content: translation?.contentText ?? section.content ?? undefined,
+        }
+        return { status: 200, section: effective }
+      }
       return { status: 200, section }
     }
     return { status: 404, message: "No sections found" }
@@ -348,8 +365,36 @@ export const onUpdateCourseSectionContent = async (
   html: string,
   json: string,
   content: string,
+  locale?: string,
 ) => {
   try {
+    if (locale && locale !== DEFAULT_LOCALE) {
+      let parsed: any = null
+      try {
+        parsed = json ? JSON.parse(json) : null
+      } catch (_) {
+        parsed = null
+      }
+      const translation = await client.sectionTranslation.upsert({
+        where: { sectionId_locale: { sectionId: sectionid, locale } },
+        create: {
+          sectionId: sectionid,
+          locale,
+          contentHtml: html,
+          contentJson: parsed,
+          contentText: content,
+        },
+        update: {
+          contentHtml: html,
+          contentJson: parsed,
+          contentText: content,
+        },
+      })
+      if (translation) {
+        return { status: 200, message: "Section translation successfully updated" }
+      }
+      return { status: 404, message: "No sections found" }
+    }
     const section = await client.section.update({
       where: {
         id: sectionid,
