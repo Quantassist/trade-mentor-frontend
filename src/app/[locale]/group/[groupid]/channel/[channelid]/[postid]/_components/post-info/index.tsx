@@ -7,10 +7,11 @@ import { PostAuthor } from "../../../_components/post-feed/post-author"
 
 type PostInfoProps = {
   id: string
+  locale?: string
 }
 
-const PostInfo = ({ id }: PostInfoProps) => {
-  const { data } = useGetPost(id)
+const PostInfo = ({ id, locale }: PostInfoProps) => {
+  const { data } = useGetPost(id, locale)
 
   if (data?.status !== 200 || !data) {
     return (

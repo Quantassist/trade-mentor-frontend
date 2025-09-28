@@ -16,15 +16,18 @@ import { redirect } from "next/navigation"
 import React from "react"
 import { MobileBottomGroupNav } from "../_components/group-navbar"
 import { Navbar } from "../_components/navbar"
+import { setRequestLocale } from "next-intl/server"
 
 type GroupLayoutProps = {
   children: React.ReactNode
-  params: Promise<{ groupid: string }>
+  params: Promise<{ groupid: string; locale: string }>
 }
 
 const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
   const query = new QueryClient()
-  const { groupid } = await params
+  const { groupid, locale } = await params
+  // Ensure server-side translations use the current locale
+  setRequestLocale(locale)
 
   //prefetch all our group data in the layout file
   const user = await onAuthenticatedUser()

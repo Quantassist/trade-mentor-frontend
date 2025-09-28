@@ -1,6 +1,6 @@
 "use client"
 import { HtmlParser } from "@/components/global/html-parser"
-import { PostContent } from "@/components/global/post-content"
+import { MultiPostEditContent } from "@/components/global/post-content/multi-edit"
 import { SimpleModal } from "@/components/global/simple-modal"
 import { Card, CardContent } from "@/components/ui/card"
 import { DialogClose } from "@/components/ui/dialog"
@@ -71,14 +71,7 @@ export const PostCard = ({
             }
           >
             <>
-              <PostContent
-                formId={formId}
-                postid={postid}
-                initialTitle={title}
-                initialHtml={initialHtml ?? null}
-                initialJson={initialJson ?? null}
-                initialContent={initialContent ?? null}
-              />
+              <MultiPostEditContent postid={postid} formId={formId} />
               <div className="mt-2 border-t border-themeDarkGray pt-3 flex justify-end">
                 <DialogClose asChild>
                   <button

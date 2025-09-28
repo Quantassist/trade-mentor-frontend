@@ -10,6 +10,7 @@ type InfiniteScrollObserverProps = {
   paginate: number
   search?: boolean
   loading?: "POST"
+  locale?: string
 }
 
 export const InfiniteScrollObserver = ({
@@ -19,12 +20,15 @@ export const InfiniteScrollObserver = ({
   paginate,
   search,
   loading,
+  locale,
 }: InfiniteScrollObserverProps) => {
   const { observerElement, isFetching } = useInfiniteScroll(
     action,
     identifier,
     paginate,
     search,
+    undefined,
+    locale,
   )
 
   return (

@@ -4,21 +4,23 @@ import { onGetGroupInfo } from "@/actions/groups"
 import { IChannelInfo, IGroupInfo, IGroups } from "@/components/global/sidebar"
 import { useUser } from "@clerk/nextjs"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "@/i18n/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 export const useNavigation = (groupid?: string) => {
   const pathName = usePathname()
   const [section, setSection] = useState<string>(pathName)
+  const router = useRouter()
 
   const onSetSection = (page: string) => {
     if (groupid) {
       // If it's the root group page, navigate to /group/[groupid]
-      const targetPath =
-        page === "/" ? `/group/${groupid}` : `/group/${groupid}/${page}`
+      const targetPath = page === "/" ? `/group/${groupid}` : `/group/${groupid}/${page}`
+      router.push(targetPath)
       setSection(targetPath)
     } else {
+      router.push(page)
       setSection(page)
     }
   }

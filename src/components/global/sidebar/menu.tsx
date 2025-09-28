@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid"
 import { IChannels } from "."
 import { IconRenderer } from "../icon-renderer"
 import { IconDropDown } from "./icon-dropdown"
+import { useTranslations } from "next-intl"
 
 type SideBarMenuProps = {
   channels: IChannels[]
@@ -42,6 +43,24 @@ export const SideBarMenu = ({
   const pathname = usePathname()
   const currentPage = pathname.includes("settings") ? "settings" : "channels"
   const currentSection = pathname.split("/").pop() // TODO: Fix the bug by resolving current page in robust way
+  const tr = useTranslations("menu.settings")
+
+  const settingsPathToKey = (path?: string) => {
+    switch (path) {
+      case "general":
+        return "general"
+      case "subscriptions":
+        return "subscriptions"
+      case "affiliates":
+        return "affiliates"
+      case "domains":
+        return "domains"
+      case "integrations":
+        return "integrations"
+      default:
+        return path || "general"
+    }
+  }
   const {
     channel: current,
     onEditChannel,
@@ -72,7 +91,7 @@ export const SideBarMenu = ({
               href={`/group/${groupid}/settings/${item.path}`}
             >
               {item.icon}
-              {item.label}
+              {tr(settingsPathToKey(item.path))}
             </Link>
           ) : (
             <Link
@@ -86,7 +105,7 @@ export const SideBarMenu = ({
               {/* <IconRenderer icon={item.icon} mode="DARK" />
                     <p className="text-lg capitalize">{item.label}</p> */}
               {item.icon}
-              {item.label}
+              {tr(settingsPathToKey(item.path))}
             </Link>
           ),
         )}

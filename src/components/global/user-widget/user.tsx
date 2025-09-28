@@ -10,6 +10,7 @@ import { useClerk } from "@clerk/nextjs"
 import Link from "next/link"
 import { useDispatch } from "react-redux"
 import { DropDown } from "../drop-down"
+import { useLocale, useTranslations } from "next-intl"
 
 type UserWidgetProps = {
   image: string
@@ -19,6 +20,8 @@ type UserWidgetProps = {
 
 export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
   const { signOut } = useClerk()
+  const locale = useLocale()
+  const t = useTranslations("userMenu")
 
   const untrackPresence = async () => {
     await supabaseClient.channel("tracking").untrack()
@@ -34,7 +37,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
 
   return (
     <DropDown
-      title="Account"
+      title={t("title")}
       trigger={
         <Avatar className="cursor-pointer">
           <AvatarImage src={image} alt="user" />
@@ -43,11 +46,11 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
       }
     >
       <Link
-        href={`/group/${groupid}/settings/general`}
+        href={`/${locale}/group/${groupid}/settings/general`}
         className="flex gap-x-2 px-2"
       >
         <Settings />
-        Settings
+        {t("settings")}
       </Link>
 
       <Button
@@ -56,7 +59,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
         className="flex gap-x-3 px-2 justify-start w-full"
       >
         <Logout />
-        Logout
+        {t("logout")}
       </Button>
     </DropDown>
   )

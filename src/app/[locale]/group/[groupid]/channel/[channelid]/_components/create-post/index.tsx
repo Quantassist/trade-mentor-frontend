@@ -1,6 +1,6 @@
 "use client"
-import { PostCard } from "@/app/group/[groupid]/channel/[channelid]/_components/post-feed/post-card"
-import { PostContent } from "@/components/global/post-content"
+import { PostCard } from "../post-feed/post-card"
+import { MultiPostContent } from "@/components/global/post-content/multi"
 import { SimpleModal } from "@/components/global/simple-modal"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -8,17 +8,21 @@ import { Card, CardContent, CardDescription } from "@/components/ui/card"
 import { DialogClose } from "@/components/ui/dialog"
 import { useChannelPage } from "@/hooks/channels"
 import { Upload } from "lucide-react"
+import { useLocale, useTranslations } from "next-intl"
 
 type Props = {
   userImage: string
   channelid: string
   username: string
+  locale?: string
 }
 
-const CreateNewPost = ({ userImage, channelid, username }: Props) => {
-  const { data, mutation } = useChannelPage(channelid)
+const CreateNewPost = ({ userImage, channelid, username, locale }: Props) => {
+  const { data, mutation } = useChannelPage(channelid, locale)
   const { name } = data as { name: string }
   const formId = "create-post-form"
+  const tr = useTranslations("channel")
+  const currentLocale = useLocale()
 
   return (
     <>
@@ -32,7 +36,7 @@ const CreateNewPost = ({ userImage, channelid, username }: Props) => {
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <CardDescription className="text-themeTextGray">
-                  Type / to add elements to your post
+                  {tr("hintAddElements")}
                 </CardDescription>
               </CardContent>
             </Card>
@@ -47,16 +51,23 @@ const CreateNewPost = ({ userImage, channelid, username }: Props) => {
           <div className="flex flex-col">
             <p className="text-themeTextGray text-sm capitalize">{username}</p>
             <p className="text-sm capitalize text-themeTextGray">
-              Posting in{" "}
-              <span className="font-bold capitalize text-themeTextWhite">
-                {name}
-              </span>
+              {currentLocale === "hi" ? (
+                <>
+                  <span className="font-bold capitalize text-themeTextWhite">{name}</span>{" "}
+                  {tr("postingIn")}
+                </>
+              ) : (
+                <>
+                  {tr("postingIn")} {" "}
+                  <span className="font-bold capitalize text-themeTextWhite">{name}</span>
+                </>
+              )}
             </p>
           </div>
         </div>
         {/* Scrollable editor area */}
         <div className="flex-1 overflow-auto min-h-0">
-          <PostContent channelid={channelid} formId={formId} />
+          <MultiPostContent channelid={channelid} formId={formId} />
         </div>
         {/* Fixed footer row inside DialogContent */}
         <div className="mt-2 border-t border-themeDarkGray pt-3 flex justify-end">

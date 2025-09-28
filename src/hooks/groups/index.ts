@@ -14,7 +14,7 @@ import {
   onUpdateGroupGallery,
 } from "@/actions/groups"
 import { GroupStateProps } from "@/app/[locale]/(discover)/explore/_components/group-list"
-import { Post } from "@/app/group/[groupid]/_components/post-card"
+import { Post } from "@/app/[locale]/group/[groupid]/_components/post-card"
 import { AddCustomDomainSchema } from "@/components/form/domain/schema"
 import { GroupSettingsSchema } from "@/components/form/groups-settings/schema"
 import { UpdateGallerySchema } from "@/components/form/media-gallery/schema"

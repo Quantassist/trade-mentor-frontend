@@ -6,10 +6,11 @@ import { PostCard } from "./post-card"
 type PostFeedProps = {
   channelid: string
   userid: string
+  locale?: string
 }
 
-export const PostFeed = ({ channelid, userid }: PostFeedProps) => {
-  const { data } = useChannelPage(channelid)
+export const PostFeed = ({ channelid, userid, locale }: PostFeedProps) => {
+  const { data } = useChannelPage(channelid, locale)
   const { posts } = data as {
     posts: ({
       likes: {
@@ -66,6 +67,7 @@ export const PostFeed = ({ channelid, userid }: PostFeedProps) => {
         loading="POST"
         identifier={channelid}
         paginate={posts.length}
+        locale={locale}
       >
         <PaginatedPosts userid={userid} />
       </InfiniteScrollObserver>

@@ -7,5 +7,58 @@
     "reflection": "Reflection",
     "quiz": "Quiz",
     "assessment": "Assessment"
+  },
+  "channel": {
+    "postingIn": "Posting in",
+    "hintAddElements": "Type / to add elements to your post"
+  },
+  "menu": {
+    "group": {
+      "home": "Home",
+      "courses": "Courses",
+      "events": "Events",
+      "leaderboard": "Leaderboard",
+      "about": "About"
+    },
+    "settings": {
+      "general": "General",
+      "subscriptions": "Subscriptions",
+      "affiliates": "Affiliates",
+      "domains": "Domain Config",
+      "integrations": "Integration"
+    }
+  },
+  "settings": {
+    "affiliates": {
+      "title": "Affiliate Link",
+      "description": "Create and share an invitation link",
+      "note": "This link will redirect users to the main page where they can purchase or request memberships"
+    },
+    "domains": {
+      "title": "Domain Config",
+      "description": "Create and share an invitations link for your members",
+      "manualTitle": "Manual Domain",
+      "manualDescription": "Setup your domain manually",
+      "record": "Record",
+      "host": "Host",
+      "requiredValue": "Required Value"
+    },
+    "general": {
+      "title": "Group Settings",
+      "description": "Adjust your group settings here. These settings might take time to reflect on the explore page."
+    },
+    "subscriptions": {
+      "title": "Group Subscriptions",
+      "description": "Adjust your group Subscriptions here."
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect third-party applications into Grouple"
+    }
+  },
+  "userMenu": {
+    "title": "Account",
+    "settings": "Settings",
+    "logout": "Logout"
   }
 }

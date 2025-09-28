@@ -45,7 +45,7 @@ export const GROUP_PAGE_MENU: GroupMenuProps[] = [
     id: 0,
     label: "Home",
     icon: <Home />,
-    path: "/",
+    path: "home",
   },
   {
     id: 1,

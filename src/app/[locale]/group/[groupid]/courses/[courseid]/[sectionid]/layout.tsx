@@ -1,5 +1,5 @@
 import { onGetSectionInfo } from "@/actions/courses";
-import SectionNavBar from "@/app/group/[groupid]/courses/[courseid]/[sectionid]/_components/section-navbar";
+import SectionNavBar from "@/app/[locale]/group/[groupid]/courses/[courseid]/[sectionid]/_components/section-navbar";
 import {
   dehydrate,
   HydrationBoundary,

@@ -23,8 +23,8 @@ const PostPage = async ({
   const client = new QueryClient()
 
   await client.prefetchQuery({
-    queryKey: ["unique-post", postid],
-    queryFn: () => onGetPostInfo(postid),
+    queryKey: ["unique-post", postid, locale],
+    queryFn: () => onGetPostInfo(postid, locale),
   })
 
   await client.prefetchQuery({
@@ -43,7 +43,7 @@ const PostPage = async ({
     <HydrationBoundary state={dehydrate(client)}>
       <div className="grid grid-cols-4 px-5 py-5 gap-x-10">
         <div className="col-span-4 lg:col-span-3">
-          <PostInfo id={postid} />
+          <PostInfo id={postid} locale={locale} />
           <PostCommentForm
             username={user.username!}
             postid={postid}

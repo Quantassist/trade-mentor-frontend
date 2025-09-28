@@ -1,7 +1,7 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetChannelInfo } from "@/actions/channel"
 import { inGetChannelPosts, onGetGroupInfo } from "@/actions/groups"
-import { LeaderBoardCard } from "@/app/group/_components/leaderboard"
+import { LeaderBoardCard } from "@/app/[locale]/group/_components/leaderboard"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
 import { currentUser } from "@clerk/nextjs/server"
 import {
@@ -23,8 +23,8 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
   const { groupid, channelid, locale } = await params
 
   await client.prefetchQuery({
-    queryKey: ["channel-info", channelid],
-    queryFn: () => onGetChannelInfo(channelid),
+    queryKey: ["channel-info", channelid, locale],
+    queryFn: () => onGetChannelInfo(channelid, locale),
   })
 
   await client.prefetchQuery({
@@ -33,8 +33,8 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
   })
 
   await client.prefetchQuery({
-    queryKey: ["channel-posts", channelid],
-    queryFn: () => inGetChannelPosts(channelid),
+    queryKey: ["channel-posts", channelid, locale],
+    queryFn: () => inGetChannelPosts(channelid, locale),
   })
 
   return (
@@ -49,8 +49,9 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
             userImage={user?.imageUrl!}
             channelid={channelid}
             username={user?.firstName!}
+            locale={locale}
           />
-          <PostFeed channelid={channelid} userid={authUser?.id!} />
+          <PostFeed channelid={channelid} userid={authUser?.id!} locale={locale} />
         </div>
         <div className="col-span-1 hidden lg:inline relative py-5">
           <GroupSideWidget groupid={groupid} />
