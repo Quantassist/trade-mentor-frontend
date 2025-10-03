@@ -29,7 +29,9 @@ export const onGetOngoingCourses = async (limit = 3) => {
       take: limit,
       select: {
         courseId: true,
+        // keep stored progress but we'll recompute based on latest totals to avoid stale values
         progress: true,
+        completedSections: true,
         lastSectionId: true,
         Course: { select: { id: true, name: true, thumbnail: true } },
       },
@@ -37,14 +39,28 @@ export const onGetOngoingCourses = async (limit = 3) => {
 
     if (progresses.length === 0) return { status: 200 as const, courses: [] as any[] }
 
-    // Map minimal payload for the widget; no totals computation needed
-    const courses = progresses.map((p) => ({
-      courseId: p.courseId,
-      name: p.Course?.name ?? "Untitled Course",
-      thumbnail: p.Course?.thumbnail ?? null,
-      lastSectionId: p.lastSectionId ?? null,
-      progress: p.progress ?? 0,
-    }))
+    // Compute latest total sections per course to ensure progress stays correct
+    const totals = await Promise.all(
+      progresses.map((p) =>
+        client.section.count({ where: { Module: { is: { courseId: p.courseId } } } }),
+      ),
+    )
+
+    const courses = progresses.map((p, idx) => {
+      const completedCount = p.completedSections?.length ?? 0
+      const totalCount = totals[idx] ?? 0
+      const computedPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+      return {
+        courseId: p.courseId,
+        name: p.Course?.name ?? "Untitled Course",
+        thumbnail: p.Course?.thumbnail ?? null,
+        lastSectionId: p.lastSectionId ?? null,
+        completedCount,
+        totalCount,
+        // return computed percent to avoid stale stored progress when course structure changes
+        progress: computedPercent,
+      }
+    })
 
     return { status: 200 as const, courses }
   } catch (error) {

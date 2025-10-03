@@ -1,13 +1,13 @@
-import { onGetGroupCourses } from "@/actions/courses"
 import { onGetUserGroupRole } from "@/actions/auth"
+import { onGetGroupCourses } from "@/actions/courses"
 import { CourseCreate } from "@/components/form/create-course"
+import { canCreateCourse } from "@/lib/rbac"
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query"
 import { CourseList } from "./_components/course-list"
-import { canCreateCourse } from "@/lib/rbac"
 
 type CoursePageProps = {
   params: Promise<{ groupid: string }>
@@ -18,7 +18,7 @@ const CoursesPage = async ({ params }: CoursePageProps) => {
   const client = new QueryClient()
 
   await client.prefetchQuery({
-    queryKey: ["group-courses"],
+    queryKey: ["group-courses", groupid],
     queryFn: () => onGetGroupCourses(groupid),
   })
 

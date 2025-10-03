@@ -103,7 +103,7 @@ export const useCreateCourse = (groupid: string) => {
     },
     onSettled: async () => {
       return await client.invalidateQueries({
-        queryKey: ["group-courses"],
+        queryKey: ["group-courses", groupid],
       })
     },
   })
@@ -132,7 +132,7 @@ export const useCreateCourse = (groupid: string) => {
 
 export const useCourses = (groupid: string) => {
   const { data } = useQuery({
-    queryKey: ["group-courses"],
+    queryKey: ["group-courses", groupid],
     queryFn: () => onGetGroupCourses(groupid),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
