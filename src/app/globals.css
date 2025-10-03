@@ -52,7 +52,8 @@
   --accent-foreground: oklch(0.112 0.047 222.2);
   --destructive: oklch(0.602 0.084 0);
   --destructive-foreground: oklch(0.98 0.04 210);
-  --border: oklch(0.914 0.032 214.3);
+  /* --border: oklch(0.914 0.032 214.3); */
+  --border: oklch(0.92 0 0);
   --input: oklch(0.914 0.032 214.3);
   --ring: oklch(0.049 0.084 222.2);
   --novel-highlight-default: #ffffff;

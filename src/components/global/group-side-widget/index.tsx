@@ -17,7 +17,7 @@ export const GroupSideWidget = ({
   groupid?: string
 }) => {
   const locale = useLocale()
-  const { group } = useGroupInfo(groupid as string, locale)
+  const { group, role } = useGroupInfo(groupid as string, locale)
 
   const stripHtml = (html?: string | null) =>
     typeof html === "string" ? html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : undefined
@@ -44,7 +44,8 @@ export const GroupSideWidget = ({
       {groupid && (
         <JoinButton
           groupid={groupid}
-          owner={group.userId === userid ? true : false}
+          owner={role === "OWNER" ? true : false}
+          isMember={role === "MEMBER" ? true : false}
         />
       )}
     </Card>

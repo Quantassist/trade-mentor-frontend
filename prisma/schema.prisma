@@ -9,20 +9,22 @@ datasource db {
 }
 
 model User {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstname  String
-  lastname   String
-  createdAt  DateTime  @default(now())
-  clerkId    String    @unique
-  image      String?
-  stripeId   String?
-  comments   Comment[]
-  group      Group[]
-  likes      Like[]
-  membership Members[]
-  message    Message[]
-  posts      Post[]
-  progress   UserCourseProgress[]
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstname    String
+  lastname     String
+  createdAt    DateTime  @default(now())
+  clerkId      String    @unique
+  image        String?
+  locale       String?   @default("en")
+  stripeId     String?
+  isSuperAdmin Boolean   @default(false)
+  comments     Comment[]
+  group        Group[]
+  likes        Like[]
+  membership   Members[]
+  message      Message[]
+  posts        Post[]
+  progress     UserCourseProgress[]
 }
 
 model Subscription {
@@ -59,12 +61,13 @@ model Group {
 }
 
 model Members {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String?  @db.Uuid
-  groupId   String?  @db.Uuid
-  createdAt DateTime @default(now())
-  Group     Group?   @relation(fields: [groupId], references: [id])
-  User      User?    @relation(fields: [userId], references: [id])
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?   @db.Uuid
+  groupId   String?   @db.Uuid
+  createdAt DateTime  @default(now())
+  role      GroupRole @default(MEMBER)
+  Group     Group?    @relation(fields: [groupId], references: [id])
+  User      User?     @relation(fields: [userId], references: [id])
 
   @@index([userId, groupId])
 }
@@ -259,4 +262,12 @@ model PostTranslation {
 enum GROUP_PRIVACY {
   PUBLIC
   PRIVATE
+}
+
+enum GroupRole {
+  OWNER
+  ADMIN
+  MODERATOR
+  INSTRUCTOR
+  MEMBER
 }

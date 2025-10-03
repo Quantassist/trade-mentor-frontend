@@ -9,13 +9,21 @@ import { useActiveGroupSubscription, useJoinFree } from "@/hooks/payment"
 type Props = {
   groupid: string
   owner: boolean
+  isMember: boolean
 }
 
-export const JoinButton = ({ groupid, owner }: Props) => {
+export const JoinButton = ({ groupid, owner, isMember }: Props) => {
   const { data } = useActiveGroupSubscription(groupid)
   const { onJoinFreeGroup } = useJoinFree(groupid)
 
   if (!owner) {
+    if (isMember) {
+      return (
+        <Button className="w-full p-10" variant="ghost">
+          <p> Member</p>
+        </Button>
+      )
+    }
     if (data?.status === 200) {
       return (
         <GlassModal

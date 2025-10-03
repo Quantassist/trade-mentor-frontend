@@ -3,18 +3,18 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select"
 import { SECTION_TYPES } from "@/constants/icons"
 import { useCreateSectionForm, useEditSectionForm } from "@/hooks/courses"
 
-export const SectionCreateForm = ({ moduleid }: { moduleid: string }) => {
+export const SectionCreateForm = ({ moduleid, groupid }: { moduleid: string, groupid: string }) => {
   const { register, setValue, errors, onCreateSection, isPending } =
-    useCreateSectionForm(moduleid)
+    useCreateSectionForm(moduleid, groupid)
   return (
     <form onSubmit={onCreateSection} className="space-y-4">
       <div className="space-y-1">
@@ -47,16 +47,18 @@ export const SectionCreateForm = ({ moduleid }: { moduleid: string }) => {
 }
 
 export const SectionEditForm = ({
+  groupid,
   sectionid,
   initialName,
   initialIcon,
 }: {
+  groupid: string
   sectionid: string
   initialName: string
   initialIcon: string
 }) => {
   const { register, setValue, errors, onUpdateSectionSubmit, isPending } =
-    useEditSectionForm(sectionid, initialName, initialIcon)
+    useEditSectionForm(groupid, sectionid, initialName, initialIcon)
   return (
     <form onSubmit={onUpdateSectionSubmit} className="space-y-4">
       <div className="space-y-1">

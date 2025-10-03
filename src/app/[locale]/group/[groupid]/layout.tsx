@@ -12,11 +12,11 @@ import {
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query"
+import { setRequestLocale } from "next-intl/server"
 import { redirect } from "next/navigation"
 import React from "react"
 import { MobileBottomGroupNav } from "../_components/group-navbar"
 import { Navbar } from "../_components/navbar"
-import { setRequestLocale } from "next-intl/server"
 
 type GroupLayoutProps = {
   children: React.ReactNode
@@ -35,8 +35,8 @@ const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
   if (!user.id) redirect("/sign-in")
 
   await query.prefetchQuery({
-    queryKey: ["group-info", groupid],
-    queryFn: () => onGetGroupInfo(groupid),
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
   })
 
   await query.prefetchQuery({

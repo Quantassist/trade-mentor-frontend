@@ -1,17 +1,19 @@
 "use client"
 
+import { onGetGroupInfo } from "@/actions/groups"
 import { Input } from "@/components/ui/input"
 import { SIDEBAR_SETTINGS_MENU } from "@/constants/menus"
 import { useChannelInfo } from "@/hooks/channels"
 import { cn } from "@/lib/utils"
+import { useQuery } from "@tanstack/react-query"
 import { Plus, Trash } from "lucide-react"
+import { useLocale, useTranslations } from "next-intl"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { v4 as uuidv4 } from "uuid"
 import { IChannels } from "."
 import { IconRenderer } from "../icon-renderer"
 import { IconDropDown } from "./icon-dropdown"
-import { useTranslations } from "next-intl"
 
 type SideBarMenuProps = {
   channels: IChannels[]
@@ -41,9 +43,24 @@ export const SideBarMenu = ({
   mutate,
 }: SideBarMenuProps) => {
   const pathname = usePathname()
+  const locale = useLocale()
   const currentPage = pathname.includes("settings") ? "settings" : "channels"
   const currentSection = pathname.split("/").pop() // TODO: Fix the bug by resolving current page in robust way
   const tr = useTranslations("menu.settings")
+
+  // Fetch group role info (SSR-prefetched in layout with the same key)
+  const { data: groupInfo } = useQuery({
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
+  })
+  const canManage = Boolean(
+    (groupInfo as any)?.isSuperAdmin || (groupInfo as any)?.groupOwner || (groupInfo as any)?.role === "ADMIN",
+  )
 
   const settingsPathToKey = (path?: string) => {
     switch (path) {
@@ -88,7 +105,7 @@ export const SideBarMenu = ({
                   : item.path === currentSection && "text-white",
               )}
               key={item.id}
-              href={`/group/${groupid}/settings/${item.path}`}
+              href={`/${locale}/group/${groupid}/settings/${item.path}`}
             >
               {item.icon}
               {tr(settingsPathToKey(item.path))}
@@ -96,7 +113,7 @@ export const SideBarMenu = ({
           ) : (
             <Link
               key={item.id}
-              href={`/group/${groupid}/settings/${item.path}`}
+              href={`/${locale}/group/${groupid}/settings/${item.path}`}
               className={cn(
                 "flex items-center gap-x-2 p-2 hover:bg-themeGray rounded-lg",
                 item.path === currentSection && "text-white",
@@ -156,8 +173,9 @@ export const SideBarMenu = ({
                   >
                     <Link
                       id="channel-link"
-                      href={`/group/${channel.groupId}/channel/${channel.id}`}
-                      {...(channel.name !== "general" &&
+                      href={`/${locale}/group/${channel.groupId}/channel/${channel.id}`}
+                      {...(canManage &&
+                        channel.name !== "general" &&
                         channel.name !== "announcements" && {
                           onDoubleClick: () => onEditChannel(channel.id),
                           ref: channelRef,
@@ -205,7 +223,7 @@ export const SideBarMenu = ({
                         )}
                       </div>
                     </Link>
-                    {channel.name !== "general" &&
+                    {canManage && channel.name !== "general" &&
                       channel.name !== "announcements" && (
                         <button
                           onClick={(e) => {

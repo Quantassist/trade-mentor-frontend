@@ -16,6 +16,7 @@ export const SignInForm = () => {
           key={field.id}
           register={register}
           errors={errors}
+          label={field.label}
         />
       ))}
       <Button type="submit" className="rounded-2xl">

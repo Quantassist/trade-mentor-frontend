@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
-import { NextResponse } from "next/server"
 import createIntlMiddleware from "next-intl/middleware"
+import { NextResponse } from "next/server"
 
 const isProtectedRoute = createRouteMatcher("/group(.*)")
 
@@ -32,12 +32,15 @@ export default clerkMiddleware(async (auth, request) => {
     defaultLocale: "en",
   })
 
-  // Only apply locale middleware for /group and /(en|hi)/group paths
-  if (reqPath.startsWith("/group") || /^\/(en|hi)\/group/.test(reqPath)) {
-    return intlMiddleware(request)
+  // Don't apply locale middleware to API/TRPC routes to avoid prefixing /en or /hi
+  const isApiRoute = reqPath.startsWith("/api") || reqPath.startsWith("/trpc")
+  if (isApiRoute) {
+    return NextResponse.next()
   }
 
-  return NextResponse.next()
+  // Apply locale middleware for all other routes
+  return intlMiddleware(request)
+  // return NextResponse.next()
 })
 
 export const config = {

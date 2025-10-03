@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { GROUPLE_CONSTANTS } from "@/constants"
 import { useAuthSignUp } from "@/hooks/authentication"
 import dynamic from "next/dynamic"
+import { useTranslations } from "next-intl"
 
 const OtpInput = dynamic(
   () =>
@@ -15,7 +16,10 @@ const OtpInput = dynamic(
   { ssr: false },
 )
 
-export const SignUpForm = () => {
+type Props = { selectedLocale?: "en" | "hi" }
+
+export const SignUpForm = ({ selectedLocale }: Props) => {
+  const t = useTranslations("auth")
   const {
     register,
     errors,
@@ -26,29 +30,38 @@ export const SignUpForm = () => {
     code,
     setCode,
     getValues,
-  } = useAuthSignUp()
+  } = useAuthSignUp({ locale: selectedLocale })
+  const localizedFields = GROUPLE_CONSTANTS.signUpForm.map((f) => {
+    const key = f.name as "firstname" | "lastname" | "email" | "password"
+    return {
+      ...f,
+      label: t(`form.${key}.label`),
+      placeholder: t(`form.${key}.placeholder`),
+    }
+  })
   return (
     <form
       onSubmit={onInitiateUserRegistration}
-      className="flex flex-col gap-3 mt-10"
+      className="flex flex-col gap-3 mt-5"
     >
       {verifying ? (
         <div className="flex justify-center mb-5">
           <OtpInput otp={code} setOtp={setCode} />
         </div>
       ) : (
-        GROUPLE_CONSTANTS.signUpForm.map((field) => (
+        localizedFields.map((field) => (
           <FormGenerator
             {...field}
             key={field.id}
             register={register}
             errors={errors}
+            label={field.label}
           />
         ))
       )}
       {verifying ? (
         <Button type="submit" className="rounded-2xl">
-          <Loader loading={creating}>Sign Up with Email</Loader>
+          <Loader loading={creating}>{t("buttons.signUpWithEmail")}</Loader>
         </Button>
       ) : (
         <Button
@@ -58,7 +71,7 @@ export const SignUpForm = () => {
             onGenerateCode(getValues("email"), getValues("password"))
           }
         >
-          <Loader loading={false}>Generate Code</Loader>
+          <Loader loading={false}>{t("buttons.generateCode")}</Loader>
         </Button>
       )}
     </form>

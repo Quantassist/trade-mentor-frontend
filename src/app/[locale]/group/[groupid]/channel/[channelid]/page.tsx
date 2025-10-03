@@ -1,6 +1,6 @@
 import { onAuthenticatedUser } from "@/actions/auth"
-import { onGetOngoingCourses } from "@/actions/courses"
 import { onGetChannelInfo } from "@/actions/channel"
+import { onGetOngoingCourses } from "@/actions/courses"
 import { inGetChannelPosts, onGetGroupInfo } from "@/actions/groups"
 import { LeaderBoardCard } from "@/app/[locale]/group/_components/leaderboard"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
@@ -58,6 +58,7 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
             channelid={channelid}
             username={user?.firstName!}
             locale={locale}
+            groupid={groupid}
           />
           <PostFeed channelid={channelid} userid={authUser?.id!} locale={locale} />
         </div>

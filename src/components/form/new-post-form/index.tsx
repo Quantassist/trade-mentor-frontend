@@ -21,9 +21,10 @@ type NewPostFormProps = {
     id: string
   }
   setOpen: (open: boolean) => void
+  groupid: string
 }
 
-const NewPostForm = ({ user, setOpen }: NewPostFormProps) => {
+const NewPostForm = ({ user, setOpen, groupid }: NewPostFormProps) => {
   const {
     content,
     setContent,
@@ -39,7 +40,7 @@ const NewPostForm = ({ user, setOpen }: NewPostFormProps) => {
     errors,
     register,
     status,
-  } = useNewPostForm()
+  } = useNewPostForm(groupid)
 
   status == "success" || status == "pending" ? setOpen(false) : null
 

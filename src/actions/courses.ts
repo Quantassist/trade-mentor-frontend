@@ -1,7 +1,8 @@
 "use server"
 
-import { onAuthenticatedUser } from "@/actions/auth"
+import { onAuthenticatedUser, onGetUserGroupRole } from "@/actions/auth"
 import { client } from "@/lib/prisma"
+import { canCreateCourse, hasPermission } from "@/lib/rbac"
 const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || "en"
 
 // Resolve current app userId using existing auth action
@@ -28,7 +29,6 @@ export const onGetOngoingCourses = async (limit = 3) => {
       take: limit,
       select: {
         courseId: true,
-        completedSections: true,
         progress: true,
         lastSectionId: true,
         Course: { select: { id: true, name: true, thumbnail: true } },
@@ -37,20 +37,12 @@ export const onGetOngoingCourses = async (limit = 3) => {
 
     if (progresses.length === 0) return { status: 200 as const, courses: [] as any[] }
 
-    // Compute total sections per course (small N due to 'limit')
-    const totals = await Promise.all(
-      progresses.map((p) =>
-        client.section.count({ where: { Module: { is: { courseId: p.courseId } } } }),
-      ),
-    )
-
-    const courses = progresses.map((p, idx) => ({
+    // Map minimal payload for the widget; no totals computation needed
+    const courses = progresses.map((p) => ({
       courseId: p.courseId,
       name: p.Course?.name ?? "Untitled Course",
       thumbnail: p.Course?.thumbnail ?? null,
       lastSectionId: p.lastSectionId ?? null,
-      completedCount: p.completedSections?.length ?? 0,
-      totalCount: totals[idx] ?? 0,
       progress: p.progress ?? 0,
     }))
 
@@ -102,6 +94,20 @@ export const onCreateGroupCourse = async (
   published: boolean,
 ) => {
   try {
+    // Check user permissions
+    const userRole = await onGetUserGroupRole(groupid)
+    
+    if (userRole.status !== 200) {
+      return { status: 401, message: "Unauthorized: You must be a member of this group" }
+    }
+
+    if (!canCreateCourse(userRole.role, userRole.isSuperAdmin)) {
+      return { 
+        status: 403, 
+        message: "Forbidden: You don't have permission to create courses in this group" 
+      }
+    }
+
     const course = await client.group.update({
       where: {
         id: groupid,
@@ -130,8 +136,14 @@ export const onCreateGroupCourse = async (
   }
 }
 
-export const onDeleteSection = async (sectionId: string) => {
+export const onDeleteSection = async (groupid: string, sectionId: string) => {
   try {
+    // RBAC: section:delete
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "section:delete")) {
+      return { status: 403, message: "Forbidden" }
+    }
     const deleted = await client.section.delete({
       where: { id: sectionId },
     })
@@ -142,8 +154,14 @@ export const onDeleteSection = async (sectionId: string) => {
   }
 }
 
-export const onDeleteModule = async (moduleId: string) => {
+export const onDeleteModule = async (groupid: string, moduleId: string) => {
   try {
+    // RBAC: module:delete
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "module:delete")) {
+      return { status: 403, message: "Forbidden" }
+    }
     const deleted = await client.module.delete({
       where: { id: moduleId },
     })
@@ -157,10 +175,17 @@ export const onDeleteModule = async (moduleId: string) => {
 
 // Persist module ordering within a course
 export const onReorderModules = async (
+  groupid: string,
   courseId: string,
   orderedIds: string[],
 ) => {
   try {
+    // RBAC: module:edit
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "module:edit")) {
+      return { status: 403, message: "Forbidden" }
+    }
     await client.$transaction(
       orderedIds.map((id, index) =>
         client.module.update({ where: { id }, data: { order: index } }),
@@ -174,10 +199,17 @@ export const onReorderModules = async (
 
 // Persist section ordering within a module
 export const onReorderSections = async (
+  groupid: string,
   moduleId: string,
   orderedIds: string[],
 ) => {
   try {
+    // RBAC: section:edit
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "section:edit")) {
+      return { status: 403, message: "Forbidden" }
+    }
     await client.$transaction(
       orderedIds.map((id, index) =>
         client.section.update({ where: { id }, data: { order: index } }),
@@ -273,11 +305,18 @@ export const onGetCourseModules = async (courseId: string) => {
 }
 
 export const onCreateCourseModule = async (
+  groupid: string,
   courseId: string,
   name: string,
   moduleId: string,
 ) => {
   try {
+    // RBAC: module:create (by course's group)
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "module:create")) {
+      return { status: 403, message: "Forbidden" }
+    }
     const count = await client.module.count({ where: { courseId } })
     const courseModule = await client.course.update({
       where: {
@@ -311,11 +350,18 @@ export const onCreateCourseModule = async (
 }
 
 export const onUpdateModule = async (
+  groupid: string,
   moduleId: string,
   type: "NAME" | "DATA",
   content: string,
 ) => {
   try {
+    // RBAC: module:edit
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "module:edit")) {
+      return { status: 403, message: "Forbidden" }
+    }
     if (type === "NAME") {
       const title = await client.module.update({
         where: {
@@ -348,12 +394,19 @@ export const onUpdateModule = async (
 }
 
 export const onUpdateSection = async (
+  groupid: string,
   sectionId: string,
   type: "NAME" | "COMPLETE" | "ICON",
   content: string,
 ) => {
   try {
     if (type === "NAME") {
+      // RBAC: section:edit
+      const userRole = await onGetUserGroupRole(groupid)
+      if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+      if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "section:edit")) {
+        return { status: 403, message: "Forbidden" }
+      }
       const title = await client.section.update({
         where: {
           id: sectionId,
@@ -368,6 +421,12 @@ export const onUpdateSection = async (
       return { status: 404, message: "No sections found" }
     }
     if (type === "ICON") {
+      // RBAC: section:edit
+      const userRole = await onGetUserGroupRole(groupid)
+      if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+      if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "section:edit")) {
+        return { status: 403, message: "Forbidden" }
+      }
       const updated = await client.section.update({
         where: {
           id: sectionId,
@@ -437,12 +496,19 @@ export const onUpdateSection = async (
 }
 
 export const onCreateModuleSection = async (
+  groupid: string,
   moduleid: string,
   sectionid: string,
   name?: string,
   icon?: string,
 ) => {
   try {
+    // RBAC: section:create (by module's group)
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "section:create")) {
+      return { status: 403, message: "Forbidden" }
+    }
     const count = await client.section.count({ where: { moduleId: moduleid } })
     const section = await client.module.update({
       where: {
@@ -529,6 +595,7 @@ export const onGetSectionInfo = async (sectionid: string, locale?: string) => {
 }
 
 export const onUpdateCourseSectionContent = async (
+  groupid: string,
   sectionid: string,
   html: string,
   json: string,
@@ -536,6 +603,12 @@ export const onUpdateCourseSectionContent = async (
   locale?: string,
 ) => {
   try {
+    // RBAC: section:edit
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "section:edit")) {
+      return { status: 403, message: "Forbidden" }
+    }
     if (locale && locale !== DEFAULT_LOCALE) {
       let parsed: any = null
       try {

@@ -18,10 +18,13 @@ export type LocalePayload = {
 type MultiPostContentProps = {
   channelid: string
   formId?: string
+  hideTabs?: boolean
+  forceLocale?: string
 }
 
-export const MultiPostContent = ({ channelid, formId }: MultiPostContentProps) => {
-  const [active, setActive] = useState<string>(defaultLocale)
+export const MultiPostContent = ({ channelid, formId, hideTabs, forceLocale }: MultiPostContentProps) => {
+  const initial = forceLocale ?? defaultLocale
+  const [active, setActive] = useState<string>(initial)
   const {
     // rhf-like
     errors,
@@ -38,17 +41,21 @@ export const MultiPostContent = ({ channelid, formId }: MultiPostContentProps) =
     isPending,
   } = useCreateChannelPostMulti(channelid)
 
+  const localesToRender = forceLocale ? [forceLocale] : (locales as readonly string[])
+
   return (
     <form id={formId} onSubmit={onSubmitMulti} className="flex flex-col w-full flex-1 overflow-auto gap-y-4">
       <Tabs value={active} onValueChange={setActive} className="w-full flex-1 flex flex-col min-h-0">
-        <TabsList className="self-start">
-          {locales.map((l) => (
-            <TabsTrigger key={l} value={l} className="capitalize">
-              {l}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {locales.map((l) => (
+        {!hideTabs && (
+          <TabsList className="self-start">
+            {localesToRender.map((l) => (
+              <TabsTrigger key={l} value={l} className="capitalize">
+                {l}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        )}
+        {localesToRender.map((l) => (
           <TabsContent key={l} value={l} className="flex flex-col gap-y-3">
             <Input
               placeholder={`Title (${l})`}

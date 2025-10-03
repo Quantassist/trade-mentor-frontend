@@ -12,7 +12,7 @@ import {
 import { useUser } from "@clerk/nextjs"
 import { useState } from "react"
 
-const NewPost = () => {
+const NewPost = (groupid: string) => {
   const { user } = useUser()
   const userDetails = {
     name: `${user?.firstName} ${user?.lastName}`,
@@ -48,7 +48,7 @@ const NewPost = () => {
         <DialogContent className="bg-card rounded-xl p-4 w-full max-w-xl">
           <DialogHeader>
             <DialogDescription>
-              <NewPostForm user={userDetails} setOpen={setOpen} />
+              <NewPostForm user={userDetails} setOpen={setOpen} groupid={groupid} />
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
