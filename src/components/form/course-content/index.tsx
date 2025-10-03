@@ -32,6 +32,7 @@ export const CourseContentForm = ({
     onDescription,
   } = useCourseContent(
     sectionid,
+    groupid,
     data?.section?.content || null,
     data?.section?.jsonContent || null,
     data?.section?.htmlContent || null,

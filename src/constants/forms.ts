@@ -11,30 +11,34 @@ export const SIGN_UP_FORM: AuthFormProps[] = [
   {
     id: "1",
     inputType: "input",
-    placeholder: "First name",
+    placeholder: "John",
     name: "firstname",
     type: "text",
+    label: "First name",
   },
   {
     id: "2",
     inputType: "input",
-    placeholder: "Last name",
+    placeholder: "Doe",
     name: "lastname",
     type: "text",
+    label: "Last name",
   },
   {
     id: "3",
     inputType: "input",
-    placeholder: "Email",
+    placeholder: "john@example.com",
     name: "email",
     type: "email",
+    label: "Email",
   },
   {
     id: "4",
     inputType: "input",
-    placeholder: "Password",
+    placeholder: "Create a strong password",
     name: "password",
     type: "password",
+    label: "Password",
   },
 ]
 
@@ -45,6 +49,7 @@ export const SIGN_IN_FORM: AuthFormProps[] = [
     placeholder: "Email",
     name: "email",
     type: "email",
+    label: "Email",
   },
   {
     id: "4",
@@ -52,5 +57,6 @@ export const SIGN_IN_FORM: AuthFormProps[] = [
     placeholder: "Password",
     name: "password",
     type: "password",
+    label: "Password",
   },
 ]

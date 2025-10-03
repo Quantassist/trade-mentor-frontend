@@ -4,6 +4,7 @@ import { useAppSelector } from "@/redux/store"
 import dynamic from "next/dynamic"
 import { ExploreSlider } from "./explore-slider"
 import { GroupList } from "./group-list"
+import { useTranslations } from "next-intl"
 
 const SearchGroups = dynamic(
   () =>
@@ -25,6 +26,7 @@ export const ExplorePageContent = ({
   const { isSearching, data, status, debounce } = useAppSelector(
     (state) => state.searchReducer,
   )
+  const t = useTranslations("explore")
 
   return (
     <div className="flex flex-col">
@@ -39,18 +41,18 @@ export const ExplorePageContent = ({
         (layout === "SLIDER" ? (
           <>
             <ExploreSlider
-              label="Fitness"
-              text="Join top performing groups on TradeFlix"
+              label={t("slider.fitness.label")}
+              text={t("slider.fitness.text")}
               query="fitness"
             />
             <ExploreSlider
-              label="Music"
-              text="Join top performing groups on TradeFlix"
+              label={t("slider.music.label")}
+              text={t("slider.music.text")}
               query="music"
             />
             <ExploreSlider
-              label="Lifestyle"
-              text="Join top performing groups on TradeFlix"
+              label={t("slider.lifestyle.label")}
+              text={t("slider.lifestyle.text")}
               query="lifestyle"
             />
           </>

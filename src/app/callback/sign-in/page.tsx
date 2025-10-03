@@ -1,22 +1,23 @@
 import { onSignInUser } from "@/actions/auth"
 import { currentUser } from "@clerk/nextjs/server"
-import { redirect } from "next/navigation"
+import { redirect } from "@/i18n/navigation"
 
 const CompleteSigIn = async () => {
   const user = await currentUser()
-  if (!user) return redirect("/sign-in")
+  if (!user) return redirect({ href: "/sign-in", locale: "en" })
 
   const authenticated = await onSignInUser(user.id)
 
-  if (authenticated.status === 200) return redirect(`/group/create`)
+  const locale = (authenticated as any).locale ?? "en"
+
+  if (authenticated.status === 200)
+    return redirect({ href: "/group/create", locale })
 
   if (authenticated.status === 207)
-    return redirect(
-      `/group/${authenticated.groupId}/channel/790595da-6058-43b2-b8a5-2a0a707abeec`,
-    )
+    return redirect({ href: `/group/${authenticated.groupId}/channel/${authenticated.channelId}`, locale })
 
   if (authenticated.status !== 200) {
-    redirect("/sign-in")
+    redirect({ href: "/sign-in", locale })
   }
 }
 

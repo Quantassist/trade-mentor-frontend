@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-export const useAuthSignUp = () => {
+export const useAuthSignUp = (opts?: { locale?: "en" | "hi" }) => {
   const { setActive, isLoaded, signUp } = useSignUp()
   const [creating, setCreating] = useState<boolean>(false)
   const [verifying, setVerifying] = useState<boolean>(false)
@@ -81,6 +81,8 @@ export const useAuthSignUp = () => {
           firstname: values.firstname,
           lastname: values.lastname,
           clerkId: signUp.createdUserId,
+          image: null,
+          locale: opts?.locale ?? "en",
         })
 
         reset()
@@ -92,7 +94,8 @@ export const useAuthSignUp = () => {
           await setActive({
             session: completeSignUp.createdSessionId,
           })
-          router.push(`/group/create`)
+          // locale-aware redirect after email sign-up
+          router.push(`/${opts?.locale ?? "en"}/explore`)
         }
         if (user.status !== 200) {
           toast("Error", {
@@ -123,17 +126,20 @@ export const useAuthSignUp = () => {
   }
 }
 
-export const useGoogleAuth = () => {
+export const useGoogleAuth = (opts?: { locale?: "en" | "hi" }) => {
   const { signIn, isLoaded: LoadedSignIn } = useSignIn()
   const { signUp, isLoaded: LoadedSignUp } = useSignUp()
+  const locale = opts?.locale
 
   const signInWith = (strategy: OAuthStrategy) => {
     if (!LoadedSignIn) return
     try {
       return signIn.authenticateWithRedirect({
         strategy,
-        redirectUrl: "/callback",
-        redirectUrlComplete: "/callback/sign-in",
+        redirectUrl: locale ? `/callback?locale=${locale}` : "/callback",
+        redirectUrlComplete: locale
+          ? `/callback/sign-in?locale=${locale}`
+          : "/callback/sign-in",
       })
     } catch (error) {
       console.error(error)
@@ -145,8 +151,10 @@ export const useGoogleAuth = () => {
     try {
       return signUp.authenticateWithRedirect({
         strategy,
-        redirectUrl: "/callback",
-        redirectUrlComplete: "/callback/complete",
+        redirectUrl: locale ? `/callback?locale=${locale}` : "/callback",
+        redirectUrlComplete: locale
+          ? `/callback/complete?locale=${locale}`
+          : "/callback/complete",
       })
     } catch (error) {
       console.error(error)

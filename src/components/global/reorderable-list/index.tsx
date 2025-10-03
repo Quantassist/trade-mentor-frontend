@@ -24,6 +24,7 @@ export type ReorderableListProps<T> = {
   onReorder: (newItems: T[], orderedIds: string[]) => void
   className?: string
   itemClassName?: string
+  disabled?: boolean
 }
 
 function reorderArray<T>(list: T[], startIndex: number, endIndex: number) {
@@ -41,8 +42,10 @@ export function ReorderableList<T>({
   onReorder,
   className,
   itemClassName,
+  disabled,
 }: ReorderableListProps<T>) {
   const onDragEnd = (result: DropResult) => {
+    if (disabled) return
     if (!result.destination) return
     const { source, destination } = result
     if (source.index === destination.index) return
@@ -57,14 +60,14 @@ export function ReorderableList<T>({
         {(dropProvided) => (
           <div ref={dropProvided.innerRef} {...dropProvided.droppableProps} className={cn(className)}>
             {items.map((item, index) => (
-              <Draggable key={getId(item, index)} draggableId={getId(item, index)} index={index}>
+              <Draggable key={getId(item, index)} draggableId={getId(item, index)} index={index} isDragDisabled={!!disabled}>
                 {(dragProvided) => (
                   <div
                     ref={dragProvided.innerRef}
                     {...dragProvided.draggableProps}
                     className={cn(itemClassName)}
                   >
-                    {renderItem(item, index, dragProvided.dragHandleProps)}
+                    {renderItem(item, index, disabled ? undefined : dragProvided.dragHandleProps)}
                   </div>
                 )}
               </Draggable>

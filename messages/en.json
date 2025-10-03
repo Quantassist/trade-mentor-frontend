@@ -60,5 +60,87 @@
     "title": "Account",
     "settings": "Settings",
     "logout": "Logout"
+  },
+  "auth": {
+    "hero": {
+      "titleLine1": "Start Your",
+      "titleLine2": "Trading Journey",
+      "subtitle": "Join thousands of learners mastering the stock market"
+    },
+    "card": {
+      "title": "Create an account",
+      "description": "Enter your details below to create your account"
+    },
+    "separator": {
+      "orContinueWith": "OR CONTINUE WITH"
+    },
+    "footer": {
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "signin": {
+      "title": "Login",
+      "description": "Enter your credentials to access your account"
+    },
+    "google": {
+      "signUpButton": "Sign up with Google",
+      "signInButton": "Sign in with Google"
+    },
+    "buttons": {
+      "generateCode": "Generate Code",
+      "signUpWithEmail": "Sign Up with Email"
+    },
+    "form": {
+      "firstname": {
+        "label": "First name",
+        "placeholder": "Enter first name"
+      },
+      "lastname": {
+        "label": "Last name",
+        "placeholder": "Enter last name"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "abc@gmail.com"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Create a strong password"
+      }
+    }
+  },
+  "explore": {
+    "layout": {
+      "title": "Explore Groups",
+      "or": "or",
+      "createYourOwn": "create your own"
+    },
+    "search": {
+      "placeholder": "Search for anything"
+    },
+    "slider": {
+      "fitness": {
+        "label": "Fitness",
+        "text": "Join top performing groups on TradeFlix"
+      },
+      "music": {
+        "label": "Music",
+        "text": "Join top performing groups on TradeFlix"
+      },
+      "lifestyle": {
+        "label": "Lifestyle",
+        "text": "Join top performing groups on TradeFlix"
+      }
+    },
+    "categories": {
+      "all": "All",
+      "fitness": "Fitness",
+      "music": "Music",
+      "business": "Business",
+      "lifestyle": "Lifestyle",
+      "personalDevelopment": "Personal Development",
+      "socialMedia": "Social Media",
+      "tech": "Tech"
+    }
   }
 }

@@ -31,6 +31,7 @@ import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
 import { AppDispatch } from "@/redux/store"
 import { useUser } from "@clerk/nextjs"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { GroupRole } from "@prisma/client"
 import {
   QueryClient,
   useMutation,
@@ -38,6 +39,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
+import { useLocale } from "next-intl"
 import { JSONContent } from "novel"
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -181,9 +183,10 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
 }
 
 export const useGroupSettings = (groupid: string) => {
+  const locale = useLocale()
   const { data } = useQuery({
-    queryKey: ["group-info", groupid],
-    queryFn: () => onGetGroupInfo(groupid),
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
   })
 
   const jsonContent = data?.group?.jsonDescription
@@ -361,12 +364,17 @@ export const useGroupInfo = (groupid: string, locale?: string) => {
 
   if (!data) router.push("/explore")
 
-  const { group, status } = data as { status: number; group: GroupStateProps }
+  const { group, status, role } = data as {
+    status: number
+    group: GroupStateProps
+    role: GroupRole
+  }
 
   if (status !== 200) router.push("/explore")
 
   return {
     group,
+    role,
   }
 }
 
@@ -599,8 +607,10 @@ export const useSideBar = (groupid: string) => {
     queryKey: ["user-groups"],
   }) as { data: IGroups }
 
+  const locale = useLocale()
   const { data: groupInfo } = useQuery({
-    queryKey: ["group-info", groupid],
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
   }) as { data: IGroupInfo }
 
   const client = new QueryClient()
@@ -621,7 +631,7 @@ export const useSideBar = (groupid: string) => {
       }),
     onSettled: async () => {
       return await client.invalidateQueries({
-        queryKey: ["group-info", groupid],
+        queryKey: ["about-group-info", groupid, locale],
       })
     },
   })
@@ -646,14 +656,15 @@ export interface ChannelType {
   groupId: string | null
 }
 
-export const useNewPostForm = () => {
+export const useNewPostForm = (groupid: string) => {
   const [content, setContent] = useState<JSONContent | undefined>()
   const [textContent, setTextContent] = useState<string | undefined>("")
   const [htmlContent, setHtmlContent] = useState<string | undefined>()
 
+  const locale = useLocale()
   const { data: groupInfo } = useQuery({
-    queryKey: ["group-info"],
-    queryFn: () => onGetGroupInfo(""), // This will be overridden by prefetched data
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale), // This will be overridden by prefetched data
   }) as { data: IGroupInfo }
 
   const [channel, setChannel] = useState<ChannelType>(
@@ -772,14 +783,15 @@ export const useNewPostForm = () => {
 }
 
 export const useChannelPosts = (slug: string) => {
+  const locale = useLocale()
   const { data: groupInfo } = useQuery({
     queryKey: ["group-info"],
     queryFn: () => onGetGroupInfo(""), // This will be overridden by prefetched data
   }) as { data: IGroupInfo }
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ["channel-posts", slug],
-    queryFn: () => inGetChannelPosts(slug),
+    queryKey: ["channel-posts", slug, locale],
+    queryFn: () => inGetChannelPosts(slug, locale),
   })
 
   if (isLoading) {

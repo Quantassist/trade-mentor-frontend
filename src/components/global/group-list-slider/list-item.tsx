@@ -2,18 +2,45 @@
 
 import { cn } from "@/lib/utils"
 import { JSX } from "react"
+import { useTranslations } from "next-intl"
 
 type GroupListItemProps = {
   icon: JSX.Element
   label: string
   selected?: string
+  path?: string
 }
 
 export const GroupListItem = ({
   icon,
   label,
   selected,
+  path,
 }: GroupListItemProps) => {
+  const t = useTranslations("explore")
+  const key = (() => {
+    switch (path) {
+      case "":
+        return "all"
+      case "fitness":
+        return "fitness"
+      case "music":
+        return "music"
+      case "buisness":
+        return "business"
+      case "lifestyle":
+        return "lifestyle"
+      case "personal-development":
+        return "personalDevelopment"
+      case "social-media":
+        return "socialMedia"
+      case "tech":
+        return "tech"
+      default:
+        return undefined
+    }
+  })()
+  const display = key ? t(`categories.${key}`) : label
   return (
     <div
       className={cn(
@@ -22,7 +49,7 @@ export const GroupListItem = ({
       )}
     >
       {icon}
-      {label}
+      {display}
     </div>
   )
 }

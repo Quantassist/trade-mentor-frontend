@@ -5,7 +5,7 @@ import { SwiperProps, SwiperSlide } from "swiper/react"
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import { UseFormRegister } from "react-hook-form"
 import "swiper/css/bundle"
 import { GroupListItem } from "./list-item"

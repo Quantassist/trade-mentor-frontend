@@ -6,7 +6,7 @@ import axios from "axios"
 import { revalidatePath } from "next/cache"
 import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
-import { onAuthenticatedUser } from "./auth"
+import { onAuthenticatedUser, onGetUserGroupRole } from "./auth"
 import { defaultLocale } from "@/i18n/config"
 
 export const onGetAffiliateInfo = async (id: string) => {
@@ -417,6 +417,7 @@ export const onGetGroupInfo = async (groupid: string, locale?: string) => {
   // console.log(groupid)
   try {
     const user = await onAuthenticatedUser()
+    const roleInfo = await onGetUserGroupRole(groupid)
     const group = await client.group.findUnique({
       where: {
         id: groupid,
@@ -444,12 +445,18 @@ export const onGetGroupInfo = async (groupid: string, locale?: string) => {
           status: 200,
           group: effective,
           groupOwner: user.id === group.userId ? true : false,
+          // RBAC context for UI gating
+          isSuperAdmin: roleInfo.isSuperAdmin ?? false,
+          role: roleInfo.role,
         }
       }
       return {
         status: 200,
         group,
         groupOwner: user.id === group.userId ? true : false,
+        // RBAC context for UI gating
+        isSuperAdmin: roleInfo.isSuperAdmin ?? false,
+        role: roleInfo.role,
       }
     }
 

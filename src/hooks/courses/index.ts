@@ -21,6 +21,7 @@ import { SECTION_TYPES } from "@/constants/icons"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
+import { useLocale } from "next-intl"
 import { usePathname } from "next/navigation"
 import { JSONContent } from "novel"
 import { useEffect, useRef, useState } from "react"
@@ -34,6 +35,7 @@ const upload = new UploadClient({
 })
 
 export const useCreateCourse = (groupid: string) => {
+  const locale = useLocale()
   const [onPrivacy, setOnPrivacy] = useState<string | undefined>("open")
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const {
@@ -59,8 +61,13 @@ export const useCreateCourse = (groupid: string) => {
   const client = useQueryClient()
 
   const { data } = useQuery({
-    queryKey: ["group-info", groupid],
-    queryFn: () => onGetGroupInfo(groupid),
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
   })
 
   const { mutate, isPending, variables } = useMutation({
@@ -127,6 +134,11 @@ export const useCourses = (groupid: string) => {
   const { data } = useQuery({
     queryKey: ["group-courses"],
     queryFn: () => onGetGroupCourses(groupid),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
   })
 
   return { data }
@@ -134,9 +146,15 @@ export const useCourses = (groupid: string) => {
 
 export const useCreateModule = (courseid: string, groupid: string) => {
   const client = useQueryClient()
+  const locale = useLocale()
   const { data } = useQuery({
-    queryKey: ["group-info", groupid],
-    queryFn: () => onGetGroupInfo(groupid),
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
   })
   const { mutate, isPending, variables } = useMutation({
     mutationKey: ["create-module"],
@@ -144,7 +162,7 @@ export const useCreateModule = (courseid: string, groupid: string) => {
       courseId: string
       title: string
       moduleId: string
-    }) => onCreateCourseModule(data.courseId, data.title, data.moduleId),
+    }) => onCreateCourseModule(groupid, data.courseId, data.title, data.moduleId),
     onSuccess: (data) => {
       return toast(data.status !== 200 ? "Error" : "Success", {
         description: data.message,
@@ -173,6 +191,7 @@ export const useCreateModule = (courseid: string, groupid: string) => {
 }
 
 export const useCourseModule = (courseId: string, groupid: string) => {
+  const locale = useLocale()
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const contentRef = useRef<HTMLAnchorElement | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -187,11 +206,21 @@ export const useCourseModule = (courseId: string, groupid: string) => {
   const { data } = useQuery({
     queryKey: ["course-modules"],
     queryFn: () => onGetCourseModules(courseId),
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
   })
 
   const { data: groupOwner } = useQuery({
-    queryKey: ["group-info", groupid],
-    queryFn: () => onGetGroupInfo(groupid),
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
   })
 
   const pathname = usePathname()
@@ -199,7 +228,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
 
   const { mutate, isPending, variables } = useMutation({
     mutationFn: async (data: { type: "NAME" | "DATA"; content: string }) =>
-      onUpdateModule(moduleId!, data.type, data.content),
+      onUpdateModule(groupid, moduleId!, data.type, data.content),
     onMutate: () => setEdit(false),
     onSuccess: (data) => {
       return toast(data?.status !== 200 ? "Error" : "Success", {
@@ -219,7 +248,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     variables: updateVariables,
   } = useMutation({
     mutationFn: (data: { type: "NAME" | "ICON"; content: string }) =>
-      onUpdateSection(activeSection!, data.type, data.content),
+      onUpdateSection(groupid, activeSection!, data.type, data.content),
     onMutate: () => setEditSection(false),
     onSuccess: (data) => {
       return toast(data?.status !== 200 ? "Error" : "Success", {
@@ -236,7 +265,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
   // Update a section by explicit id (used by inline edit sheets)
   const { mutate: updateSectionById } = useMutation({
     mutationFn: (data: { sectionid: string; type: "NAME" | "ICON"; content: string }) =>
-      onUpdateSection(data.sectionid, data.type, data.content),
+      onUpdateSection(groupid, data.sectionid, data.type, data.content),
     onSuccess: (data) => {
       return toast(data?.status !== 200 ? "Error" : "Success", {
         description: data?.message,
@@ -255,7 +284,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     variables: sectionVariables,
   } = useMutation({
     mutationFn: (data: { moduleid: string; sectionid: string; name?: string; icon?: string }) =>
-      onCreateModuleSection(data.moduleid, data.sectionid, data.name, data.icon),
+      onCreateModuleSection(groupid, data.moduleid, data.sectionid, data.name, data.icon),
     onSuccess: (data) => {
       return toast(data?.status !== 200 ? "Error" : "Success", {
         description: data?.message,
@@ -270,7 +299,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
 
   // Delete a single section
   const { mutate: deleteSection, isPending: deleteSectionPending } = useMutation({
-    mutationFn: (sectionid: string) => onDeleteSection(sectionid),
+    mutationFn: (sectionid: string) => onDeleteSection(groupid, sectionid),
     onSuccess: (data) =>
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
     onSettled: async () =>
@@ -279,7 +308,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
 
   // Delete a module (sections cascade by Prisma settings)
   const { mutate: deleteModule, isPending: deleteModulePending } = useMutation({
-    mutationFn: (moduleid: string) => onDeleteModule(moduleid),
+    mutationFn: (moduleid: string) => onDeleteModule(groupid, moduleid),
     onSuccess: (data) =>
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
     onSettled: async () =>
@@ -288,7 +317,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
 
   // Reorder modules
   const { mutate: reorderModules, isPending: reorderModulesPending } = useMutation({
-    mutationFn: (orderedIds: string[]) => onReorderModules(courseId, orderedIds),
+    mutationFn: (orderedIds: string[]) => onReorderModules(groupid, courseId, orderedIds),
     onSuccess: (data) =>
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
     onSettled: async () =>
@@ -298,7 +327,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
   // Reorder sections in a module
   const { mutate: reorderSections, isPending: reorderSectionsPending } = useMutation({
     mutationFn: (data: { moduleId: string; orderedIds: string[] }) =>
-      onReorderSections(data.moduleId, data.orderedIds),
+      onReorderSections(groupid, data.moduleId, data.orderedIds),
     onSuccess: (data) =>
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
     onSettled: async () =>
@@ -396,16 +425,21 @@ export const useCourseModule = (courseId: string, groupid: string) => {
   }
 }
 
-export const useSectionNavBar = (sectionid: string, locale: string) => {
+export const useSectionNavBar = (groupid: string, sectionid: string, locale: string) => {
   const { data } = useQuery({
     queryKey: ["section-info", sectionid, locale],
     queryFn: () => onGetSectionInfo(sectionid, locale),
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
   })
 
   const client = useQueryClient()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async () => onUpdateSection(sectionid, "COMPLETE", ""),
+    mutationFn: async () => onUpdateSection(groupid, sectionid, "COMPLETE", ""),
     onSuccess: (data) => {
       return toast(data?.status !== 200 ? "Error" : "Success", {
         description: data?.message,
@@ -435,6 +469,7 @@ export const useCourseSectionInfo = (sectionid: string, locale?: string) => {
 
 export const useCourseContent = (
   sectionid: string,
+  groupid: string,
   description: string | null,
   jsonDescription: string | null,
   htmlDescription: string | null,
@@ -498,11 +533,12 @@ export const useCourseContent = (
   const { mutate, isPending } = useMutation({
     mutationFn: (data: { values: z.infer<typeof CourseContentSchema> }) =>
       onUpdateCourseSectionContent(
+        groupid,
         sectionid,
         data.values.htmlContent!,
         data.values.jsoncontent!,
         data.values.content!,
-        locale,
+        locale!,
       ),
     onSuccess: (data) => {
       toast(data?.status !== 200 ? "Error" : "Success", {
@@ -537,7 +573,7 @@ export const SectionFormSchema = z.object({
   typeId: z.string().min(1),
 })
 
-export const useCreateSectionForm = (moduleid: string) => {
+export const useCreateSectionForm = (moduleid: string, groupid: string) => {
   const client = useQueryClient()
   const {
     register,
@@ -552,7 +588,7 @@ export const useCreateSectionForm = (moduleid: string) => {
   const { mutate, isPending } = useMutation({
     mutationKey: ["create-section", moduleid],
     mutationFn: async (data: { name: string; icon: string }) =>
-      onCreateModuleSection(moduleid, v4(), data.name || "New Section", data.icon),
+      onCreateModuleSection(groupid, moduleid, v4(), data.name || "New Section", data.icon),
     onSuccess: (data) =>
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
     onSettled: async () =>
@@ -568,6 +604,7 @@ export const useCreateSectionForm = (moduleid: string) => {
 }
 
 export const useEditSectionForm = (
+  groupid: string,
   sectionid: string,
   initialName: string,
   initialIcon: string,
@@ -593,10 +630,10 @@ export const useEditSectionForm = (
     mutationKey: ["update-section", sectionid],
     mutationFn: async (data: { name: string; icon: string }) => {
       if (data.name !== initial.current.name) {
-        await onUpdateSection(sectionid, "NAME", data.name)
+        await onUpdateSection(groupid, sectionid, "NAME", data.name)
       }
       if (data.icon !== initial.current.icon) {
-        await onUpdateSection(sectionid, "ICON", data.icon)
+        await onUpdateSection(groupid, sectionid, "ICON", data.icon)
       }
       return { status: 200, message: "Section updated" }
     },

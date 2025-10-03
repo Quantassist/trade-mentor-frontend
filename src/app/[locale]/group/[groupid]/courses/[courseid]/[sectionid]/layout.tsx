@@ -8,12 +8,23 @@ import {
 
 type CourseContentPageProps = {
   children: React.ReactNode;
-  params: Promise<{ sectionid: string; courseid: string; locale: string }>;
+  params: Promise<{ sectionid: string; courseid: string; locale: string; groupid: string }>;
 };
 
 const CourseContentPage = async ({ children, params }: CourseContentPageProps) => {
-  const { sectionid, courseid, locale } = await params;
-  const client = new QueryClient();
+  const { sectionid, courseid, locale, groupid } = await params;
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        // Reasonable defaults for SSR + client hydration
+        staleTime: 60_000,
+        gcTime: 5 * 60_000,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: true,
+        refetchOnMount: false,
+      },
+    },
+  });
 
   await Promise.all([
     client.prefetchQuery({
@@ -28,7 +39,7 @@ const CourseContentPage = async ({ children, params }: CourseContentPageProps) =
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <SectionNavBar sectionid={sectionid} />
+      <SectionNavBar sectionid={sectionid} groupid={groupid} />
       {children}
     </HydrationBoundary>
   );

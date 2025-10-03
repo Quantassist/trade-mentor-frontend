@@ -18,8 +18,8 @@ export const CreateCourseModule = ({
     courseid,
     groupid,
   )
-
-  if (!data?.groupOwner) return <></>
+  const canManage = !!(data?.isSuperAdmin || data?.groupOwner || data?.role === "ADMIN")
+  if (!canManage) return <></>
 
   return (
     <div className="flex flex-col gap-y-3">

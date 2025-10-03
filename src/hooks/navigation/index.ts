@@ -2,11 +2,27 @@ import { onCreateNewChannel, onGetGroupChannels } from "@/actions/channel"
 import { onGetGroupInfo } from "@/actions/groups"
 
 import { IChannelInfo, IGroupInfo, IGroups } from "@/components/global/sidebar"
+import { usePathname, useRouter } from "@/i18n/navigation"
 import { useUser } from "@clerk/nextjs"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { usePathname, useRouter } from "@/i18n/navigation"
+import { useLocale } from "next-intl"
+import { usePathname as useNextPathname } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+export const useLandingNavigation = () => {
+  const pathName = useNextPathname()
+  const [section, setSection] = useState<string>(pathName)
+
+  const onSetSection = (page: string) => {
+    setSection(page)
+  }
+
+  return {
+    section,
+    onSetSection,
+  }
+}
+
 
 export const useNavigation = (groupid?: string) => {
   const pathName = usePathname()
@@ -32,6 +48,7 @@ export const useNavigation = (groupid?: string) => {
 }
 
 export const useSideBar = (groupid: string) => {
+  const locale = useLocale()
   const { user } = useUser()
   // const userFromClerkId = await onGetUserFromClerkId(user?.id!)
   // console.log("sidebar user", user)
@@ -41,8 +58,8 @@ export const useSideBar = (groupid: string) => {
   }) as { data: IGroups }
 
   const { data: groupInfo } = useQuery({
-    queryKey: ["group-info", groupid],
-    queryFn: () => onGetGroupInfo(groupid), // This will be overridden by prefetched data
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale), // This will be overridden by prefetched data
   }) as { data: IGroupInfo }
 
   const { data: channels } = useQuery({

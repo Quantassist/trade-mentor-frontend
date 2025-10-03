@@ -22,10 +22,43 @@
     },
     "settings": {
       "general": "जनरल",
-      "subscriptions": "सब्सक्रिप्शंस",
       "affiliates": "एफ़िलिएट्स",
       "domains": "डोमेन कॉन्फ़िग",
       "integrations": "इंटीग्रेशन"
+    }
+  },
+  "explore": {
+    "layout": {
+      "title": "समूह खोजें",
+      "or": "या",
+      "createYourOwn": "अपना समूह बनाएँ"
+    },
+    "search": {
+      "placeholder": "कुछ भी खोजें"
+    },
+    "slider": {
+      "fitness": {
+        "label": "फिटनेस",
+        "text": "TradeFlix पर शीर्ष प्रदर्शन करने वाले समूहों से जुड़ें"
+      },
+      "music": {
+        "label": "संगीत",
+        "text": "TradeFlix पर शीर्ष प्रदर्शन करने वाले समूहों से जुड़ें"
+      },
+      "lifestyle": {
+        "label": "लाइफस्टाइल",
+        "text": "TradeFlix पर शीर्ष प्रदर्शन करने वाले समूहों से जुड़ें"
+      }
+    },
+    "categories": {
+      "all": "सभी",
+      "fitness": "फिटनेस",
+      "music": "संगीत",
+      "business": "व्यवसाय",
+      "lifestyle": "लाइफस्टाइल",
+      "personalDevelopment": "व्यक्तिगत विकास",
+      "socialMedia": "सोशल मीडिया",
+      "tech": "टेक"
     }
   },
   "settings": {
@@ -56,5 +89,53 @@
     "title": "खाता",
     "settings": "सेटिंग्स",
     "logout": "लॉगआउट"
+  },
+  "auth": {
+    "form": {
+      "firstname": {
+        "label": "आपका फिर्स्टनाम",
+        "placeholder": "पहला नाम भरे"
+      },
+      "lastname": {
+        "label": "आपका लास्टनाम",
+        "placeholder": "उपनाम भरे"
+      },
+      "email": {
+        "label": "आपका ईमेल",
+        "placeholder": "abc@gmail.com"
+      },
+      "password": {
+        "label": "आपका पासवर्ड",
+        "placeholder": "मज़बूत पासवर्ड भरे"
+      }
+    },
+    "buttons": {
+      "generateCode": "कोड बनाएं",
+      "signUpWithEmail": "ईमेल से साइन अप करें"
+    },
+    "hero": {
+      "titleLine1": "शुरू करें",
+      "titleLine2": "अपनी ट्रेडिंग यात्रा",
+      "subtitle": "हजारों शिक्षार्थियों के साथ शेयर बाज़ार में महारत हासिल करें"
+    },
+    "card": {
+      "title": "खाता बनाएं",
+      "description": "अपना खाता बनाने के लिए नीचे विवरण भरें"
+    },
+    "separator": {
+      "orContinueWith": "या जारी रखें"
+    },
+    "footer": {
+      "alreadyHaveAccount": "पहले से खाता है?",
+      "signIn": "साइन इन"
+    },
+    "signin": {
+      "title": "लॉगिन",
+      "description": "अपने खाते तक पहुँचने के लिए अपनी साख दर्ज करें"
+    },
+    "google": {
+      "signUpButton": "Google से साइन अप करें",
+      "signInButton": "Google से साइन इन करें"
+    }
   }
 }

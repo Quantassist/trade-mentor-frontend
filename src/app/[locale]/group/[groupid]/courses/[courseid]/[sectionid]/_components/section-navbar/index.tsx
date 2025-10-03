@@ -8,11 +8,12 @@ import { useEffect, useState } from "react"
 
 type SectionNavBarProps = {
   sectionid: string
+  groupid: string
 }
 
-const SectionNavBar = ({ sectionid }: SectionNavBarProps) => {
+const SectionNavBar = ({ sectionid, groupid }: SectionNavBarProps) => {
   const locale = useLocale()
-  const { data, mutate, isPending } = useSectionNavBar(sectionid, locale)
+  const { data, mutate, isPending } = useSectionNavBar(groupid, sectionid, locale)
   const [completed, setCompleted] = useState<boolean>(!!data?.section?.complete)
   const client = useQueryClient()
 

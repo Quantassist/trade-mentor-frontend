@@ -20,6 +20,12 @@ export function LocaleSwitcher() {
   const switchTo = (nextLocale: string) => {
     if (!pathname || nextLocale === locale) return;
     router.push({ pathname }, { locale: nextLocale });
+    // Persist preference asynchronously (fire-and-forget)
+    fetch(`${window.location.origin}/api/user/locale`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locale: nextLocale }),
+    }).catch(() => {});
   };
 
   const labelFor = (l: string) => (l === "hi" ? "हिन्दी" : "English");

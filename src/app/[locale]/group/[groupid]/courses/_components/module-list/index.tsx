@@ -64,6 +64,8 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
     }
   }, [data])
 
+  const canManage = Boolean(groupOwner?.isSuperAdmin || groupOwner?.groupOwner || groupOwner?.role === "ADMIN")
+
   return (
     <div className="flex flex-col">
       {modulesLocal && modulesLocal.length > 0 && (
@@ -71,6 +73,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
           droppableId={`modules-${courseId}`}
           items={modulesLocal}
           getId={(m: any) => m.id}
+          disabled={!canManage}
           onReorder={(newItems, orderedIds) => {
             setModulesLocal(newItems)
             reorderModules(orderedIds)
@@ -85,13 +88,15 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                   edit={edit}
                   ref={triggerRef}
                   editable={<Input ref={inputRef} className="bg-themeBlack border-themeGray" />}
-                  onEdit={() => onEditModule(module.id)}
+                  onEdit={canManage ? () => onEditModule(module.id) : undefined}
                   id={module.id}
                   title={
                     <div className="flex w-full items-center gap-3">
-                      <span {...(handleProps || {})} className="cursor-grab text-themeTextGray hover:text-white">
-                        <GripVertical className="h-4 w-4" />
-                      </span>
+                      {handleProps && (
+                        <span {...handleProps} className="cursor-grab text-themeTextGray hover:text-white">
+                          <GripVertical className="h-4 w-4" />
+                        </span>
+                      )}
                       {moduleDone ? <Check /> : <Circle />}
                       <span className="text-[15px] md:text-base font-semibold">
                         {isPending ? variables?.content! : module.title}
@@ -100,7 +105,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                         <span className="text-xs md:text-sm text-themeTextGray">
                           {completed}/{total}
                         </span>
-                        {groupOwner?.groupOwner && (
+                        {canManage && (
                           <Button
                             asChild
                             type="button"
@@ -132,6 +137,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                         droppableId={`sections-${module.id}`}
                         items={module.section}
                         getId={(s: any) => s.id}
+                        disabled={!canManage}
                         onReorder={(newSections, orderedIds) => {
                           setModulesLocal((prev) =>
                             prev.map((m) => (m.id === module.id ? { ...m, section: newSections } : m)),
@@ -150,15 +156,17 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                   : "text-themeTextGray hover:bg-themeGray/60 border-transparent",
                               )}
                             >
-                              <span {...(handleProps || {})} className="cursor-grab text-themeTextGray hover:text-white">
-                                <GripVertical className="h-4 w-4" />
-                              </span>
+                              {handleProps && (
+                                <span {...handleProps} className="cursor-grab text-themeTextGray hover:text-white">
+                                  <GripVertical className="h-4 w-4" />
+                                </span>
+                              )}
                               <Link
                                 ref={contentRef}
                                 href={`/group/${groupid}/courses/${courseId}/${section.id}`}
                                 className="flex flex-1 items-center gap-3"
                                 onClick={() => setActiveSection(section.id)}
-                                onDoubleClick={onEditSection}
+                                onDoubleClick={canManage ? onEditSection : undefined}
                               >
                                 {section.complete ? <Check /> : <Circle />}
                                 <IconRenderer icon={section.icon} mode={isSelected ? "LIGHT" : "DARK"} />
@@ -181,7 +189,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                   </div>
                                 </div>
                               </Link>
-                              {groupOwner?.groupOwner && (
+                              {canManage && (
                                 <GlassSheet
                                   trigger={
                                     <Button
@@ -198,13 +206,14 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                 >
                                   <h3 className="mb-4 text-lg font-semibold">Edit Section</h3>
                                   <SectionEditForm
+                                    groupid={groupid}
                                     sectionid={section.id}
                                     initialName={section.name}
                                     initialIcon={section.icon}
                                   />
                                 </GlassSheet>
                               )}
-                              {groupOwner?.groupOwner && (
+                              {canManage && (
                                 <Button
                                   type="button"
                                   aria-label="Delete section"
@@ -227,7 +236,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                     ) : (
                       <></>
                     )}
-                    {groupOwner?.groupOwner && (
+                    {canManage && (
                       <>
                         {pendingSection && sectionVariables && (
                           <Link
@@ -258,7 +267,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                           className="w-[380px] sm:w-[420px]"
                         >
                           <h3 className="mb-4 text-lg font-semibold">Create Section</h3>
-                          <SectionCreateForm moduleid={module.id} />
+                          <SectionCreateForm moduleid={module.id} groupid={groupid} />
                         </GlassSheet>
                       </>
                     )}

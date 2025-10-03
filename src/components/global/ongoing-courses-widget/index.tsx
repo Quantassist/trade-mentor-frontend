@@ -70,22 +70,14 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
                       <LineChart size={18} />
                     </div>
                   )}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-themeTextWhite font-medium truncate group-hover:text-themeTextWhite/90">{c.name}</p>
-                    <p className="text-xs text-themeTextGray">
-                      {c.totalCount > 0 ? (
-                        <>
-                          Lesson {currentLesson} of {c.totalCount}
-                        </>
-                      ) : (
-                        <>Getting started</>
-                      )}
-                    </p>
-                    <div className="mt-2">
-                      <Progress value={progress} className="h-2 bg-[#1f2023]" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-themeTextWhite font-medium truncate group-hover:text-themeTextWhite/90">{c.name}</p>
+                      <p className="text-xs text-themeTextGray">{Math.round(progress)}% complete</p>
+                      <div className="mt-2">
+                        <Progress value={progress} className="h-2 bg-[#1f2023]" />
+                      </div>
                     </div>
-                  </div>
-                  <ChevronRight className="text-themeTextGray" size={16} />
+                    <ChevronRight className="text-themeTextGray" size={16} />
                 </div>
               </Link>
             </Card>
