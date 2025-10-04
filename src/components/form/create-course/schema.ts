@@ -8,6 +8,35 @@ export const CreateCourseSchema = z.object({
     .string()
     .min(3, { message: "Course title must be alteast 3 characters" }),
   description: z.string().min(100, "description must be atleast 100 words"),
+  level: z.string().min(1, { message: "Please select a level" }),
+  learnOutcomes: z
+    .array(z.string().min(1, "Outcome cannot be empty"))
+    .min(1, { message: "Add at least one learning outcome" }),
+  faqs: z.array(
+    z.object({
+      question: z.string().min(1, "Question is required"),
+      answer: z.string().min(1, "Answer is required"),
+    }),
+  ).default([]),
+  mentorId: z.string().uuid({ message: "Invalid mentor id" }).nullable().optional().default(null),
+  translations: z
+    .array(
+      z.object({
+        locale: z.string().min(1),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        learnOutcomes: z.array(z.string()).optional(),
+        faqs: z
+          .array(
+            z.object({
+              question: z.string().optional().default(""),
+              answer: z.string().optional().default(""),
+            }),
+          )
+          .optional(),
+      }),
+    )
+    .default([]),
   image: z
     .any()
     .refine((files: any) => files && files.length > 0, {

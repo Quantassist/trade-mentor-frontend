@@ -25,6 +25,7 @@ model User {
   message      Message[]
   posts        Post[]
   progress     UserCourseProgress[]
+  mentoredCourses Course[] @relation("MentorCourses")
 }
 
 model Subscription {
@@ -124,29 +125,36 @@ model Channel {
 }
 
 model Course {
-  id          String   @id @db.Uuid
-  name        String
-  thumbnail   String
-  published   Boolean  @default(false)
-  privacy     String
-  description String
-  createdAt   DateTime @default(now())
-  groupId     String?  @db.Uuid
-  Group       Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  modules     Module[]
-  translations CourseTranslation[]
-  progress     UserCourseProgress[]
+  id            String   @id @db.Uuid
+  name          String
+  thumbnail     String
+  published     Boolean  @default(false)
+  privacy       String
+  description   String
+  level         String?
+  learnOutcomes Json?
+  faq           Json?
+  mentorId      String?  @db.Uuid
+  createdAt     DateTime @default(now())
+  groupId       String?  @db.Uuid
+  Group         Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  mentor        User?    @relation("MentorCourses", fields: [mentorId], references: [id])
+  modules       Module[]
+  translations  CourseTranslation[]
+  progress      UserCourseProgress[]
 }
 
 model Module {
-  id        String    @id @db.Uuid
-  courseId  String?   @db.Uuid
-  title     String
-  createdAt DateTime  @default(now())
-  order     Int       @default(0)
-  Course    Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  section   Section[]
+  id           String    @id @db.Uuid
+  courseId     String?   @db.Uuid
+  title        String
+  createdAt    DateTime  @default(now())
+  order        Int       @default(0)
+  Course       Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  section      Section[]
   translations ModuleTranslation[]
+
+  @@index([courseId, order])
 }
 
 model Section {
@@ -161,6 +169,8 @@ model Section {
   order       Int      @default(0)
   Module      Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   translations SectionTranslation[]
+
+  @@index([moduleId, order])
 }
 
 model UserCourseProgress {
@@ -171,12 +181,15 @@ model UserCourseProgress {
   lastSectionId    String?  @db.Uuid
   completedSections String[] @default([])
   progress         Float    @default(0)
+  isComplete       Boolean  @default(false)
   updatedAt        DateTime @updatedAt
   createdAt        DateTime @default(now())
   User             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   Course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
+  @@index([userId, progress, updatedAt])
+  @@index([courseId])
 }
 
 model Affiliate {
@@ -213,8 +226,9 @@ model CourseTranslation {
   courseId        String  @db.Uuid
   locale          String
   name            String?
-  descriptionJson Json?
-  descriptionHtml String?
+  description     String?
+  learnOutcomes   Json?
+  faq             Json?
   Course          Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([courseId, locale])

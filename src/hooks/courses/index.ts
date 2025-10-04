@@ -14,7 +14,7 @@ import {
   onUpdateModule,
   onUpdateSection,
 } from "@/actions/courses"
-import { onGetGroupInfo } from "@/actions/groups"
+import { onGetGroupInfo, onGetGroupMentors } from "@/actions/groups"
 import { CourseContentSchema } from "@/components/form/course-content/schema"
 import { CreateCourseSchema } from "@/components/form/create-course/schema"
 import { SECTION_TYPES } from "@/constants/icons"
@@ -44,12 +44,17 @@ export const useCreateCourse = (groupid: string) => {
     reset,
     watch,
     setValue,
+    control,
     formState: { errors },
-  } = useForm<z.infer<typeof CreateCourseSchema>>({
+  } = useForm<z.input<typeof CreateCourseSchema>>({
     resolver: zodResolver(CreateCourseSchema),
     defaultValues: {
       privacy: "open",
       published: false,
+      level: "All levels",
+      learnOutcomes: [""],
+      faqs: [],
+      mentorId: null,
     },
   })
 
@@ -59,6 +64,7 @@ export const useCreateCourse = (groupid: string) => {
   }, [watch])
 
   const client = useQueryClient()
+  const [translations, setTranslations] = useState<any[]>([])
 
   const { data } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
@@ -70,17 +76,19 @@ export const useCreateCourse = (groupid: string) => {
     refetchOnMount: false,
   })
 
+  const { data: mentorsData } = useQuery({
+    queryKey: ["group-mentors", groupid],
+    queryFn: () => onGetGroupMentors(groupid),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
+  })
+
   const { mutate, isPending, variables } = useMutation({
     mutationKey: ["create-course-mutation"],
-    mutationFn: async (data: {
-      id: string
-      name: string
-      image: FileList
-      description: string
-      createdAt: Date
-      privacy: string
-      published: boolean
-    }) => {
+    mutationFn: async (data: any) => {
       const uploaded = await upload.uploadFile(data.image[0])
       const course = await onCreateGroupCourse(
         groupid,
@@ -90,6 +98,13 @@ export const useCreateCourse = (groupid: string) => {
         data.id,
         data.privacy,
         data.published,
+        {
+          level: data.level,
+          learnOutcomes: data.learnOutcomes?.filter(Boolean),
+          faqs: data.faqs,
+          mentorId: data.mentorId ?? null,
+          translations,
+        },
       )
       return course
     },
@@ -116,7 +131,6 @@ export const useCreateCourse = (groupid: string) => {
       image: values.image,
     }),
   )
-
   return {
     onCreateCourse,
     register,
@@ -127,20 +141,25 @@ export const useCreateCourse = (groupid: string) => {
     onPrivacy,
     setValue,
     data,
+    mentorsData,
+    control,
+    setTranslations,
   }
 }
 
-export const useCourses = (groupid: string) => {
+export const useCourses = (
+  groupid: string,
+  filter: "all" | "in_progress" | "completed" | "unpublished" = "all",
+) => {
   const { data } = useQuery({
-    queryKey: ["group-courses", groupid],
-    queryFn: () => onGetGroupCourses(groupid),
+    queryKey: ["group-courses", groupid, filter],
+    queryFn: () => onGetGroupCourses(groupid, filter),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
     refetchOnMount: false,
   })
-
   return { data }
 }
 

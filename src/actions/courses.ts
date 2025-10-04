@@ -16,6 +16,40 @@ const getAuthedUserId = async (): Promise<string | null> => {
   }
 }
 
+// Fetch course details + counts for About page
+export const onGetCourseAbout = async (courseId: string) => {
+  try {
+    const course = await client.course.findUnique({
+      where: { id: courseId },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        thumbnail: true,
+        createdAt: true,
+        published: true,
+      },
+    })
+    if (!course) return { status: 404 as const, message: "Course not found" }
+
+    const [moduleCount, totalLessons] = await Promise.all([
+      client.module.count({ where: { courseId } }),
+      client.section.count({ where: { Module: { is: { courseId } } } }),
+    ])
+
+    return {
+      status: 200 as const,
+      course: {
+        ...course,
+        moduleCount,
+        totalLessons,
+      },
+    }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+}
+
 // Fetch user's ongoing courses (progress > 0 and < 100), ordered by recent activity
 export const onGetOngoingCourses = async (limit = 3) => {
   try {
@@ -108,6 +142,19 @@ export const onCreateGroupCourse = async (
   courseid: string,
   privacy: string,
   published: boolean,
+  extras?: {
+    level?: string
+    learnOutcomes?: string[]
+    faqs?: { question: string; answer: string }[]
+    mentorId?: string | null
+    translations?: Array<{
+      locale: string
+      name?: string
+      description?: string
+      learnOutcomes?: string[]
+      faqs?: { question: string; answer: string }[]
+    }>
+  },
 ) => {
   try {
     // Check user permissions
@@ -118,13 +165,12 @@ export const onCreateGroupCourse = async (
     }
 
     if (!canCreateCourse(userRole.role, userRole.isSuperAdmin)) {
-      return { 
-        status: 403, 
-        message: "Forbidden: You don't have permission to create courses in this group" 
+      return {
+        status: 403,
+        message: "Forbidden: You don't have permission to create courses in this group",
       }
     }
-
-    const course = await client.group.update({
+    const groupUpdate = await client.group.update({
       where: {
         id: groupid,
       },
@@ -137,18 +183,57 @@ export const onCreateGroupCourse = async (
             description,
             privacy,
             published,
+            level: extras?.level ?? null,
+            learnOutcomes: (extras?.learnOutcomes as any) ?? undefined,
+            faq: (extras?.faqs as any) ?? undefined,
+            mentorId: extras?.mentorId ?? undefined,
           },
         },
       },
     })
+    if (!groupUpdate) return { status: 404, message: "Group not found" }
 
-    if (course) {
-      return { status: 200, message: "Course successfully created" }
+    // Persist translations for non-default locales
+    const translations = Array.isArray(extras?.translations) ? extras!.translations! : []
+    for (const t of translations) {
+      if (!t?.locale || t.locale === DEFAULT_LOCALE) continue
+      await client.courseTranslation.upsert({
+        where: { courseId_locale: { courseId: courseid, locale: t.locale } },
+        update: {
+          name: t.name,
+          description: (t as any).description ?? undefined,
+          learnOutcomes: (t.learnOutcomes as any) ?? undefined,
+          faq: (t.faqs as any) ?? undefined,
+        },
+        create: {
+          courseId: courseid,
+          locale: t.locale,
+          name: t.name,
+          description: (t as any).description ?? undefined,
+          learnOutcomes: (t.learnOutcomes as any) ?? undefined,
+          faq: (t.faqs as any) ?? undefined,
+        },
+      } as any)
     }
-
-    return { status: 404, message: "Group not found" }
+    return { status: 200 as const, message: "Course successfully created" }
   } catch (error) {
-    return { status: 400, message: "Oops! something went wrong" }
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+}
+
+// Get the very first section id of a course by module and section order
+export const onGetFirstSectionId = async (courseId: string) => {
+  try {
+    const first = await client.section.findFirst({
+      where: { Module: { is: { courseId } } },
+      orderBy: [{ Module: { order: "asc" } }, { order: "asc" }, { createdAt: "asc" }],
+      select: { id: true },
+    })
+    if (!first) return { status: 404 as const, message: "No sections found" }
+    return { status: 200 as const, sectionId: first.id }
+  } catch (error) {
+    console.error(error)
+    return { status: 500 as const, message: "Error fetching section" }
   }
 }
 
@@ -237,31 +322,97 @@ export const onReorderSections = async (
   }
 }
 
-export const onGetGroupCourses = async (groupid: string) => {
+export const onGetGroupCourses = async (
+  groupid: string,
+  filter: "all" | "in_progress" | "completed" | "unpublished" | "buckets" = "all",
+) => {
   try {
-    const courses = await client.course.findMany({
-      where: {
-        groupId: groupid,
-      },
-      take: 8,
-      orderBy: {
-        createdAt: "desc",
+    const [courses, userId] = await Promise.all([
+      client.course.findMany({
+        where: { groupId: groupid },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          thumbnail: true,
+          description: true,
+          createdAt: true,
+          published: true,
+        },
+      }),
+      getAuthedUserId(),
+    ])
+
+    if (!courses || courses.length === 0) {
+      return { status: 404 as const, message: "No courses found" }
+    }
+
+    // If no user, return raw courses for "all" only (published only)
+    if (!userId) {
+      const publishedOnly = courses.filter((c) => c.published)
+      if (filter === "unpublished") return { status: 200 as const, courses: courses.filter((c) => !c.published) }
+      if (filter !== "all") return { status: 200 as const, courses: [] }
+      return { status: 200 as const, courses: publishedOnly }
+    }
+
+    // Fetch progress for these courses
+    const progressRows = await client.userCourseProgress.findMany({
+      where: { userId, courseId: { in: courses.map((c) => c.id) } },
+      select: {
+        courseId: true,
+        completedSections: true,
+        lastSectionId: true,
+        updatedAt: true,
       },
     })
 
-    if (courses && courses.length > 0) {
-      return { status: 200, courses }
+    const byCourse = new Map(progressRows.map((p) => [p.courseId, p]))
+
+    // Compute latest totals to avoid stale progress
+    const [totals, moduleTotals] = await Promise.all([
+      Promise.all(
+        courses.map((c) =>
+          client.section.count({ where: { Module: { is: { courseId: c.id } } } }),
+        ),
+      ),
+      Promise.all(
+        courses.map((c) => client.module.count({ where: { courseId: c.id } })),
+      ),
+    ])
+
+    const enriched = courses.map((c, idx) => {
+      const row = byCourse.get(c.id)
+      const totalCount = totals[idx] ?? 0
+      const completedCount = row?.completedSections?.length ?? 0
+      const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+      const isComplete = percent === 100
+      return {
+        ...c,
+        totalCount,
+        moduleCount: moduleTotals[idx] ?? 0,
+        completedCount,
+        progress: percent,
+        isComplete,
+        lastSectionId: row?.lastSectionId ?? null,
+      }
+    })
+
+    const published = enriched.filter((c) => c.published)
+    if (filter === "buckets") {
+      const in_progress = published.filter((c) => c.progress > 0 && !c.isComplete)
+      const completed = published.filter((c) => c.isComplete)
+      const unpublished = enriched.filter((c) => !c.published)
+      return { status: 200 as const, all: published, in_progress, completed, unpublished }
     }
 
-    return {
-      status: 404,
-      message: "No courses found",
-    }
+    let final = published
+    if (filter === "in_progress") final = published.filter((c) => c.progress > 0 && !c.isComplete)
+    if (filter === "completed") final = published.filter((c) => c.isComplete)
+    if (filter === "unpublished") final = enriched.filter((c) => !c.published)
+
+    return { status: 200 as const, courses: final }
   } catch (error) {
-    return {
-      status: 400,
-      message: "Oops! something went wrong",
-    }
+    return { status: 400 as const, message: "Oops! something went wrong" }
   }
 }
 
@@ -492,12 +643,14 @@ export const onUpdateSection = async (
           lastSectionId: sectionId,
           completedSections,
           progress: progressPct,
+          isComplete: progressPct >= 100,
         },
         update: {
           lastModuleId: moduleId,
           lastSectionId: sectionId,
           completedSections: { set: completedSections },
           progress: progressPct,
+          isComplete: progressPct >= 100,
         },
       })
 
