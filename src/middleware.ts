@@ -11,6 +11,11 @@ export default clerkMiddleware(async (auth, request) => {
   const reqPath = request.nextUrl.pathname
   const origin = request.nextUrl.origin
   if (isProtectedRoute(request)) auth.protect()
+
+  // Do not apply locale redirection on the landing page
+  if (reqPath === "/" || reqPath.startsWith("/callback")) {
+    return NextResponse.next()
+  }
   if (!baseHost.includes(host as string) && reqPath.startsWith("/group")) {
     const response = await fetch(`${origin}/api/domain?host=${host}`, {
       method: "GET",

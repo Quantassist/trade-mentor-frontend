@@ -2,6 +2,59 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model MentorProfile {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String?  @unique @db.Uuid
+  displayName        String
+  title              String?
+  organization       String?
+  headshotUrl        String?
+  bio                String?
+  experienceStartYear DateTime?
+  socials            Json?
+  slug               String   @unique
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  courses            CourseMentor[]
+  translations       MentorProfileTranslation[]
+}
+
+model CourseMentor {
+  courseId   String   @db.Uuid
+  mentorId   String   @db.Uuid
+  role       MentorRole @default(PRIMARY)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  Course     Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  Mentor     MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+
+  @@id([courseId, mentorId])
+  @@index([mentorId, sortOrder])
+}
+
+enum MentorRole {
+  PRIMARY
+  CO_AUTHOR
+  GUEST
+  TA
+}
+
+model MentorProfileTranslation {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mentorId    String  @db.Uuid
+  locale      String
+  displayName String?
+  title       String?
+  bio         String?
+  Mentor      MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+
+  @@unique([mentorId, locale])
+  @@index([locale])
+}
+
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -25,6 +78,7 @@ model User {
   message      Message[]
   posts        Post[]
   progress     UserCourseProgress[]
+  mentorProfile  MentorProfile?
 }
 
 model Subscription {
@@ -124,29 +178,36 @@ model Channel {
 }
 
 model Course {
-  id          String   @id @db.Uuid
-  name        String
-  thumbnail   String
-  published   Boolean  @default(false)
-  privacy     String
-  description String
-  createdAt   DateTime @default(now())
-  groupId     String?  @db.Uuid
-  Group       Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  modules     Module[]
-  translations CourseTranslation[]
-  progress     UserCourseProgress[]
+  id            String   @id @db.Uuid
+  name          String
+  thumbnail     String
+  published     Boolean  @default(false)
+  privacy       String
+  description   String
+  level         String?
+  learnOutcomes Json?
+  faq           Json?
+  createdAt     DateTime @default(now())
+  groupId       String?  @db.Uuid
+  Group         Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  modules       Module[]
+  translations  CourseTranslation[]
+  progress      UserCourseProgress[]
+  isDeleted     Boolean  @default(false) @map("is_deleted")
+  mentors       CourseMentor[]
 }
 
 model Module {
-  id        String    @id @db.Uuid
-  courseId  String?   @db.Uuid
-  title     String
-  createdAt DateTime  @default(now())
-  order     Int       @default(0)
-  Course    Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  section   Section[]
+  id           String    @id @db.Uuid
+  courseId     String?   @db.Uuid
+  title        String
+  createdAt    DateTime  @default(now())
+  order        Int       @default(0)
+  Course       Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  section      Section[]
   translations ModuleTranslation[]
+
+  @@index([courseId, order])
 }
 
 model Section {
@@ -161,6 +222,8 @@ model Section {
   order       Int      @default(0)
   Module      Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   translations SectionTranslation[]
+
+  @@index([moduleId, order])
 }
 
 model UserCourseProgress {
@@ -171,12 +234,15 @@ model UserCourseProgress {
   lastSectionId    String?  @db.Uuid
   completedSections String[] @default([])
   progress         Float    @default(0)
+  isComplete       Boolean  @default(false)
   updatedAt        DateTime @updatedAt
   createdAt        DateTime @default(now())
   User             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   Course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
+  @@index([userId, progress, updatedAt])
+  @@index([courseId])
 }
 
 model Affiliate {
@@ -213,8 +279,9 @@ model CourseTranslation {
   courseId        String  @db.Uuid
   locale          String
   name            String?
-  descriptionJson Json?
-  descriptionHtml String?
+  description     String?
+  learnOutcomes   Json?
+  faq             Json?
   Course          Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([courseId, locale])

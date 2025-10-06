@@ -1,13 +1,13 @@
 "use server"
 
 import { CreateGroupSchema } from "@/components/form/create-group/schema"
+import { defaultLocale } from "@/i18n/config"
 import { client } from "@/lib/prisma"
 import axios from "axios"
 import { revalidatePath } from "next/cache"
 import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
 import { onAuthenticatedUser, onGetUserGroupRole } from "./auth"
-import { defaultLocale } from "@/i18n/config"
 
 export const onGetAffiliateInfo = async (id: string) => {
   try {
@@ -45,6 +45,28 @@ export const onGetAffiliateInfo = async (id: string) => {
       status: 400,
       message: "Oops! something went wrong",
     }
+  }
+}
+
+// List possible mentors (group members who can be selected as mentors)
+export const onGetGroupMentors = async (groupid: string) => {
+  try {
+    const members = await client.members.findMany({
+      where: { groupId: groupid, role: { in: ["OWNER", "ADMIN", "INSTRUCTOR"] as any } },
+      select: {
+        User: { select: { id: true, firstname: true, lastname: true, image: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    })
+
+    const mentors = members
+      .map((m) => m.User)
+      .filter(Boolean)
+      .map((u) => ({ id: u!.id, name: `${u!.firstname} ${u!.lastname}`, image: u!.image ?? null }))
+
+    return { status: 200 as const, mentors }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
   }
 }
 

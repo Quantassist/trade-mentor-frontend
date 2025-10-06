@@ -13,10 +13,12 @@ import {
   onUpdateCourseSectionContent,
   onUpdateModule,
   onUpdateSection,
+  onUpdateCourse,
+  onGetMentorProfiles,
 } from "@/actions/courses"
 import { onGetGroupInfo } from "@/actions/groups"
 import { CourseContentSchema } from "@/components/form/course-content/schema"
-import { CreateCourseSchema } from "@/components/form/create-course/schema"
+import { CreateCourseSchema, UpdateCourseSchema } from "@/components/form/create-course/schema"
 import { SECTION_TYPES } from "@/constants/icons"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -34,7 +36,7 @@ const upload = new UploadClient({
   publicKey: process.env.NEXT_PUBLIC_UPLOAD_CARE_PUBLIC_KEY as string,
 })
 
-export const useCreateCourse = (groupid: string) => {
+export const useCreateCourse = (groupid: string, initial?: any) => {
   const locale = useLocale()
   const [onPrivacy, setOnPrivacy] = useState<string | undefined>("open")
   const buttonRef = useRef<HTMLButtonElement | null>(null)
@@ -43,22 +45,51 @@ export const useCreateCourse = (groupid: string) => {
     register,
     reset,
     watch,
+    getValues,
     setValue,
+    control,
     formState: { errors },
-  } = useForm<z.infer<typeof CreateCourseSchema>>({
-    resolver: zodResolver(CreateCourseSchema),
-    defaultValues: {
-      privacy: "open",
-      published: false,
-    },
+  } = useForm<any>({
+    resolver: zodResolver(initial ? UpdateCourseSchema : CreateCourseSchema),
+    defaultValues: initial
+      ? {
+          name: initial.name,
+          description: initial.description,
+          level: initial.level ?? "All levels",
+          learnOutcomes: Array.isArray(initial.learnOutcomes) ? initial.learnOutcomes : [""],
+          faqs: Array.isArray(initial.faq) ? initial.faq : [],
+          mentors: Array.isArray(initial.mentors)
+            ? initial.mentors.map((m: any, idx: number) => ({
+                mentorId: m.mentorId,
+                role: m.role ?? "PRIMARY",
+                sortOrder: typeof m.sortOrder === "number" ? m.sortOrder : idx,
+              }))
+            : [],
+          privacy: initial.privacy ?? "open",
+          published: !!initial.published,
+        }
+      : {
+          privacy: "open",
+          published: false,
+          level: "All levels",
+          learnOutcomes: [""],
+          faqs: [],
+          mentors: [],
+        },
   })
 
   useEffect(() => {
-    const privacy = watch(({ privacy }) => setOnPrivacy(privacy))
-    return () => privacy.unsubscribe()
-  }, [watch])
+    // initialize privacy highlight once
+    try {
+      const current = getValues("privacy")
+      if (current) setOnPrivacy(current)
+    } catch {}
+    const sub = watch(({ privacy }) => setOnPrivacy(privacy))
+    return () => sub.unsubscribe()
+  }, [watch, getValues])
 
   const client = useQueryClient()
+  const [translations, setTranslations] = useState<any[]>([])
 
   const { data } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
@@ -70,28 +101,64 @@ export const useCreateCourse = (groupid: string) => {
     refetchOnMount: false,
   })
 
+  const { data: mentorsData } = useQuery({
+    queryKey: ["mentor-profiles"],
+    queryFn: () => onGetMentorProfiles(),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
+  })
+
   const { mutate, isPending, variables } = useMutation({
-    mutationKey: ["create-course-mutation"],
-    mutationFn: async (data: {
-      id: string
-      name: string
-      image: FileList
-      description: string
-      createdAt: Date
-      privacy: string
-      published: boolean
-    }) => {
-      const uploaded = await upload.uploadFile(data.image[0])
-      const course = await onCreateGroupCourse(
-        groupid,
-        data.name,
-        uploaded.uuid,
-        data.description,
-        data.id,
-        data.privacy,
-        data.published,
-      )
-      return course
+    mutationKey: [initial ? "update-course-mutation" : "create-course-mutation"],
+    mutationFn: async (data: any) => {
+      if (initial) {
+        // Update path
+        let thumbnail: string | undefined
+        if (data.image && data.image[0]) {
+          const uploaded = await upload.uploadFile(data.image[0])
+          thumbnail = uploaded.uuid
+        }
+        const includeLevel = initial.level !== undefined || (data.level && data.level !== "All levels")
+        const cleanedOutcomes = (data.learnOutcomes || []).filter(Boolean)
+        const includeOutcomes = initial.learnOutcomes !== undefined || cleanedOutcomes.length > 0
+        const includeFaqs = initial.faq !== undefined || (Array.isArray(data.faqs) && data.faqs.length > 0)
+        const res = await onUpdateCourse(groupid, initial.id, {
+          name: data.name,
+          description: data.description,
+          privacy: data.privacy,
+          published: data.published,
+          ...(includeLevel ? { level: data.level } : {}),
+          ...(includeOutcomes ? { learnOutcomes: cleanedOutcomes } : {}),
+          ...(includeFaqs ? { faqs: data.faqs } : {}),
+          ...(Array.isArray(data.mentors) ? { mentors: data.mentors } : {}),
+          ...(thumbnail ? { thumbnail } : {}),
+          translations,
+        })
+        return res
+      } else {
+        // Create path
+        const uploaded = await upload.uploadFile(data.image[0])
+        const course = await onCreateGroupCourse(
+          groupid,
+          data.name,
+          uploaded.uuid,
+          data.description,
+          data.id,
+          data.privacy,
+          data.published,
+          {
+            level: data.level,
+            learnOutcomes: data.learnOutcomes?.filter(Boolean),
+            faqs: data.faqs,
+            mentors: Array.isArray(data.mentors) ? data.mentors : [],
+            translations,
+          },
+        )
+        return course
+      }
     },
     onMutate: () => {
       buttonRef.current?.click()
@@ -103,20 +170,23 @@ export const useCreateCourse = (groupid: string) => {
     },
     onSettled: async () => {
       return await client.invalidateQueries({
-        queryKey: ["group-courses"],
+        queryKey: ["group-courses", groupid],
       })
     },
   })
 
   const onCreateCourse = handleSubmit(async (values) =>
-    mutate({
-      id: v4(),
-      createdAt: new Date(),
-      ...values,
-      image: values.image,
-    }),
+    mutate(
+      initial
+        ? { ...values }
+        : {
+            id: v4(),
+            createdAt: new Date(),
+            ...values,
+            image: values.image,
+          },
+    ),
   )
-
   return {
     onCreateCourse,
     register,
@@ -126,21 +196,28 @@ export const useCreateCourse = (groupid: string) => {
     isPending,
     onPrivacy,
     setValue,
+    watch,
     data,
+    mentorsData,
+    control,
+    setTranslations,
   }
 }
 
-export const useCourses = (groupid: string) => {
+export const useCourses = (
+  groupid: string,
+  filter: "all" | "in_progress" | "completed" | "unpublished" = "all",
+  locale?: string,
+) => {
   const { data } = useQuery({
-    queryKey: ["group-courses"],
-    queryFn: () => onGetGroupCourses(groupid),
+    queryKey: ["group-courses", groupid, filter, locale],
+    queryFn: () => onGetGroupCourses(groupid, filter, locale),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
     refetchOnMount: false,
   })
-
   return { data }
 }
 
