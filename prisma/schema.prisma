@@ -2,6 +2,59 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model MentorProfile {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String?  @unique @db.Uuid
+  displayName        String
+  title              String?
+  organization       String?
+  headshotUrl        String?
+  bio                String?
+  experienceStartYear DateTime?
+  socials            Json?
+  slug               String   @unique
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  courses            CourseMentor[]
+  translations       MentorProfileTranslation[]
+}
+
+model CourseMentor {
+  courseId   String   @db.Uuid
+  mentorId   String   @db.Uuid
+  role       MentorRole @default(PRIMARY)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  Course     Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  Mentor     MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+
+  @@id([courseId, mentorId])
+  @@index([mentorId, sortOrder])
+}
+
+enum MentorRole {
+  PRIMARY
+  CO_AUTHOR
+  GUEST
+  TA
+}
+
+model MentorProfileTranslation {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mentorId    String  @db.Uuid
+  locale      String
+  displayName String?
+  title       String?
+  bio         String?
+  Mentor      MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+
+  @@unique([mentorId, locale])
+  @@index([locale])
+}
+
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -25,7 +78,7 @@ model User {
   message      Message[]
   posts        Post[]
   progress     UserCourseProgress[]
-  mentoredCourses Course[] @relation("MentorCourses")
+  mentorProfile  MentorProfile?
 }
 
 model Subscription {
@@ -134,14 +187,14 @@ model Course {
   level         String?
   learnOutcomes Json?
   faq           Json?
-  mentorId      String?  @db.Uuid
   createdAt     DateTime @default(now())
   groupId       String?  @db.Uuid
   Group         Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  mentor        User?    @relation("MentorCourses", fields: [mentorId], references: [id])
   modules       Module[]
   translations  CourseTranslation[]
   progress      UserCourseProgress[]
+  isDeleted     Boolean  @default(false) @map("is_deleted")
+  mentors       CourseMentor[]
 }
 
 model Module {

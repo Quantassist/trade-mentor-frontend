@@ -16,8 +16,112 @@ const getAuthedUserId = async (): Promise<string | null> => {
   }
 }
 
+// Update an existing course and its translations
+export const onUpdateCourse = async (
+  groupid: string,
+  courseId: string,
+  payload: {
+    name: string
+    thumbnail?: string | null
+    description: string
+    privacy: string
+    published: boolean
+    level?: string | null
+    learnOutcomes?: string[]
+    faqs?: { question: string; answer: string }[]
+    mentors?: { mentorId: string; role: string; sortOrder: number }[]
+    translations?: Array<{
+      locale: string
+      name?: string
+      description?: string
+      learnOutcomes?: string[]
+      faqs?: { question: string; answer: string }[]
+    }>
+  },
+) => {
+  try {
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401 as const, message: "Unauthorized" }
+    if (!hasPermission(userRole.role, "course:edit") && !userRole.isSuperAdmin) {
+      return { status: 403 as const, message: "Forbidden" }
+    }
+
+    const updated = await client.course.update({
+      where: { id: courseId },
+      data: {
+        name: payload.name,
+        description: payload.description,
+        privacy: payload.privacy,
+        published: payload.published,
+        level: payload.level ?? null,
+        learnOutcomes: (payload.learnOutcomes as any) ?? undefined,
+        faq: (payload.faqs as any) ?? undefined,
+        ...(payload.thumbnail !== undefined ? { thumbnail: payload.thumbnail ?? null } : {}),
+      } as any,
+    })
+    if (!updated) return { status: 404 as const, message: "Course not found" }
+
+    // Replace mentors if provided
+    if (Array.isArray(payload.mentors)) {
+      await client.courseMentor.deleteMany({ where: { courseId } })
+      if (payload.mentors.length > 0) {
+        await client.courseMentor.createMany({
+          data: payload.mentors.map((m) => ({
+            courseId,
+            mentorId: m.mentorId,
+            role: m.role as any,
+            sortOrder: m.sortOrder ?? 0,
+          })),
+          skipDuplicates: true,
+        })
+      }
+    }
+
+    const translations = Array.isArray(payload.translations) ? payload.translations! : []
+    for (const t of translations) {
+      if (!t?.locale || t.locale === DEFAULT_LOCALE) continue
+      await client.courseTranslation.upsert({
+        where: { courseId_locale: { courseId, locale: t.locale } },
+        update: {
+          name: t.name,
+          description: (t as any).description ?? undefined,
+          learnOutcomes: (t.learnOutcomes as any) ?? undefined,
+          faq: (t.faqs as any) ?? undefined,
+        },
+        create: {
+          courseId,
+          locale: t.locale,
+          name: t.name,
+          description: (t as any).description ?? undefined,
+          learnOutcomes: (t.learnOutcomes as any) ?? undefined,
+          faq: (t.faqs as any) ?? undefined,
+        },
+      } as any)
+    }
+
+    return { status: 200 as const, message: "Course successfully updated" }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+}
+
+// Delete a course (modules/sections cascade by Prisma)
+export const onDeleteCourse = async (groupid: string, courseId: string) => {
+  try {
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401 as const, message: "Unauthorized" }
+    if (!hasPermission(userRole.role, "course:delete") && !userRole.isSuperAdmin) {
+      return { status: 403 as const, message: "Forbidden" }
+    }
+    await client.course.update({ where: { id: courseId }, data: { isDeleted: true } })
+    return { status: 200 as const, message: "Course deleted" }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+}
+
 // Fetch course details + counts for About page
-export const onGetCourseAbout = async (courseId: string) => {
+export const onGetCourseAbout = async (courseId: string, locale?: string) => {
   try {
     const course = await client.course.findUnique({
       where: { id: courseId },
@@ -28,9 +132,45 @@ export const onGetCourseAbout = async (courseId: string) => {
         thumbnail: true,
         createdAt: true,
         published: true,
+        privacy: true,
+        level: true,
+        learnOutcomes: true,
+        faq: true,
+        mentors: {
+          select: {
+            role: true,
+            sortOrder: true,
+            Mentor: {
+              select: {
+                displayName: true,
+                title: true,
+                headshotUrl: true,
+                slug: true,
+                organization: true,
+                bio: true,
+                experienceStartYear: true,
+                socials: true,
+              },
+            },
+          },
+          orderBy: { sortOrder: "asc" },
+        },
       },
     })
     if (!course) return { status: 404 as const, message: "Course not found" }
+
+    // Locale overlay similar to onGetSectionInfo
+    if (locale && locale !== DEFAULT_LOCALE) {
+      const t = await client.courseTranslation.findUnique({
+        where: { courseId_locale: { courseId, locale } },
+      })
+      if (t) {
+        (course as any).name = t.name ?? course.name
+        ;(course as any).description = (t as any).description ?? course.description
+        ;(course as any).learnOutcomes = (t as any).learnOutcomes ?? course.learnOutcomes
+        ;(course as any).faq = (t as any).faq ?? course.faq
+      }
+    }
 
     const [moduleCount, totalLessons] = await Promise.all([
       client.module.count({ where: { courseId } }),
@@ -146,7 +286,7 @@ export const onCreateGroupCourse = async (
     level?: string
     learnOutcomes?: string[]
     faqs?: { question: string; answer: string }[]
-    mentorId?: string | null
+    mentors?: { mentorId: string; role: string; sortOrder: number }[]
     translations?: Array<{
       locale: string
       name?: string
@@ -186,7 +326,6 @@ export const onCreateGroupCourse = async (
             level: extras?.level ?? null,
             learnOutcomes: (extras?.learnOutcomes as any) ?? undefined,
             faq: (extras?.faqs as any) ?? undefined,
-            mentorId: extras?.mentorId ?? undefined,
           },
         },
       },
@@ -215,7 +354,33 @@ export const onCreateGroupCourse = async (
         },
       } as any)
     }
+    // Create mentors junctions
+    if (Array.isArray(extras?.mentors) && extras.mentors.length > 0) {
+      await client.courseMentor.createMany({
+        data: extras.mentors.map((m) => ({
+          courseId: courseid,
+          mentorId: m.mentorId,
+          role: m.role as any,
+          sortOrder: m.sortOrder ?? 0,
+        })),
+        skipDuplicates: true,
+      })
+    }
     return { status: 200 as const, message: "Course successfully created" }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+}
+
+// List active mentor profiles (could be filtered by group later if relation exists)
+export const onGetMentorProfiles = async () => {
+  try {
+    const mentors = await client.mentorProfile.findMany({
+      where: { isActive: true },
+      select: { id: true, displayName: true, title: true, headshotUrl: true, slug: true },
+      orderBy: { displayName: "asc" },
+    })
+    return { status: 200 as const, mentors }
   } catch (error) {
     return { status: 400 as const, message: "Oops! something went wrong" }
   }
@@ -325,19 +490,49 @@ export const onReorderSections = async (
 export const onGetGroupCourses = async (
   groupid: string,
   filter: "all" | "in_progress" | "completed" | "unpublished" | "buckets" = "all",
+  locale?: string,
 ) => {
   try {
     const [courses, userId] = await Promise.all([
       client.course.findMany({
-        where: { groupId: groupid },
+        where: { groupId: groupid, isDeleted: false },
         orderBy: { createdAt: "desc" },
         select: {
           id: true,
           name: true,
           thumbnail: true,
           description: true,
+          privacy: true,
+          level: true,
+          learnOutcomes: true,
+          faq: true,
           createdAt: true,
           published: true,
+          translations: {
+            select: {
+              locale: true,
+              name: true,
+              description: true,
+              learnOutcomes: true,
+              faq: true,
+            },
+          },
+          mentors: {
+            select: {
+              mentorId: true,
+              role: true,
+              sortOrder: true,
+              Mentor: {
+                select: {
+                  displayName: true,
+                  title: true,
+                  headshotUrl: true,
+                  slug: true,
+                },
+              },
+            },
+            orderBy: { sortOrder: "asc" },
+          },
         },
       }),
       getAuthedUserId(),
@@ -345,6 +540,19 @@ export const onGetGroupCourses = async (
 
     if (!courses || courses.length === 0) {
       return { status: 404 as const, message: "No courses found" }
+    }
+
+    // Overlay translations if locale is provided and not default
+    if (locale && locale !== DEFAULT_LOCALE) {
+      for (const c of courses as any[]) {
+        const t = c.translations?.find((x: any) => x.locale === locale)
+        if (t) {
+          c.name = t.name ?? c.name
+          c.description = t.description ?? c.description
+          c.learnOutcomes = t.learnOutcomes ?? c.learnOutcomes
+          c.faq = t.faq ?? c.faq
+        }
+      }
     }
 
     // If no user, return raw courses for "all" only (published only)

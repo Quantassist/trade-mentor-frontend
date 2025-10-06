@@ -8,19 +8,34 @@ import { AboutFaq } from "../../_components/about-faq"
 import { AboutAsideCard } from "../../_components/about-aside-card"
 
 type PageProps = {
-  params: Promise<{ groupid: string; courseid: string }>
+  params: Promise<{ locale: string; groupid: string; courseid: string }>
 }
 
 export default async function AboutCoursePage({ params }: PageProps) {
-  const { groupid, courseid } = await params
+  const { locale, groupid, courseid } = await params
 
   const [aboutRes, modulesRes] = await Promise.all([
-    onGetCourseAbout(courseid),
+    onGetCourseAbout(courseid, locale),
     onGetCourseModules(courseid),
   ])
 
   const course = aboutRes.status === 200 ? (aboutRes as any).course : null
   const modules = modulesRes.status === 200 ? (modulesRes as any).modules : []
+  const learnItems: string[] = Array.isArray(course?.learnOutcomes) ? (course!.learnOutcomes as any) : []
+  const faqs: { question?: string; answer?: string }[] = Array.isArray(course?.faq) ? (course!.faq as any) : []
+  const mentors = Array.isArray(course?.mentors)
+    ? (course!.mentors as any[]).map((m: any) => ({
+        displayName: m?.Mentor?.displayName,
+        title: m?.Mentor?.title,
+        headshotUrl: m?.Mentor?.headshotUrl,
+        role: m?.role,
+        organization: m?.Mentor?.organization,
+        bio: m?.Mentor?.bio,
+        experienceStartYear: m?.Mentor?.experienceStartYear,
+        socials: m?.Mentor?.socials,
+      }))
+    : []
+  const languageLabel = locale === "hi" ? "Hindi" : locale === "en" ? "English" : locale
 
   return (
     <div className="container py-10 px-5">
@@ -36,7 +51,7 @@ export default async function AboutCoursePage({ params }: PageProps) {
             renderAside={false}
           />
 
-          <AboutMetrics />
+          <AboutMetrics level={course?.level} language={languageLabel} />
 
           {/* About text */}
           {course?.description && (
@@ -47,15 +62,15 @@ export default async function AboutCoursePage({ params }: PageProps) {
           )}
 
           {/* Learning outcomes */}
-          <AboutLearn />
+          <AboutLearn items={learnItems} />
           {/* Modules list */}
           <AboutModules modules={modules ?? []} />
 
           {/* Mentor */}
-          <AboutMentor />
+          <AboutMentor mentors={mentors} />
 
           {/* FAQ */}
-          <AboutFaq />
+          <AboutFaq faqs={faqs} />
         </div>
         <div className="lg:col-span-4">
           <AboutAsideCard thumbnail={course?.thumbnail ?? undefined} />

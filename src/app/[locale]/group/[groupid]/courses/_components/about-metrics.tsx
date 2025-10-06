@@ -1,16 +1,15 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { Layers, Clock3, BookOpen, Languages } from "lucide-react"
 
-export function AboutMetrics() {
+export function AboutMetrics({ level, language }: { level?: string | null; language?: string | null }) {
   const items = [
-    { icon: Layers, label: "Level", value: "All levels" },
+    { icon: Layers, label: "Level", value: level || "All levels" },
     { icon: Clock3, label: "Access", value: "On demand" },
     { icon: BookOpen, label: "Access period", value: "90 days" },
-    { icon: Languages, label: "Language", value: "English" },
+    { icon: Languages, label: "Language", value: language || "English" },
   ]
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

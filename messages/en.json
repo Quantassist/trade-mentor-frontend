@@ -28,6 +28,23 @@
       "integrations": "Integration"
     }
   },
+  "courses": {
+    "title": "My Learnings",
+    "createCourseButton": "Create Course",
+    "editCourseButton": "Edit Course",
+    "startCourseButton": "Start Course",
+    "resumeCourseButton": "Resume Course",
+    "courseOverviewButton": "Course Overview",
+    "modulesText": "Modules",
+    "lessonsText": "Lessons",
+    "completedText": "Complete",
+    "tabs": {
+      "all": "My courses",
+      "inProgress": "In-progress",
+      "completed": "Completed",
+      "unpublished": "Unpublished"
+    }
+  },
   "settings": {
     "affiliates": {
       "title": "Affiliate Link",

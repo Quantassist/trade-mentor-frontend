@@ -61,6 +61,23 @@
       "tech": "टेक"
     }
   },
+  "courses": {
+    "title": "मेरी लर्निंग्स",
+    "createCourseButton": "कोर्स बनाएं",
+    "editCourseButton": "संपादित करें",
+    "startCourseButton": "सुरुवात करें",
+    "resumeCourseButton": "फिर से शुरू करें",
+    "courseOverviewButton": "कोर्स ऑवरव्यू",
+    "modulesText": "मॉड्यूल",
+    "lessonsText": "लेसन",
+    "completedText": "पूरा",
+    "tabs": {
+      "all": "मेरे कोर्स",
+      "inProgress": "प्रगति पर",
+      "completed": "पूरा हुआ",
+      "unpublished": "अप्रकाशित"
+    }
+  },
   "settings": {
     "affiliates": {
       "title": "एफ़िलिएट लिंक",
