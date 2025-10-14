@@ -10,6 +10,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { DropDown } from "../drop-down"
 import { SideBarMenu } from "./menu"
+import { useSidebar } from "./sidebar-context"
 
 type SideBarProps = {
   groupid: string
@@ -65,21 +66,28 @@ export interface IGroups {
 
 export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
   const pathname = usePathname()
-  // Hide sidebar completely in Courses section
-  if (pathname?.includes("/courses")) {
-    return null
-  }
   const { groupInfo, groups, mutate, variables, isPending, channels } =
     useSideBar(groupid)
 
   // console.log("sidebar groups", groups)
 
   useGroupChatOnline(userid)
+  const { collapsed } = useSidebar()
+  const effectiveCollapsed = collapsed
+  const isSheet = Boolean(mobile)
+  const showGroupText = isSheet || !effectiveCollapsed
   return (
     <div
       className={cn(
-        "h-screen  flex-col gap-y-10 sm:px-5 fixed",
-        !mobile ? "hidden bg-black md:w-[300px] fixed md:flex" : "w-full flex",
+        "h-screen flex-col gap-y-10 fixed overflow-hidden",
+        !mobile
+          ? cn(
+              "hidden bg-black fixed md:flex md:shrink-0",
+              effectiveCollapsed
+                ? "md:w-[70px] md:min-w-[70px] md:max-w-[70px] md:px-2"
+                : "md:w-[300px] md:min-w-[300px] md:max-w-[300px] sm:px-5 md:px-5",
+            )
+          : "w-full flex",
       )}
     >
       {/* <div className="h-screen bg-black sm:w-[300px] w-[70px] flex-col gap-y-10 fixed sm:px-5 hidden sm:flex"> */}
@@ -87,18 +95,49 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
         <DropDown
           title="Groups"
           trigger={
-            <div className="w-full flex items-center justify-between text-themeTextGray md:border-[1px] border-themeGray p-3 rounded-xl">
-              <div className="flex gap-x-3 items-center">
-                <img
-                  src={`https://ucarecdn.com/${groupInfo.group?.icon as string}/`}
-                  alt="icon"
-                  className="w-10 rounded-lg"
-                />
-                <p className="hidden md:inline text-sm">
-                  {groupInfo.group?.name}
-                </p>
+            <div
+              title={groupInfo.group?.name}
+              className={cn(
+                "w-full flex items-center text-themeTextGray rounded-xl",
+                isSheet
+                  ? "justify-between p-3"
+                  : effectiveCollapsed
+                    ? "justify-center px-0 py-2"
+                    : "justify-between md:border-[1px] border-themeGray p-3",
+              )}
+            >
+              <div className={cn(
+                  "flex items-center",
+                  isSheet ? "gap-x-3" : effectiveCollapsed ? "justify-center" : "gap-x-3",
+                )}> 
+                <div
+                  className={cn(
+                    "overflow-hidden rounded-xl bg-black/60 ring-1 ring-black/10",
+                    "h-8 w-12",
+                  )}
+                >
+                  <img
+                    src={`https://ucarecdn.com/${groupInfo.group?.icon as string}/`}
+                    alt="icon"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                {(isSheet || !effectiveCollapsed) && (
+                  <p
+                    className={cn(
+                      "text-sm truncate",
+                      isSheet ? "inline max-w-[65%]" : "hidden md:inline max-w-[60%]",
+                    )}
+                  >
+                    {groupInfo.group?.name}
+                  </p>
+                )}
               </div>
-              <span className="md:inline hidden">
+              <span
+                className={cn(
+                  isSheet ? "inline" : !effectiveCollapsed ? "hidden md:inline" : "hidden",
+                )}
+              > 
                 <CarotSort />
               </span>
             </div>
@@ -150,6 +189,7 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
         groupUserid={groupInfo.group?.userId!}
         userId={userid}
         mutate={mutate}
+        mobile={mobile}
       />
       {/* </div> */}
     </div>

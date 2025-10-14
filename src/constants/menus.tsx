@@ -43,9 +43,9 @@ export const LANDING_PAGE_MENU: MenuProps[] = [
 export const GROUP_PAGE_MENU: GroupMenuProps[] = [
   {
     id: 0,
-    label: "Home",
+    label: "Feed",
     icon: <Home />,
-    path: "home",
+    path: "feed",
   },
   {
     id: 1,

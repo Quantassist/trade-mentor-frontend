@@ -2,17 +2,18 @@
 
 import { GROUPLE_CONSTANTS } from "@/constants"
 import { useNavigation } from "@/hooks/navigation"
-import { cn } from "@/lib/utils"
 import { Link } from "@/i18n/navigation"
+import { cn } from "@/lib/utils"
+import { useLocale, useTranslations } from "next-intl"
 import { useParams } from "next/navigation"
 import { NavBar as TubeNavBar } from "../tubelight-navbar"
-import { useTranslations } from "next-intl"
 
 type MenuProps = {
   orientation: "mobile" | "desktop"
 }
 
 export const Menu = ({ orientation }: MenuProps) => {
+  const locale = useLocale()
   const { section, onSetSection } = useNavigation()
   const { groupid, channelid } = useParams() as {
     groupid: string
@@ -49,7 +50,7 @@ export const Menu = ({ orientation }: MenuProps) => {
         <div className="flex flex-col mt-10">
           {GROUPLE_CONSTANTS.groupPageMenu.map((menuItem) => (
             <Link
-              href={`${basePath}/${menuItem.path}`}
+              href={`${locale}/${basePath}/${menuItem.path}`}
               onClick={() => onSetSection(`${basePath}/${menuItem.path}`)}
               className={cn(
                 "rounded-xl flex gap-2 py-2 px-4 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20",

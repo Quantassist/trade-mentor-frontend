@@ -1,6 +1,8 @@
 "use client"
 
 import { onGetGroupInfo } from "@/actions/groups"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SIDEBAR_SETTINGS_MENU } from "@/constants/menus"
 import { useChannelInfo } from "@/hooks/channels"
@@ -10,10 +12,12 @@ import { Plus, Trash } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import React from "react"
 import { v4 as uuidv4 } from "uuid"
 import { IChannels } from "."
 import { IconRenderer } from "../icon-renderer"
 import { IconDropDown } from "./icon-dropdown"
+import { useSidebar } from "./sidebar-context"
 
 type SideBarMenuProps = {
   channels: IChannels[]
@@ -31,6 +35,7 @@ type SideBarMenuProps = {
   groupUserid: string
   userId: string
   mutate: any
+  mobile?: boolean
 }
 
 export const SideBarMenu = ({
@@ -41,12 +46,16 @@ export const SideBarMenu = ({
   groupUserid,
   userId,
   mutate,
+  mobile,
 }: SideBarMenuProps) => {
   const pathname = usePathname()
   const locale = useLocale()
   const currentPage = pathname.includes("settings") ? "settings" : "channels"
   const currentSection = pathname.split("/").pop() // TODO: Fix the bug by resolving current page in robust way
   const tr = useTranslations("menu.settings")
+  const { collapsed } = useSidebar()
+  const showLabels = Boolean(mobile || !collapsed)
+  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null)
 
   // Fetch group role info (SSR-prefetched in layout with the same key)
   const { data: groupInfo } = useQuery({
@@ -108,7 +117,9 @@ export const SideBarMenu = ({
               href={`/${locale}/group/${groupid}/settings/${item.path}`}
             >
               {item.icon}
-              {tr(settingsPathToKey(item.path))}
+              <span className={cn("hidden md:inline", !showLabels && "md:hidden")}> 
+                {tr(settingsPathToKey(item.path))}
+              </span>
             </Link>
           ) : (
             <Link
@@ -122,7 +133,9 @@ export const SideBarMenu = ({
               {/* <IconRenderer icon={item.icon} mode="DARK" />
                     <p className="text-lg capitalize">{item.label}</p> */}
               {item.icon}
-              {tr(settingsPathToKey(item.path))}
+              <span className={cn("hidden md:inline", !showLabels && "md:hidden")}> 
+                {tr(settingsPathToKey(item.path))}
+              </span>
             </Link>
           ),
         )}
@@ -136,26 +149,28 @@ export const SideBarMenu = ({
   //under the loop/map we add our optimistic ui
   return (
     <div className="flex flex-col gap-y-5">
-      <div className="flex justify-between items-center">
-        <p className="text-xs text-[#F7ECE9]">CHANNELS</p>
+      <div className={cn("flex items-center", showLabels ? "justify-between" : "justify-center")}> 
+        {showLabels && <p className="text-xs text-[#F7ECE9]">CHANNELS</p>}
         {userId === groupUserid && (
-          <Plus
-            size={16}
-            className={cn(
-              "text-themeTextGray cursor-pointer",
-              isPending && "opacity-70",
-            )}
-            {...(!isPending && {
-              onClick: () =>
-                mutate({
-                  id: uuidv4(),
-                  icon: "general",
-                  name: "unnamed",
-                  createdAt: new Date(),
-                  groupId: groupid,
-                }),
-            })}
-          />
+          <span title="Create channel">
+            <Plus
+              size={16}
+              className={cn(
+                "text-themeTextGray cursor-pointer",
+                isPending && "opacity-70",
+              )}
+              {...(!isPending && {
+                onClick: () =>
+                  mutate({
+                    id: uuidv4(),
+                    icon: "general",
+                    name: "unnamed",
+                    createdAt: new Date(),
+                    groupId: groupid,
+                  }),
+              })}
+            />
+          </span>
         )}
       </div>
       <div className="flex flex-col">
@@ -167,13 +182,16 @@ export const SideBarMenu = ({
                   <div
                     key={channel.id}
                     className={cn(
-                      "flex justify-between hover:bg-themeGray p-2 group rounded-lg items-center",
+                      "flex hover:bg-themeGray p-2 group rounded-lg items-center",
+                      showLabels ? "justify-between" : "justify-center",
                       channel.id === current && edit && "bg-themeGray",
                     )}
                   >
                     <Link
                       id="channel-link"
-                      href={`/${locale}/group/${channel.groupId}/channel/${channel.id}`}
+                      title={channel.name}
+                      className={cn(!showLabels && "flex items-center justify-center w-full")}
+                      href={`/${locale}/group/${channel.groupId}/feed/${channel.id}`}
                       {...(canManage &&
                         channel.name !== "general" &&
                         channel.name !== "announcements" && {
@@ -181,7 +199,7 @@ export const SideBarMenu = ({
                           ref: channelRef,
                         })}
                     >
-                      <div className="flex gap-x-2 items-center">
+                      <div className={cn("flex items-center", !showLabels ? "justify-center" : "gap-x-2")}> 
                         {channel.id === current && edit ? (
                           <IconDropDown
                             ref={triggerRef as any}
@@ -199,13 +217,13 @@ export const SideBarMenu = ({
                             }
                           />
                         )}
-                        {channel.id === current && edit ? (
+                        {showLabels && channel.id === current && edit ? (
                           <Input
                             type="text"
                             ref={inputRef}
                             className="bg-transparent p-0 text-lg m-0 h-full"
                           />
-                        ) : (
+                        ) : showLabels ? (
                           <p
                             className={cn(
                               "text-lg capitalize",
@@ -220,19 +238,23 @@ export const SideBarMenu = ({
                               ? variables.name
                               : channel.name}
                           </p>
-                        )}
+                        ) : null}
                       </div>
                     </Link>
-                    {canManage && channel.name !== "general" &&
+                    {showLabels && canManage && channel.name !== "general" &&
                       channel.name !== "announcements" && (
                         <button
                           onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
-                            onChannelDetele(channel.id)
+                            setConfirmDeleteId(channel.id)
                           }}
-                          className="group-hover:inline hidden content-end text-themeTextGray hover:text-gray-400"
+                          className={cn(
+                            "ml-2 content-end text-themeTextGray hover:text-gray-400",
+                            mobile ? "inline" : "group-hover:inline hidden",
+                          )}
                           aria-label="Delete channel"
+                          title="Delete channel"
                         >
                           <Trash size={16} />
                         </button>
@@ -244,6 +266,31 @@ export const SideBarMenu = ({
           </>
         ) : (
           <p>No Channels</p>
+        )}
+        {confirmDeleteId && (
+          <div className="mt-2">
+            <Alert variant="destructive">
+              <AlertTitle>Delete channel?</AlertTitle>
+              <AlertDescription>
+                This action cannot be undone. The channel will be permanently removed.
+              </AlertDescription>
+              <div className="mt-3 flex gap-2">
+                <Button size="sm" variant="secondary" onClick={() => setConfirmDeleteId(null)}>
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => {
+                    onChannelDetele(confirmDeleteId)
+                    setConfirmDeleteId(null)
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            </Alert>
+          </div>
         )}
       </div>
     </div>

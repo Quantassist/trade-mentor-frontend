@@ -14,7 +14,7 @@
   },
   "menu": {
     "group": {
-      "home": "Home",
+      "feed": "Feed",
       "courses": "Courses",
       "events": "Events",
       "leaderboard": "Leaderboard",
