@@ -101,7 +101,7 @@ export const usePayments = (
             description: created.message,
           })
           router.push(
-            `/group/${(created.data as any)?.group[0].id}/channel/${(created.data as any)?.group[0].channel[0].id}`,
+            `/group/${(created.data as any)?.group[0].id}/feed/${(created.data as any)?.group[0].channel[0].id}`,
           )
         }
         if (created && created.status !== 200) {
@@ -143,7 +143,7 @@ export const useJoinFree = (groupid: string) => {
     const memeber = await onJoinGroup(groupid)
     if (memeber?.status === 200) {
       const channels = await onGetGroupChannels(groupid)
-      router.push(`/group/${groupid}/channel/${channels?.channels?.[0].id}`)
+      router.push(`/group/${groupid}/feed/${channels?.channels?.[0].id}`)
     }
   }
 
@@ -187,7 +187,7 @@ export const useJoinGroup = (groupid: string) => {
         const member = await onJoinGroup(groupid)
         if (member?.status === 200) {
           const channels = await onGetGroupChannels(groupid)
-          router.push(`/group/${groupid}/channel/${channels?.channels?.[0].id}`)
+          router.push(`/group/${groupid}/feed/${channels?.channels?.[0].id}`)
         }
       }
     },

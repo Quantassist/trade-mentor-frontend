@@ -241,7 +241,6 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
         const l = t.locale
         nameMap[l] = t.name ?? ""
         // backend returns `description`; older code may use `descriptionHtml/Json`, we only read `description`
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const faqAny = (t as any).faqs ?? (t as any).faq
         descMap[l] = (t as any).description ?? ""
         outMap[l] = (t as any).learnOutcomes ?? []

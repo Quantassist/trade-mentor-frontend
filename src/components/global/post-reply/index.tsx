@@ -1,4 +1,4 @@
-import { UserComment } from "@/app/[locale]/group/[groupid]/channel/[channelid]/[postid]/_components/comments/user-comment"
+import { UserComment } from "@/app/[locale]/group/[groupid]/feed/[channelid]/[postid]/_components/comments/user-comment"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { usePostReply } from "@/hooks/channels"

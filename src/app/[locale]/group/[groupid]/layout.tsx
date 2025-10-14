@@ -6,7 +6,7 @@ import {
   onGetGroupSubscription,
   onGetUserGroups,
 } from "@/actions/groups"
-import { SideBar } from "@/components/global/sidebar"
+import { SidebarProvider } from "@/components/global/sidebar/sidebar-context"
 import {
   HydrationBoundary,
   QueryClient,
@@ -17,6 +17,7 @@ import { redirect } from "next/navigation"
 import React from "react"
 import { MobileBottomGroupNav } from "../_components/group-navbar"
 import { Navbar } from "../_components/navbar"
+import { GroupShell } from "../_components/shell"
 
 type GroupLayoutProps = {
   children: React.ReactNode
@@ -61,14 +62,16 @@ const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
 
   return (
     <HydrationBoundary state={dehydrate(query)}>
-      <div className="flex min-h-screen md:pt-5">
-        <SideBar groupid={groupid} userid={user.id} />
-        <div className="md:ml-[300px] flex flex-col ml-[70px] flex-1 bg-[#101011] rounded-tl-xl overflow-hidden border-l-[1px] border-t-[1px] border-[#28282D] pb-16 sm:pb-0">
-          <Navbar groupid={groupid} userid={user.id} />
+      <SidebarProvider>
+        <GroupShell
+          groupid={groupid}
+          userid={user.id}
+          navbar={<Navbar groupid={groupid} userid={user.id} />}
+        >
           {children}
           <MobileBottomGroupNav />
-        </div>
-      </div>
+        </GroupShell>
+      </SidebarProvider>
     </HydrationBoundary>
   )
 }

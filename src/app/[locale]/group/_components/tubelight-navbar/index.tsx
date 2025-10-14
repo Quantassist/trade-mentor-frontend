@@ -19,6 +19,8 @@ interface NavBarProps {
   activeUrl?: string
   onItemClick?: (item: NavItem) => void
   position?: "fixed" | "inline"
+  forceShowLabels?: boolean
+  fullWidth?: boolean
 }
 
 export function NavBar({
@@ -27,6 +29,8 @@ export function NavBar({
   activeUrl,
   onItemClick,
   position = "inline",
+  forceShowLabels = false,
+  fullWidth = false,
 }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0]?.name ?? "")
   const [isMobile, setIsMobile] = useState(false)
@@ -58,8 +62,13 @@ export function NavBar({
       : "relative"
 
   return (
-    <div className={cn(containerPositionClass, className)}>
-      <div className="pointer-events-auto flex items-center gap-3 bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg">
+    <div className={cn(containerPositionClass, fullWidth && "w-full", className)}>
+      <div
+        className={cn(
+          "pointer-events-auto flex items-center bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg",
+          fullWidth ? "w-full justify-between gap-1" : "gap-3",
+        )}
+      >
         {items.map((item) => {
           const Icon =
             typeof item.icon === "function" ? (item.icon as ElementType) : null
@@ -74,12 +83,13 @@ export function NavBar({
                 onItemClick?.(item)
               }}
               className={cn(
-                "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
+                "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors flex items-center justify-center",
                 "text-foreground/80 hover:text-primary",
                 isActive && "bg-muted text-primary",
+                fullWidth && "flex-1 min-w-0 px-3",
               )}
             >
-              <span className="hidden sm:inline-flex items-center">
+              <span className={cn("items-center", forceShowLabels ? "inline-flex" : "hidden sm:inline-flex")}> 
                 {isActive && (
                   <span className="mr-2 inline-flex items-center">
                     {Icon ? (
@@ -91,7 +101,7 @@ export function NavBar({
                 )}
                 {item.name}
               </span>
-              <span className="sm:hidden">
+              <span className={cn(forceShowLabels ? "hidden" : "sm:hidden")}>
                 {Icon ? (
                   <Icon size={18} strokeWidth={2.5} />
                 ) : (
