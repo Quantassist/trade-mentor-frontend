@@ -184,7 +184,7 @@ export const SideBarMenu = ({
                     className={cn(
                       "flex hover:bg-themeGray p-2 group rounded-lg items-center",
                       showLabels ? "justify-between" : "justify-center",
-                      channel.id === current && edit && "bg-themeGray",
+                      (currentSection === channel.id || (channel.id === current && edit)) && "bg-themeGray",
                     )}
                   >
                     <Link
