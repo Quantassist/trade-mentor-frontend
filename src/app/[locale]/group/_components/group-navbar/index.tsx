@@ -5,7 +5,7 @@ import { useNavigation } from "@/hooks/navigation"
 import { Link } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
 import { useLocale, useTranslations } from "next-intl"
-import { useParams } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
 import { NavBar as TubeNavBar } from "../tubelight-navbar"
 
 type MenuProps = {
@@ -19,6 +19,7 @@ export const Menu = ({ orientation }: MenuProps) => {
     groupid: string
     channelid: string
   }
+  const pathname = usePathname()
   const basePath = `/group/${groupid}`
   const tr = useTranslations("menu.group")
 
@@ -31,8 +32,11 @@ export const Menu = ({ orientation }: MenuProps) => {
         icon: menuItem.icon,
       }))
 
-      // Normalize the active url: for root section we highlight the channel href
-      const activeUrl = section
+      // Determine active using current pathname (e.g., /group/:id/feed/:cid)
+      const activeFromPath = GROUPLE_CONSTANTS.groupPageMenu.find((m) =>
+        pathname?.includes(`${basePath}/${m.path}`),
+      )
+      const activeUrl = activeFromPath ? `${basePath}/${activeFromPath.path}` : section
 
       return (
         <TubeNavBar
@@ -42,7 +46,6 @@ export const Menu = ({ orientation }: MenuProps) => {
             onSetSection(item.url)
           }}
           position="inline"
-          className="hidden md:flex"
         />
       )
     case "mobile":
@@ -54,12 +57,12 @@ export const Menu = ({ orientation }: MenuProps) => {
               onClick={() => onSetSection(`${basePath}/${menuItem.path}`)}
               className={cn(
                 "rounded-xl flex gap-2 py-2 px-4 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20",
-                section === `${basePath}/${menuItem.path}`
+                pathname?.includes(`${basePath}/${menuItem.path}`)
                   ? "bg-themeGray border-[#27272A]"
                   : "",
               )}
               aria-current={
-                section === `${basePath}/${menuItem.path}`
+                pathname?.includes(`${basePath}/${menuItem.path}`)
                   ? "page"
                   : undefined
               }
@@ -74,7 +77,7 @@ export const Menu = ({ orientation }: MenuProps) => {
     default:
       return <></>
   }
-}
+  }
 
 // Mobile-only bottom fixed group navbar
 export const MobileBottomGroupNav = () => {
