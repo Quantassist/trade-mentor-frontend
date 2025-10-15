@@ -46,6 +46,7 @@ export const Menu = ({ orientation }: MenuProps) => {
             onSetSection(item.url)
           }}
           position="inline"
+          className="hidden md:flex"
         />
       )
     case "mobile":

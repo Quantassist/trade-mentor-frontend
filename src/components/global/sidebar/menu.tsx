@@ -182,7 +182,7 @@ export const SideBarMenu = ({
                   <div
                     key={channel.id}
                     className={cn(
-                      "flex hover:bg-themeGray p-2 group rounded-lg items-center",
+                      "flex w-full hover:bg-themeGray p-2 group rounded-lg items-center",
                       showLabels ? "justify-between" : "justify-center",
                       (currentSection === channel.id || (channel.id === current && edit)) && "bg-themeGray",
                     )}
@@ -190,7 +190,7 @@ export const SideBarMenu = ({
                     <Link
                       id="channel-link"
                       title={channel.name}
-                      className={cn(!showLabels && "flex items-center justify-center w-full")}
+                      className={cn("flex-1 min-w-0", !showLabels && "flex items-center justify-center w-full")}
                       href={`/${locale}/group/${channel.groupId}/feed/${channel.id}`}
                       {...(canManage &&
                         channel.name !== "general" &&
@@ -199,7 +199,7 @@ export const SideBarMenu = ({
                           ref: channelRef,
                         })}
                     >
-                      <div className={cn("flex items-center", !showLabels ? "justify-center" : "gap-x-2")}> 
+                      <div className={cn("flex items-center min-w-0", !showLabels ? "justify-center" : "gap-x-2")}> 
                         {channel.id === current && edit ? (
                           <IconDropDown
                             ref={triggerRef as any}
@@ -226,7 +226,7 @@ export const SideBarMenu = ({
                         ) : showLabels ? (
                           <p
                             className={cn(
-                              "text-lg capitalize",
+                              "text-lg capitalize truncate",
                               currentSection === channel.id
                                 ? "text-white"
                                 : "text-themeTextGray",

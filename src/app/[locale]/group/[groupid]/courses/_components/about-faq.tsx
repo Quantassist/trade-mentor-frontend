@@ -14,9 +14,17 @@ export function AboutFaq({ faqs }: { faqs: { question?: string; answer?: string 
       <h3 className="text-lg font-semibold text-white">Frequently Asked Questions</h3>
       <Accordion type="single" collapsible>
         {items.map((f, i) => (
-          <AccordionItem key={i} value={`faq-${i}`} className="border-themeGray rounded-xl px-4">
-            <AccordionTrigger className="py-4 hover:no-underline text-left">{f.q || `FAQ ${i + 1}`}</AccordionTrigger>
-            <AccordionContent className="pb-4 text-sm text-themeTextGray">{f.a || ""}</AccordionContent>
+          <AccordionItem
+            key={i}
+            value={`faq-${i}`}
+            className="rounded-xl overflow-hidden border border-themeGray/60 bg-[#161a20] mb-3"
+          >
+            <AccordionTrigger className="px-4 py-4 hover:no-underline text-left text-white">
+              {f.q || `FAQ ${i + 1}`}
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 text-sm text-themeTextGray border-t border-themeGray/60">
+              {f.a || ""}
+            </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

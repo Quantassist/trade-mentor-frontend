@@ -20,7 +20,7 @@ export function AboutMentor({ mentors }: { mentors: MentorItem[] }) {
   return (
     <div className="space-y-3">
       <h3 className="text-lg font-semibold text-white">Meet your Mentor{list.length > 1 ? "s" : ""}</h3>
-      <Card className="border-themeGray bg-[#121315] rounded-xl p-5">
+      <Card className="border-themeGray/60 bg-[#161a20] rounded-xl p-5">
         <div className="flex flex-col gap-5">
           {list.map((m, idx) => {
             const initials = (m.displayName || "?")
@@ -43,28 +43,33 @@ export function AboutMentor({ mentors }: { mentors: MentorItem[] }) {
             } catch {}
             return (
               <div key={idx} className="flex items-start gap-4">
-                <Avatar className="h-12 w-12">
+                <Avatar className="h-14 w-14 ring-1 ring-white/10 bg-themeGray/20">
                   <AvatarImage src={m.headshotUrl || undefined} />
                   <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
-                <div className="space-y-1">
-                  <p className="text-white font-medium">
-                    {m.displayName || "Mentor"}
-                    {m.role ? <span className="ml-2 text-xs text-themeTextGray">({m.role})</span> : null}
-                  </p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-white text-xl font-semibold truncate">{m.displayName || "Mentor"}</p>
+                    {m.role ? (
+                      <span className="text-[10px] uppercase tracking-wide text-themeTextGray bg-white/5 border border-white/10 rounded px-1.5 py-0.5">
+                        {m.role}
+                      </span>
+                    ) : null}
+                  </div>
                   {(m.title || m.organization) ? (
-                    <p className="text-xs text-themeTextGray">
-                      {[m.title, m.organization].filter(Boolean).join(" • ")}
-                      {years !== null ? <span>{` • ${years} year${years === 1 ? "" : "s"} of experience`}</span> : null}
+                    <p className="text-sm text-[#b9a9ff]">
+                      {m.title}
+                      {m.organization ? `, ${m.organization}` : ""}
                     </p>
-                  ) : years !== null ? (
-                    <p className="text-xs text-themeTextGray">{years} year{years === 1 ? "" : "s"} of experience</p>
+                  ) : null}
+                  {years !== null ? (
+                    <p className="text-sm text-themeTextGray">{years} year{years === 1 ? "" : "s"} of experience</p>
                   ) : null}
                   {m.bio ? (
-                    <p className="text-sm text-themeTextWhite/90 max-w-3xl leading-relaxed">{m.bio}</p>
+                    <p className="mt-3 text-sm text-themeTextWhite/90 leading-relaxed max-w-3xl">{m.bio}</p>
                   ) : null}
                   {socials.length > 0 ? (
-                    <div className="flex flex-wrap gap-3 pt-1">
+                    <div className="flex flex-wrap gap-3 pt-2">
                       {socials.map((s, i) => (
                         <a key={i} href={s.url} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline">
                           {s.label}
