@@ -128,149 +128,152 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                       </div>
                     </div>
                   }
-                  itemClassName="rounded-xl bg-[#0C0C10]/80"
+                  itemClassName="rounded-xl overflow-hidden border border-themeGray/60 bg-[#161a20]"
                   triggerClassName="px-3 py-2 text-[15px] md:text-base font-semibold text-themeTextGray hover:text-white data-[state=open]:text-white"
                 >
-                  <AccordionContent className="flex flex-col gap-y-2 px-3 py-2">
-                    {module.section.length ? (
-                      <ReorderableList
-                        droppableId={`sections-${module.id}`}
-                        items={module.section}
-                        getId={(s: any) => s.id}
-                        disabled={!canManage}
-                        onReorder={(newSections, orderedIds) => {
-                          setModulesLocal((prev) =>
-                            prev.map((m) => (m.id === module.id ? { ...m, section: newSections } : m)),
-                          )
-                          reorderSections({ moduleId: module.id, orderedIds })
-                        }}
-                        renderItem={(section: any, _sIdx: number, handleProps) => {
-                          const isSelected = selectedSectionId === section.id
-                          return (
-                            <div
-                              key={section.id}
-                              className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border text-[15px] md:text-base",
-                                isSelected
-                                  ? "bg-[#0B0B10] text-white border-[#3A3A41] ring-1 ring-[#4F46E5]/30"
-                                  : "text-themeTextGray hover:bg-themeGray/60 border-transparent",
-                              )}
-                            >
-                              {handleProps && (
-                                <span {...handleProps} className="cursor-grab text-themeTextGray hover:text-white">
-                                  <GripVertical className="h-4 w-4" />
-                                </span>
-                              )}
-                              <Link
-                                ref={contentRef}
-                                href={`/group/${groupid}/courses/${courseId}/${section.id}`}
-                                className="flex flex-1 items-center gap-3"
-                                onClick={() => setActiveSection(section.id)}
-                                onDoubleClick={canManage ? onEditSection : undefined}
-                              >
-                                {section.complete ? <Check /> : <Circle />}
-                                <IconRenderer icon={section.icon} mode={isSelected ? "LIGHT" : "DARK"} />
-                                <div className="flex min-w-0 flex-col">
-                                  {editSection && activeSection === section.id ? (
-                                    <Input
-                                      ref={sectionInputRef}
-                                      className="flex-1 bg-transparent border-none p-0"
-                                    />
-                                  ) : sectionUpdatePending && activeSection === section.id ? (
-                                    updateVariables?.content
-                                  ) : (
-                                    <span className="truncate text-[15px] md:text-base">{section.name}</span>
+                  <AccordionContent className="px-0 py-0">
+                    <div className="border-t border-themeGray/60 bg-white/5">
+                      <div className="flex flex-col gap-y-2 px-3 py-2">
+                        {module.section.length ? (
+                          <ReorderableList
+                            droppableId={`sections-${module.id}`}
+                            items={module.section}
+                            getId={(s: any) => s.id}
+                            disabled={!canManage}
+                            onReorder={(newSections, orderedIds) => {
+                              setModulesLocal((prev) =>
+                                prev.map((m) => (m.id === module.id ? { ...m, section: newSections } : m)),
+                              )
+                              reorderSections({ moduleId: module.id, orderedIds })
+                            }}
+                            renderItem={(section: any, _sIdx: number, handleProps) => {
+                              const isSelected = selectedSectionId === section.id
+                              return (
+                                <div
+                                  key={section.id}
+                                  className={cn(
+                                    "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border text-[15px] md:text-base",
+                                    isSelected
+                                      ? "bg-[#0B0B10] text-white border-[#3A3A41] ring-1 ring-[#4F46E5]/30"
+                                      : "text-themeTextGray hover:bg-white/5 border-transparent",
                                   )}
-                                  <div className="mt-0.5 flex items-center gap-1 text-[11px] md:text-xs text-themeTextGray">
-                                    {/* <IconRenderer icon={section.icon} mode={isSelected ? "LIGHT" : "DARK"} /> */}
-                                    <span className={(locale === "en" ? "uppercase " : "") + "tracking-wide"}>
-                                      {tr(section.icon as any)}
+                                >
+                                  {handleProps && (
+                                    <span {...handleProps} className="cursor-grab text-themeTextGray hover:text-white">
+                                      <GripVertical className="h-4 w-4" />
                                     </span>
-                                  </div>
-                                </div>
-                              </Link>
-                              {canManage && (
-                                <GlassSheet
-                                  trigger={
+                                  )}
+                                  <Link
+                                    ref={contentRef}
+                                    href={`/group/${groupid}/courses/${courseId}/${section.id}`}
+                                    className="flex flex-1 items-center gap-3"
+                                    onClick={() => setActiveSection(section.id)}
+                                    onDoubleClick={canManage ? onEditSection : undefined}
+                                  >
+                                    {section.complete ? <Check /> : <Circle />}
+                                    <IconRenderer icon={section.icon} mode={isSelected ? "LIGHT" : "DARK"} />
+                                    <div className="flex min-w-0 flex-col">
+                                      {editSection && activeSection === section.id ? (
+                                        <Input
+                                          ref={sectionInputRef}
+                                          className="flex-1 bg-transparent border-none p-0"
+                                        />
+                                      ) : sectionUpdatePending && activeSection === section.id ? (
+                                        updateVariables?.content
+                                      ) : (
+                                        <span className="truncate text-[15px] md:text-base">{section.name}</span>
+                                      )}
+                                      <div className="mt-0.5 flex items-center gap-1 text-[11px] md:text-xs text-themeTextGray">
+                                        <span className={(locale === "en" ? "uppercase " : "") + "tracking-wide"}>
+                                          {tr(section.icon as any)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </Link>
+                                  {canManage && (
+                                    <GlassSheet
+                                      trigger={
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="icon"
+                                          className="ml-2 text-themeTextGray hover:text-white"
+                                        >
+                                          <Pencil className="h-4 w-4" />
+                                        </Button>
+                                      }
+                                      triggerClass=""
+                                      className="w-[380px] sm:w-[420px]"
+                                    >
+                                      <h3 className="mb-4 text-lg font-semibold">Edit Section</h3>
+                                      <SectionEditForm
+                                        groupid={groupid}
+                                        sectionid={section.id}
+                                        initialName={section.name}
+                                        initialIcon={section.icon}
+                                      />
+                                    </GlassSheet>
+                                  )}
+                                  {canManage && (
                                     <Button
                                       type="button"
+                                      aria-label="Delete section"
                                       variant="ghost"
                                       size="icon"
-                                      className="ml-2 text-themeTextGray hover:text-white"
+                                      className="ml-1 text-themeTextGray hover:text-red-400"
+                                      onClick={() => {
+                                        if (confirm("Delete this section?")) {
+                                          deleteSection(section.id)
+                                        }
+                                      }}
                                     >
-                                      <Pencil className="h-4 w-4" />
+                                      <Trash2 className="h-4 w-4" />
                                     </Button>
-                                  }
-                                  triggerClass=""
-                                  className="w-[380px] sm:w-[420px]"
-                                >
-                                  <h3 className="mb-4 text-lg font-semibold">Edit Section</h3>
-                                  <SectionEditForm
-                                    groupid={groupid}
-                                    sectionid={section.id}
-                                    initialName={section.name}
-                                    initialIcon={section.icon}
-                                  />
-                                </GlassSheet>
-                              )}
-                              {canManage && (
-                                <Button
-                                  type="button"
-                                  aria-label="Delete section"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="ml-1 text-themeTextGray hover:text-red-400"
-                                  onClick={() => {
-                                    if (confirm("Delete this section?")) {
-                                      deleteSection(section.id)
-                                    }
-                                  }}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          )
-                        }}
-                      />
-                    ) : (
-                      <></>
-                    )}
-                    {canManage && (
-                      <>
-                        {pendingSection && sectionVariables && (
-                          <Link
-                            onClick={() => setActiveSection(sectionVariables.sectionid)}
-                            className={cn(
-                              "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border text-[15px] md:text-base",
-                              selectedSectionId === sectionVariables.sectionid
-                                ? "bg-[#0B0B10] text-white border-[#3A3A41] ring-1 ring-[#4F46E5]/30"
-                                : "text-themeTextGray hover:bg-themeGray/60 border-dashed border-[#2F2F36]",
-                            )}
-                            href={`/group/${groupid}/courses/${courseId}/${sectionVariables.sectionid}`}
-                          >
-                            <Circle className="text-themeTextGray" />
-                            <IconRenderer icon={"doc"} mode={selectedSectionId === sectionVariables.sectionid ? "LIGHT" : "DARK"} />
-                            <span className="truncate text-[15px] md:text-base">New Section</span>
-                          </Link>
+                                  )}
+                                </div>
+                              )
+                            }}
+                          />
+                        ) : (
+                          <></>
                         )}
-                        <GlassSheet
-                          trigger={
-                            <Button
-                              className="mt-2 w-full justify-center rounded-lg border-2 border-dashed border-[#2F2F36] bg-transparent text-themeTextGray hover:border-[#3A3A41] hover:bg-[#0F0F14]"
-                              variant="outline"
+                        {canManage && (
+                          <>
+                            {pendingSection && sectionVariables && (
+                              <Link
+                                onClick={() => setActiveSection(sectionVariables.sectionid)}
+                                className={cn(
+                                  "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border text-[15px] md:text-base",
+                                  selectedSectionId === sectionVariables.sectionid
+                                    ? "bg-[#0B0B10] text-white border-[#3A3A41] ring-1 ring-[#4F46E5]/30"
+                                    : "text-themeTextGray hover:bg-white/5 border-dashed border-[#2F2F36]",
+                                )}
+                                href={`/group/${groupid}/courses/${courseId}/${sectionVariables.sectionid}`}
+                              >
+                                <Circle className="text-themeTextGray" />
+                                <IconRenderer icon={"doc"} mode={selectedSectionId === sectionVariables.sectionid ? "LIGHT" : "DARK"} />
+                                <span className="truncate text-[15px] md:text-base">New Section</span>
+                              </Link>
+                            )}
+                            <GlassSheet
+                              trigger={
+                                <Button
+                                  className="mt-2 w-full justify-center rounded-lg border-2 border-dashed border-[#2F2F36] bg-transparent text-themeTextGray hover:border-[#3A3A41] hover:bg-[#0F0F14]"
+                                  variant="outline"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                  <span className="ml-2">Add Section</span>
+                                </Button>
+                              }
+                              className="w-[380px] sm:w-[420px]"
                             >
-                              <Plus className="h-4 w-4" />
-                              <span className="ml-2">Add Section</span>
-                            </Button>
-                          }
-                          className="w-[380px] sm:w-[420px]"
-                        >
-                          <h3 className="mb-4 text-lg font-semibold">Create Section</h3>
-                          <SectionCreateForm moduleid={module.id} groupid={groupid} />
-                        </GlassSheet>
-                      </>
-                    )}
+                              <h3 className="mb-4 text-lg font-semibold">Create Section</h3>
+                              <SectionCreateForm moduleid={module.id} groupid={groupid} />
+                            </GlassSheet>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </AccordionContent>
                 </GlobalAccordion>
                 {idx < (modulesLocal?.length ?? 0) - 1 && (

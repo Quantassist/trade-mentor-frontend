@@ -34,7 +34,8 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
       : `/group/${groupid}/courses/${courseId}`
 
   return (
-    <div className={cn("mt-8 space-y-5 bg-[#101011]", className)}>
+    <div className={cn("mt-8 space-y-5")}> 
+      <Card className="border-themeGray/60 bg-[#161a20] rounded-xl p-5">
       {/* Continue your journey */}
       <div className="space-y-5">
         <h3 className="text-themeTextWhite font-semibold tracking-tight text-xl">Continue Your Journey</h3>
@@ -96,6 +97,7 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
           </div>
         )}
       </div>
+      </Card>
     </div>
   )
 }

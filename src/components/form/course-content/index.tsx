@@ -39,7 +39,7 @@ export const CourseContentForm = ({
     locale,
   )
   return groupid === userid ? (
-    <form onSubmit={onUpdateContent} className="flex flex-col p-5" ref={editor}>
+    <form onSubmit={onUpdateContent} className="flex flex-col p-5 bg-[#12151b]" ref={editor}>
       <BlockTextEditor
         onEdit={onEditDescription}
         max={1000}
@@ -66,6 +66,8 @@ export const CourseContentForm = ({
       )}
     </form>
   ) : (
-    <HtmlParser html={data?.section?.htmlContent!} />
+    <div className="bg-[#12151b] p-5">
+      <HtmlParser html={data?.section?.htmlContent!} />
+    </div>
   )
 }

@@ -11,15 +11,16 @@ const CourseModuleSection = async (props: Props) => {
   const user = await onAuthenticatedUser();
   const group = await onGetGroupInfo(groupid);
   return (
-    <>
-      {/* <LocaleSwitcher /> */}
-      <CourseContentForm
-        groupid={group.group?.userId!}
-        sectionid={sectionid}
-        userid={user?.id!}
-        locale={locale}
-      />
-    </>
+    <div className="container mx-auto max-w-6xl py-6 px-5">
+      <div className="rounded-xl overflow-hidden border border-themeGray/60 bg-[#161a20]">
+        <CourseContentForm
+          groupid={group.group?.userId!}
+          sectionid={sectionid}
+          userid={user?.id!}
+          locale={locale}
+        />
+      </div>
+    </div>
   );
 };
 

@@ -37,7 +37,7 @@ const CoursesPage = async ({ params }: CoursePageProps) => {
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <div className="container py-10 px-5">
+      <div className="container mx-auto max-w-6xl py-10 px-5">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-themeTextWhite">{t("title")}</h1>
           {canCreate && <CourseCreate groupid={groupid} variant="button" />}

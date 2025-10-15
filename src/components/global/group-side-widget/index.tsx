@@ -25,8 +25,8 @@ export const GroupSideWidget = ({
   return (
     <Card
       className={cn(
-        "border-themeGray lg:sticky lg:top-0 mt-10 lg:mt-0 bg-themeBlack rounded-xl overflow-hidden",
-        light ? "bg-themeGray" : "bg-themeBlack",
+        "border-themeGray/60 lg:sticky lg:top-0 mt-10 lg:mt-0 bg-[#161a20] rounded-xl overflow-hidden",
+        light ? "bg-themeGray" : "",
       )}
     >
       <img
@@ -40,7 +40,7 @@ export const GroupSideWidget = ({
           {truncateString(stripHtml(group.htmlDescription) || group.description || "")}
         </p>
       </div>
-      <Separator orientation="horizontal" className="bg-themeGray" />
+      <Separator orientation="horizontal" className="bg-themeGray/60" />
       {groupid && (
         <JoinButton
           groupid={groupid}
