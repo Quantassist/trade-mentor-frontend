@@ -15,7 +15,7 @@ export const CallToAction = () => {
       <p className="text-sm md:text-center text-left text-muted-foreground">
         TradeFlix is a vibrant online financial education platform that empowers
         <br className="md:hidden" /> individuals to learn,{" "}
-        <br className="hidden md:block" /> collaborate, and cultivate financial
+        <br className="hidden md:block" /> collaborate, and cultivate financial{" "}
         <br className="md:hidden" />
         literacy
       </p>

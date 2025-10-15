@@ -79,10 +79,10 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
   return (
     <div
       className={cn(
-        "h-screen flex-col gap-y-10 fixed overflow-hidden",
+        "flex-col gap-y-10",
         !mobile
           ? cn(
-              "hidden bg-black fixed md:flex md:shrink-0",
+              "h-screen fixed overflow-hidden hidden bg-black md:flex md:shrink-0",
               effectiveCollapsed
                 ? "md:w-[70px] md:min-w-[70px] md:max-w-[70px] md:px-2"
                 : "md:w-[300px] md:min-w-[300px] md:max-w-[300px] sm:px-5 md:px-5",

@@ -36,9 +36,10 @@ export default async function AboutCoursePage({ params }: PageProps) {
       }))
     : []
   const languageLabel = locale === "hi" ? "Hindi" : locale === "en" ? "English" : locale
+  const languagesAvailable = ["English", "हिंदी"]
 
   return (
-    <div className="container py-10 px-5">
+    <div className="container mx-auto max-w-6xl py-10 px-5 pb-24 lg:pb-10">
       <div className="grid lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-8 space-y-8">
           {/* Header (without aside on large screens) */}
@@ -51,7 +52,7 @@ export default async function AboutCoursePage({ params }: PageProps) {
             renderAside={false}
           />
 
-          <AboutMetrics level={course?.level} language={languageLabel} />
+          <AboutMetrics level={course?.level} language={languageLabel} languages={languagesAvailable} />
 
           {/* About text */}
           {course?.description && (
@@ -72,8 +73,8 @@ export default async function AboutCoursePage({ params }: PageProps) {
           {/* FAQ */}
           <AboutFaq faqs={faqs} />
         </div>
-        <div className="lg:col-span-4">
-          <AboutAsideCard thumbnail={course?.thumbnail ?? undefined} />
+        <div className="lg:col-span-4 hidden lg:block">
+          <AboutAsideCard thumbnail={course?.thumbnail ?? undefined} groupid={groupid} courseId={courseid} />
         </div>
       </div>
     </div>

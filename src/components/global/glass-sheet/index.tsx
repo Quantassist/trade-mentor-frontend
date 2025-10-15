@@ -26,6 +26,8 @@ export const GlassSheet = ({
       </SheetTrigger>
       <SheetContent
         className={cn(
+          // wider sheet on small screens to fit sidebar; no internal scroll
+          "w-[95vw] max-w-[420px] sm:max-w-[460px] p-4 overflow-y-visible",
           "bg-clip-padding backdrop-filter backdrop--blur__safari backdrop-blur-3xl bg-opacity-20 bg-themeGray border-themeGray",
           className,
         )}
