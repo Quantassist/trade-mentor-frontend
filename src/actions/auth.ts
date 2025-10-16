@@ -4,6 +4,7 @@ import { client } from "@/lib/prisma"
 import { currentUser } from "@clerk/nextjs/server"
 import type { GroupRole } from "@prisma/client"
 import { Prisma } from "@prisma/client"
+import { cache } from "react"
 
 // Internal helpers (not exported) to centralize DB fetch logic
 const getCurrentUserBase = async () => {
@@ -121,7 +122,7 @@ export const onSignUpUser = async (data: {
   }
 }
 
-export const onAuthenticatedUser = async () => {
+export const onAuthenticatedUser = cache(async () => {
   try {
     const user = await getCurrentUserBase()
     if (!user) return { status: 404 as const }
@@ -136,7 +137,7 @@ export const onAuthenticatedUser = async () => {
   } catch (error) {
     return { status: 400 as const }
   }
-}
+})
 
 export const onSignInUser = async (clerkId: string) => {
   try {
@@ -202,7 +203,7 @@ export const onSignInUser = async (clerkId: string) => {
 /**
  * Get user's role and permissions in a specific group
  */
-export const onGetUserGroupRole = async (
+export const onGetUserGroupRole = cache(async (
   groupId: string,
 ): Promise<{
   status: number
@@ -247,4 +248,4 @@ export const onGetUserGroupRole = async (
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }
-}
+})

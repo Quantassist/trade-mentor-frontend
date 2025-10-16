@@ -26,14 +26,18 @@ const CourseContentPage = async ({ children, params }: CourseContentPageProps) =
     },
   });
 
-  await Promise.all([
+  await Promise.allSettled([
     client.prefetchQuery({
       queryKey: ["section-info", sectionid, locale],
       queryFn: () => onGetSectionInfo(sectionid, locale),
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
     }),
     client.prefetchQuery({
-      queryKey: ["course-modules"],
+      queryKey: ["course-modules", courseid],
       queryFn: () => onGetCourseModules(courseid),
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
     }),
   ]);
 

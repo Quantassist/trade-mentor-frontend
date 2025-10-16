@@ -3,6 +3,7 @@
 import { onAuthenticatedUser, onGetUserGroupRole } from "@/actions/auth"
 import { client } from "@/lib/prisma"
 import { canCreateCourse, hasPermission } from "@/lib/rbac"
+import { cache } from "react"
 const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || "en"
 
 // Resolve current app userId using existing auth action
@@ -121,7 +122,7 @@ export const onDeleteCourse = async (groupid: string, courseId: string) => {
 }
 
 // Fetch course details + counts for About page
-export const onGetCourseAbout = async (courseId: string, locale?: string) => {
+export const onGetCourseAbout = cache(async (courseId: string, locale?: string) => {
   try {
     const course = await client.course.findUnique({
       where: { id: courseId },
@@ -188,10 +189,10 @@ export const onGetCourseAbout = async (courseId: string, locale?: string) => {
   } catch (error) {
     return { status: 400 as const, message: "Oops! something went wrong" }
   }
-}
+})
 
 // Fetch user's ongoing courses (progress > 0 and < 100), ordered by recent activity
-export const onGetOngoingCourses = async (limit = 3) => {
+export const onGetOngoingCourses = cache(async (limit = 3) => {
   try {
     const userId = await getAuthedUserId()
     if (!userId) return { status: 200 as const, courses: [] as any[] }
@@ -240,11 +241,11 @@ export const onGetOngoingCourses = async (limit = 3) => {
   } catch (error) {
     return { status: 400 as const, message: "Oops! something went wrong" }
   }
-}
+})
 
 // Returns the section id to land on for a course for the current user.
 // Prefers the user's last interacted section; falls back to the first section of the first module.
-export const onGetCourseLandingSection = async (courseId: string) => {
+export const onGetCourseLandingSection = cache(async (courseId: string) => {
   try {
     const userId = await getAuthedUserId()
     if (userId) {
@@ -271,7 +272,7 @@ export const onGetCourseLandingSection = async (courseId: string) => {
   } catch (error) {
     return { status: 400 as const, message: "Oops! something went wrong" }
   }
-}
+})
 
 
 export const onCreateGroupCourse = async (
@@ -487,7 +488,7 @@ export const onReorderSections = async (
   }
 }
 
-export const onGetGroupCourses = async (
+export const onGetGroupCourses = cache(async (
   groupid: string,
   filter: "all" | "in_progress" | "completed" | "unpublished" | "buckets" = "all",
   locale?: string,
@@ -622,9 +623,9 @@ export const onGetGroupCourses = async (
   } catch (error) {
     return { status: 400 as const, message: "Oops! something went wrong" }
   }
-}
+})
 
-export const onGetCourseModules = async (courseId: string) => {
+export const onGetCourseModules = cache(async (courseId: string) => {
   try {
     const [modules, userId] = await Promise.all([
       client.module.findMany({
@@ -677,7 +678,7 @@ export const onGetCourseModules = async (courseId: string) => {
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }
-}
+})
 
 export const onCreateCourseModule = async (
   groupid: string,
@@ -914,7 +915,7 @@ export const onCreateModuleSection = async (
   }
 }
 
-export const onGetSectionInfo = async (sectionid: string, locale?: string) => {
+export const onGetSectionInfo = cache(async (sectionid: string, locale?: string) => {
   try {
     const userId = await getAuthedUserId()
     const section = await client.section.findUnique({
@@ -969,7 +970,7 @@ export const onGetSectionInfo = async (sectionid: string, locale?: string) => {
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }
-}
+})
 
 export const onUpdateCourseSectionContent = async (
   groupid: string,

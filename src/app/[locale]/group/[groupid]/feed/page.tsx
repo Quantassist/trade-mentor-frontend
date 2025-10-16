@@ -2,7 +2,6 @@ import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetGroupChannels } from "@/actions/channel"
 import { onGetUserGroups } from "@/actions/groups"
 import { redirect } from "@/i18n/navigation"
-import { QueryClient } from "@tanstack/react-query"
 import { setRequestLocale } from "next-intl/server"
 
 export default async function FeedRedirectPage({
@@ -18,11 +17,7 @@ export default async function FeedRedirectPage({
     return redirect({ href: "/sign-in", locale })
   }
 
-  const query = new QueryClient()
-  const data = await query.fetchQuery({
-    queryKey: ["user-groups"],
-    queryFn: () => onGetUserGroups(user.id as string),
-  })
+  const data = await onGetUserGroups(user.id as string)
 
   let channelId: string | undefined
 
