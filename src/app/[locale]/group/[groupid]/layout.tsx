@@ -35,30 +35,38 @@ const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
 
   if (!user.id) redirect("/sign-in")
 
-  await query.prefetchQuery({
-    queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
-  })
-
-  await query.prefetchQuery({
-    queryKey: ["user-groups"],
-    queryFn: () => onGetUserGroups(user.id as string),
-  })
-
-  await query.prefetchQuery({
-    queryKey: ["group-channels", groupid],
-    queryFn: () => onGetGroupChannels(groupid),
-  })
-
-  await query.prefetchQuery({
-    queryKey: ["group-subscription"],
-    queryFn: () => onGetGroupSubscription(groupid),
-  })
-
-  await query.prefetchQuery({
-    queryKey: ["member-chats"],
-    queryFn: () => onGetAllGroupMembers(groupid),
-  })
+  await Promise.allSettled([
+    query.prefetchQuery({
+      queryKey: ["about-group-info", groupid, locale],
+      queryFn: () => onGetGroupInfo(groupid, locale),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+    query.prefetchQuery({
+      queryKey: ["user-groups"],
+      queryFn: () => onGetUserGroups(user.id as string),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+    query.prefetchQuery({
+      queryKey: ["group-channels", groupid],
+      queryFn: () => onGetGroupChannels(groupid),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+    query.prefetchQuery({
+      queryKey: ["group-subscription"],
+      queryFn: () => onGetGroupSubscription(groupid),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+    query.prefetchQuery({
+      queryKey: ["member-chats"],
+      queryFn: () => onGetAllGroupMembers(groupid),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+  ])
 
   return (
     <HydrationBoundary state={dehydrate(query)}>

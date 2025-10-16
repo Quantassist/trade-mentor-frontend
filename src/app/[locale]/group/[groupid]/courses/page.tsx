@@ -18,22 +18,23 @@ type CoursePageProps = {
 const CoursesPage = async ({ params }: CoursePageProps) => {
   const { locale, groupid } = await params
   setRequestLocale(locale)
-  const t = await getTranslations({ locale, namespace: "courses" })
   const client = new QueryClient()
 
-  const buckets = await onGetGroupCourses(groupid, "buckets", locale)
-  if (buckets.status === 200) {
-    client.setQueryData(["group-courses", groupid, "all", locale], { status: 200, courses: buckets.all })
-    client.setQueryData(["group-courses", groupid, "in_progress", locale], { status: 200, courses: buckets.in_progress })
-    client.setQueryData(["group-courses", groupid, "completed", locale], { status: 200, courses: buckets.completed })
-    client.setQueryData(["group-courses", groupid, "unpublished", locale], { status: 200, courses: buckets.unpublished })
+  const tPromise = getTranslations({ locale, namespace: "courses" })
+  const bucketsPromise = onGetGroupCourses(groupid, "buckets", locale)
+  const rolePromise = onGetUserGroupRole(groupid)
+
+  const [t, bucketsRes, userRole] = await Promise.all([tPromise, bucketsPromise, rolePromise])
+
+  if (bucketsRes?.status === 200) {
+    client.setQueryData(["group-courses", groupid, "all", locale], { status: 200, courses: bucketsRes.all })
+    client.setQueryData(["group-courses", groupid, "in_progress", locale], { status: 200, courses: bucketsRes.in_progress })
+    client.setQueryData(["group-courses", groupid, "completed", locale], { status: 200, courses: bucketsRes.completed })
+    client.setQueryData(["group-courses", groupid, "unpublished", locale], { status: 200, courses: bucketsRes.unpublished })
   }
 
   // Check user permissions
-  const userRole = await onGetUserGroupRole(groupid)
-  const canCreate =
-    userRole.status === 200 &&
-    canCreateCourse(userRole.role, userRole.isSuperAdmin)
+  const canCreate = userRole.status === 200 && canCreateCourse(userRole.role, userRole.isSuperAdmin)
 
   return (
     <HydrationBoundary state={dehydrate(client)}>

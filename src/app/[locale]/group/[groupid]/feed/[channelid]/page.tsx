@@ -1,7 +1,7 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetChannelInfo } from "@/actions/channel"
 import { onGetOngoingCourses } from "@/actions/courses"
-import { inGetChannelPosts, onGetGroupInfo } from "@/actions/groups"
+import { inGetChannelPosts } from "@/actions/groups"
 import { LeaderBoardCard } from "@/app/[locale]/group/_components/leaderboard"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
 import { OngoingCoursesWidget } from "@/components/global/ongoing-courses-widget"
@@ -20,30 +20,34 @@ type GroupChannelPageProps = {
 
 const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
   const client = new QueryClient()
-  const user = await currentUser()
-  const authUser = await onAuthenticatedUser()
   const { groupid, channelid, locale } = await params
 
-  await client.prefetchQuery({
-    queryKey: ["channel-info", channelid, locale],
-    queryFn: () => onGetChannelInfo(channelid, locale),
-  })
+  const userPromise = currentUser()
+  const authUserPromise = onAuthenticatedUser()
 
-  await client.prefetchQuery({
-    queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
-  })
+  await Promise.allSettled([
+    client.prefetchQuery({
+      queryKey: ["channel-info", channelid, locale],
+      queryFn: () => onGetChannelInfo(channelid, locale),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+    client.prefetchQuery({
+      queryKey: ["channel-posts", channelid, locale],
+      queryFn: () => inGetChannelPosts(channelid, locale),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+    // Prefetch ongoing courses for the sidebar widget (small payload)
+    client.prefetchQuery({
+      queryKey: ["ongoing-courses", locale, 3],
+      queryFn: () => onGetOngoingCourses(3),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+  ])
 
-  await client.prefetchQuery({
-    queryKey: ["channel-posts", channelid, locale],
-    queryFn: () => inGetChannelPosts(channelid, locale),
-  })
-
-  // Prefetch ongoing courses for the sidebar widget (small payload)
-  await client.prefetchQuery({
-    queryKey: ["ongoing-courses", locale, 3],
-    queryFn: () => onGetOngoingCourses(3),
-  })
+  const [user, authUser] = await Promise.all([userPromise, authUserPromise])
 
   return (
     <HydrationBoundary state={dehydrate(client)}>

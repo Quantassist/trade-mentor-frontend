@@ -5,6 +5,7 @@ import { defaultLocale } from "@/i18n/config"
 import { client } from "@/lib/prisma"
 import axios from "axios"
 import { revalidatePath } from "next/cache"
+import { cache } from "react"
 import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
 import { onAuthenticatedUser, onGetUserGroupRole } from "./auth"
@@ -248,7 +249,7 @@ export const onSearchGroups = async (
   }
 }
 
-export const onGetUserGroups = async (id: string) => {
+export const onGetUserGroups = cache(async (id: string) => {
   try {
     const groups = await client.user.findUnique({
       where: {
@@ -302,7 +303,7 @@ export const onGetUserGroups = async (id: string) => {
   } catch (error) {
     return { status: 400 }
   }
-}
+})
 
 export const onGetGroupSubscription = async (groupid: string) => {
   try {
@@ -435,7 +436,7 @@ export const onUpDateGroupSettings = async (
   }
 }
 
-export const onGetGroupInfo = async (groupid: string, locale?: string) => {
+export const onGetGroupInfo = cache(async (groupid: string, locale?: string) => {
   // console.log(groupid)
   try {
     const user = await onAuthenticatedUser()
@@ -486,7 +487,7 @@ export const onGetGroupInfo = async (groupid: string, locale?: string) => {
   } catch (error) {
     return { status: 400 }
   }
-}
+})
 
 export const onUpdateGroupGallery = async (
   groupid: string,
@@ -612,7 +613,7 @@ export const onCreateNewChannel = async (
 //     }
 // }
 
-export const inGetChannelPosts = async (channelId: string, locale?: string) => {
+export const inGetChannelPosts = cache(async (channelId: string, locale?: string) => {
   try {
     const posts = await client.post.findMany({
       where: {
@@ -684,9 +685,9 @@ export const inGetChannelPosts = async (channelId: string, locale?: string) => {
     console.error("Error fetching channel posts:", error)
     return { status: 500, message: "Internal server error" }
   }
-}
+})
 
-export const onGetPostInfo = async (postid: string, locale?: string) => {
+export const onGetPostInfo = cache(async (postid: string, locale?: string) => {
   try {
     const user = await onAuthenticatedUser()
     const post = await client.post.findUnique({
@@ -762,9 +763,9 @@ export const onGetPostInfo = async (postid: string, locale?: string) => {
     console.error("Error fetching post info:", error)
     return { status: 500, message: "Internal server error" }
   }
-}
+})
 
-export const onGetPostComments = async (postid: string) => {
+export const onGetPostComments = cache(async (postid: string) => {
   try {
     const comments = await client.comment.findMany({
       where: {
@@ -793,7 +794,7 @@ export const onGetPostComments = async (postid: string) => {
     console.error("Error fetching post comments:", error)
     return { status: 500, message: "Internal server error" }
   }
-}
+})
 
 export const onUpdatePost = async (
   postid: string,
@@ -879,7 +880,7 @@ export const onLikePress = async (postid: string, userid: string) => {
   }
 }
 
-export const onGetAllGroupMembers = async (groupid: string) => {
+export const onGetAllGroupMembers = cache(async (groupid: string) => {
   try {
     const user = await onAuthenticatedUser()
     const members = await client.members.findMany({
@@ -902,7 +903,7 @@ export const onGetAllGroupMembers = async (groupid: string) => {
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }
-}
+})
 
 export const onGetPaginatedPosts = async (
   identifier: string,
@@ -1009,7 +1010,7 @@ export const onJoinGroup = async (groupid: string) => {
   }
 }
 
-export const onGetGroupSubscriptions = async (groupid: string) => {
+export const onGetGroupSubscriptions = cache(async (groupid: string) => {
   try {
     const subscriptions = await client.subscription.findMany({
       where: {
@@ -1039,7 +1040,7 @@ export const onGetGroupSubscriptions = async (groupid: string) => {
   } catch (error) {
     return { status: 400 }
   }
-}
+})
 
 export const onGetUserFromMembership = async (membershipid: string) => {
   try {

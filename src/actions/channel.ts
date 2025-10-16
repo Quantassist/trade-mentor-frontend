@@ -1,8 +1,9 @@
 "use server"
 
-import { client } from "@/lib/prisma"
-import { onAuthenticatedUser } from "./auth"
 import { defaultLocale } from "@/i18n/config"
+import { client } from "@/lib/prisma"
+import { cache } from "react"
+import { onAuthenticatedUser } from "./auth"
 
 export const onCreateNewChannel = async (
   groupid: string,
@@ -218,7 +219,7 @@ export const onCreateChannelPostMulti = async (
   }
 }
 
-export const onGetGroupChannels = async (groupid: string) => {
+export const onGetGroupChannels = cache(async (groupid: string) => {
   try {
     const channels = await client.channel.findMany({
       where: {
@@ -233,7 +234,7 @@ export const onGetGroupChannels = async (groupid: string) => {
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }
-}
+})
 
 export const onUpdateChannelInfo = async (
   channelid: string,
@@ -309,7 +310,7 @@ export const onUpdateChannelInfo = async (
   }
 }
 
-export const onGetChannelInfo = async (channelid: string, locale?: string) => {
+export const onGetChannelInfo = cache(async (channelid: string, locale?: string) => {
   try {
     const user = await onAuthenticatedUser()
     const channel = await client.channel.findUnique({
@@ -389,7 +390,7 @@ export const onGetChannelInfo = async (channelid: string, locale?: string) => {
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }
-}
+})
 
 export const onDeleteChannel = async (channelId: string) => {
   try {

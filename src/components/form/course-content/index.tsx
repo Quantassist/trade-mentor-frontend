@@ -1,9 +1,11 @@
 "use client"
+import { onGetGroupInfo } from "@/actions/groups"
 import { HtmlParser } from "@/components/global/html-parser"
 import { Loader } from "@/components/global/loader"
 import BlockTextEditor from "@/components/global/rich-text-editor"
 import { Button } from "@/components/ui/button"
 import { useCourseContent, useCourseSectionInfo } from "@/hooks/courses"
+import { useQuery } from "@tanstack/react-query"
 
 type CourseContentFormProps = {
   groupid: string
@@ -19,6 +21,16 @@ export const CourseContentForm = ({
   locale,
 }: CourseContentFormProps) => {
   const { data } = useCourseSectionInfo(sectionid, locale)
+  const {data: about} = useQuery({
+    queryKey: ["about-group-info", groupid, locale],
+    queryFn: () => onGetGroupInfo(groupid, locale),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
+  })
+  const canManage = about?.group?.userId === userid
   const {
     errors,
     onUpdateContent,
@@ -38,14 +50,14 @@ export const CourseContentForm = ({
     data?.section?.htmlContent || null,
     locale,
   )
-  return groupid === userid ? (
+  return canManage ? (
     <form onSubmit={onUpdateContent} className="flex flex-col p-5 bg-[#12151b]" ref={editor}>
       <BlockTextEditor
         onEdit={onEditDescription}
         max={1000}
         inline
         min={10}
-        disabled={userid === groupid ? false : true}
+        disabled={canManage ? false : true}
         name="content"
         errors={errors}
         setContent={setJsonDescription || undefined}

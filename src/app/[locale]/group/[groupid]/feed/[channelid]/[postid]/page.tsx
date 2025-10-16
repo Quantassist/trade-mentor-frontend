@@ -1,9 +1,5 @@
 import { onAuthenticatedUser } from "@/actions/auth"
-import {
-  onGetGroupInfo,
-  onGetPostComments,
-  onGetPostInfo,
-} from "@/actions/groups"
+import { onGetPostComments, onGetPostInfo } from "@/actions/groups"
 import { PostCommentForm } from "@/components/form/post-comments"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
 import {
@@ -22,22 +18,24 @@ const PostPage = async ({
   const { postid, groupid, locale } = await params
   const client = new QueryClient()
 
-  await client.prefetchQuery({
-    queryKey: ["unique-post", postid, locale],
-    queryFn: () => onGetPostInfo(postid, locale),
-  })
+  const userPromise = onAuthenticatedUser()
 
-  await client.prefetchQuery({
-    queryKey: ["post-comments", postid],
-    queryFn: () => onGetPostComments(postid),
-  })
+  await Promise.allSettled([
+    client.prefetchQuery({
+      queryKey: ["unique-post", postid, locale],
+      queryFn: () => onGetPostInfo(postid, locale),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+    client.prefetchQuery({
+      queryKey: ["post-comments", postid],
+      queryFn: () => onGetPostComments(postid),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
+  ])
 
-  await client.prefetchQuery({
-    queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
-  })
-
-  const user = await onAuthenticatedUser()
+  const user = await userPromise
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
