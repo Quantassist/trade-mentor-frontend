@@ -13,3 +13,4 @@ export const CaseStudyFormSchema = z.object({
 })
 
 export type CaseStudyFormValues = z.infer<typeof CaseStudyFormSchema>
+export type CaseStudyFormInput = z.input<typeof CaseStudyFormSchema>

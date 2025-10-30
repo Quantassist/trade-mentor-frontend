@@ -221,6 +221,19 @@ export const onGetCourseAbout = cache(async (courseId: string, locale?: string) 
     })
     if (!course) return { status: 404 as const, message: "Course not found" }
 
+    // Normalize learnOutcomes to string[] so UI can render consistently
+    const normalizeLearnOutcomes = (value: any): string[] => {
+      if (!Array.isArray(value)) return []
+      return (value as any[])
+        .map((x) => {
+          if (typeof x === "string") return x
+          if (x && typeof x === "object" && typeof (x as any).outcome === "string") return (x as any).outcome
+          return null
+        })
+        .filter(Boolean) as string[]
+    }
+    let learnOutcomes = normalizeLearnOutcomes((course as any).learnOutcomes)
+
     // Locale overlay similar to onGetSectionInfo
     if (locale && locale !== DEFAULT_LOCALE) {
       const t = await client.courseTranslation.findUnique({
@@ -229,8 +242,10 @@ export const onGetCourseAbout = cache(async (courseId: string, locale?: string) 
       if (t) {
         (course as any).name = t.name ?? course.name
         ;(course as any).description = (t as any).description ?? course.description
-        ;(course as any).learnOutcomes = (t as any).learnOutcomes ?? course.learnOutcomes
         ;(course as any).faq = (t as any).faq ?? course.faq
+        if ((t as any).learnOutcomes != null) {
+          learnOutcomes = normalizeLearnOutcomes((t as any).learnOutcomes)
+        }
       }
     }
 
@@ -243,6 +258,7 @@ export const onGetCourseAbout = cache(async (courseId: string, locale?: string) 
       status: 200 as const,
       course: {
         ...course,
+        learnOutcomes,
         moduleCount,
         totalLessons,
       },
@@ -378,17 +394,18 @@ export const onCreateGroupCourse = async (
       },
       data: {
         courses: {
-          create: {
+          create: ({
             id: courseid,
             name,
             thumbnail: image,
             description,
             privacy,
             published,
-            level: extras?.level ?? null,
+            // Cast to enum type expected by Prisma (journey_level)
+            level: (extras?.level as any) ?? null,
             learnOutcomes: (extras?.learnOutcomes as any) ?? undefined,
             faq: (extras?.faqs as any) ?? undefined,
-          },
+          }) as any,
         },
       },
     })
@@ -604,6 +621,18 @@ export const onGetGroupCourses = cache(async (
       return { status: 404 as const, message: "No courses found" }
     }
 
+    // Helper: normalize learnOutcomes to string[] for consistent UI rendering
+    const normalizeLearnOutcomes = (value: any): string[] => {
+      if (!Array.isArray(value)) return []
+      return (value as any[])
+        .map((x) => {
+          if (typeof x === "string") return x
+          if (x && typeof x === "object" && typeof (x as any).outcome === "string") return (x as any).outcome
+          return null
+        })
+        .filter(Boolean) as string[]
+    }
+
     // Overlay translations if locale is provided and not default
     if (locale && locale !== DEFAULT_LOCALE) {
       for (const c of courses as any[]) {
@@ -615,6 +644,11 @@ export const onGetGroupCourses = cache(async (
           c.faq = t.faq ?? c.faq
         }
       }
+    }
+
+    // Normalize learnOutcomes for all courses (post-translation overlay)
+    for (const c of courses as any[]) {
+      c.learnOutcomes = normalizeLearnOutcomes(c.learnOutcomes)
     }
 
     // If no user, return raw courses for "all" only (published only)

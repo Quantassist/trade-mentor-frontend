@@ -1,0 +1,681 @@
+Advanced component:
+
+{
+        "appCurrency": "INR"
+      }
+"framer-motion",
+        "recharts"
+
+import { motion } from \"framer-motion\"\nimport { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from \"recharts\"\n\nconst data = [\n  { name: \"Q1\", value: 1200 },\n  { name: \"Q2\", value: 1900 },\n  { name: \"Q3\", value: 900 },\n  { name: \"Q4\", value: 1600 },\n]\n\nexport default function Demo() {\n  const [scale, setScale] = React.useState(1)\n  const currency = typeof appCurrency === \"string\" ? appCurrency : \"INR\" // from scope config, optional\n\n  return (\n    <div className=\"p-4 md:p-6 text-themeTextWhite space-y-4\">\n      <div className=\"text-xs text-themeTextGray\">Locale: {locale}</div>\n\n      <div className=\"flex items-center justify-between\">\n        <h3 className=\"text-lg font-semibold text-white\">Animated Quarterly Bars</h3>\n        <input type=\"range\" min={0.8} max={1.4} step={0.05} value={scale} onChange={(e) => setScale(Number(e.target.value))} />\n      </div>\n\n      <motion.div\n        className=\"bg-[#161a20] border border-themeGray/60 rounded p-4\"\n        initial={{ opacity: 0.4, scale: 0.98 }}\n        animate={{ opacity: 1, scale }}\n        transition={{ type: \"spring\", stiffness: 120, damping: 16 }}\n      >\n        <div style={{ width: \"100%\", height: 256 /* hard height */ }}>\n  <ResponsiveContainer width=\"100%\" height=\"100%\">\n    <BarChart data={data} barCategoryGap={24}>\n      <XAxis dataKey=\"name\" stroke=\"#9aa3af\" />\n      <YAxis stroke=\"#9aa3af\" />\n      <Tooltip />\n      <Bar dataKey=\"value\" fill=\"#4F46E5\" radius={[6,6,0,0]} />\n    </BarChart>\n  </ResponsiveContainer>\n</div>\n      </motion.div>\n    </div>\n  )\n}
+
+
+Basic:
+
+// Uses: React, Tailwind, `locale` injected via scope.\n// Allowed libraries not required for this demo.\n// Tip: set allowed_libraries to [] in the React tab form.\n\nexport default function Demo() {\n  const [amount, setAmount] = React.useState(1000)\n  const [rate, setRate] = React.useState(10)\n  const [years, setYears] = React.useState(5)\n\n  const fv = React.useMemo(() => {\n    return amount * Math.pow(1 + rate / 100, years)\n  }, [amount, rate, years])\n\n  return (\n    <div className=\"p-4 md:p-6 text-themeTextWhite\">\n      <div className=\"text-xs text-themeTextGray mb-2\">Locale: {locale}</div>\n\n      <h3 className=\"text-lg font-semibold text-white\">Compound Return Explorer</h3>\n      <p className=\"text-sm text-themeTextGray mb-4\">\n        Adjust the sliders to see how principal, rate and years affect the outcome.\n      </p>\n\n      <div className=\"grid grid-cols-1 md:grid-cols-3 gap-4\">\n        <div className=\"bg-[#161a20] border border-themeGray/60 rounded p-3\">\n          <div className=\"flex items-center justify-between text-sm mb-2\">\n            <span>Principal</span>\n            <span className=\"font-mono\">{amount}</span>\n          </div>\n          <input\n            type=\"range\"\n            min={500}\n            max={20000}\n            step={100}\n            value={amount}\n            onChange={(e) => setAmount(Number(e.target.value))}\n            className=\"w-full\"\n          />\n        </div>\n\n        <div className=\"bg-[#161a20] border border-themeGray/60 rounded p-3\">\n          <div className=\"flex items-center justify-between text-sm mb-2\">\n            <span>Rate (%)</span>\n            <span className=\"font-mono\">{rate}</span>\n          </div>\n          <input\n            type=\"range\"\n            min={1}\n            max={30}\n            step={1}\n            value={rate}\n            onChange={(e) => setRate(Number(e.target.value))}\n            className=\"w-full\"\n          />\n        </div>\n\n        <div className=\"bg-[#161a20] border border-themeGray/60 rounded p-3\">\n          <div className=\"flex items-center justify-between text-sm mb-2\">\n            <span>Years</span>\n            <span className=\"font-mono\">{years}</span>\n          </div>\n          <input\n            type=\"range\"\n            min={1}\n            max={30}\n            step={1}\n            value={years}\n            onChange={(e) => setYears(Number(e.target.value))}\n            className=\"w-full\"\n          />\n        </div>\n      </div>\n\n      <div className=\"mt-4 bg-[#12151b] border border-themeGray/60 rounded p-4\">\n        <div className=\"text-sm text-themeTextGray\">Future Value</div>\n        <div className=\"text-2xl font-semibold text-white\">\n          {new Intl.NumberFormat(locale || 'en', { style: 'currency', currency: 'INR' }).format(fv)}\n        </div>\n      </div>\n    </div>\n  )\n}
+
+
+Interactive HTML:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On-Policy Monte Carlo Control Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+        }
+        .grid-cell {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            width: 100%;a
+            height: 100%;
+        }
+        .arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            pointer-events: none;
+        }
+        .action-cell {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bg-green-100 { background-color: #dcfce7; }
+        .bg-green-200 { background-color: #bbf7d0; }
+        .bg-green-300 { background-color: #86efac; }
+        .bg-green-400 { background-color: #4ade80; }
+        .bg-green-500 { background-color: #22c55e; }
+        .bg-red-100 { background-color: #fee2e2; }
+        .bg-red-200 { background-color: #fecaca; }
+        .bg-red-300 { background-color: #fca5a5; }
+        .bg-red-400 { background-color: #f87171; }
+        .bg-red-500 { background-color: #ef4444; }
+        .bg-gray-100 { background-color: #f3f4f6; }
+        .aspect-square {
+            aspect-ratio: 1 / 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="flex flex-col gap-6 p-4">
+        <div class="flex justify-between mb-4">
+            <h1 class="text-2xl font-bold">On-Policy First-Visit Monte Carlo Control</h1>
+            <div class="flex gap-2 items-center">
+                <span>Episodes: <span id="episodeCount">0</span></span>
+                <span>Step: <span id="currentStep">initialize</span></span>
+            </div>
+        </div>
+        
+        <div class="flex gap-4">
+            <div class="flex flex-col gap-4 w-1/3">
+                <div class="p-4 bg-white rounded shadow">
+                    <h2 class="font-bold mb-2">Controls</h2>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center justify-between">
+                            <label>ε value:</label>
+                            <input type="range" min="0" max="1" step="0.1" value="0.2" id="epsilonSlider" class="w-32"/>
+                            <span id="epsilonValue">0.2</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <label>Grid Size:</label>
+                            <input type="range" min="3" max="6" step="1" value="4" id="gridSizeSlider" class="w-32"/>
+                            <span id="gridSizeValue">4x4</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <label>Speed:</label>
+                            <input type="range" min="0.5" max="5" step="0.5" value="1" id="speedSlider" class="w-32"/>
+                            <span id="speedValue">1x</span>
+                        </div>
+                        
+                        <div class="flex justify-between mt-2">
+                            <button id="startBtn" class="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600">Start</button>
+                            <button id="stepBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Step</button>
+                            <button id="resetBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Reset</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-white rounded shadow">
+                    <h2 class="font-bold mb-2">Algorithm Steps</h2>
+                    <ol class="list-decimal list-inside space-y-2 text-sm">
+                        <li id="step1" class="font-bold text-blue-600">Initialize Q(s,a) arbitrarily, Returns(s,a) as empty lists</li>
+                        <li id="step2">Generate an episode using π (ε-soft policy)</li>
+                        <li id="step3">For each (s,a) pair in the episode:
+                            <ul class="list-disc list-inside ml-4 text-sm">
+                                <li>Get return G following first occurrence</li>
+                                <li>Append G to Returns(s,a)</li>
+                                <li>Update Q(s,a) ← average(Returns(s,a))</li>
+                            </ul>
+                        </li>
+                        <li id="step4">For each state s, update policy:
+                            <ul class="list-disc list-inside ml-4 text-sm">
+                                <li>a* ← argmax<sub>a</sub> Q(s,a)</li>
+                                <li>π(a|s) ← 1-ε+ε/|A(s)| if a=a*</li>
+                                <li>π(a|s) ← ε/|A(s)| if a≠a*</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+                
+                <div class="p-4 bg-white rounded shadow overflow-auto" style="max-height: 12rem;">
+                    <h2 class="font-bold mb-2">Episode</h2>
+                    <ol id="episodeList" class="list-decimal list-inside text-xs space-y-1">
+                        <p class="text-sm italic">No episode generated yet</p>
+                    </ol>
+                </div>
+                
+                <div id="currentUpdate" class="p-4 bg-white rounded shadow" style="display: none;">
+                    <h2 class="font-bold mb-2">Current Update</h2>
+                    <div class="text-sm">
+                        <p>State: <span id="updateState"></span></p>
+                        <p>Action: <span id="updateAction"></span></p>
+                        <p>Return (G): <span id="updateReturn"></span></p>
+                        <p>Q(s,a): <span id="updateQValue"></span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex-1">
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="p-4 bg-white rounded shadow">
+                        <h2 class="font-bold mb-2">Environment</h2>
+                        <div id="gridworld" class="grid" style="gap: 1px;"></div>
+                    </div>
+                    
+                    <div class="p-4 bg-white rounded shadow">
+                        <h2 class="font-bold mb-2">Q-Values</h2>
+                        <div class="overflow-auto" style="max-height: 13rem;">
+                            <table id="qTable" class="w-full text-xs">
+                                <thead>
+                                    <tr>
+                                        <th class="border p-1 bg-gray-100">State</th>
+                                        <th class="border p-1 bg-gray-100">Up</th>
+                                        <th class="border p-1 bg-gray-100">Down</th>
+                                        <th class="border p-1 bg-gray-100">Left</th>
+                                        <th class="border p-1 bg-gray-100">Right</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="qTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-white rounded shadow">
+                        <h2 class="font-bold mb-2">Policy π(a|s)</h2>
+                        <div class="overflow-auto" style="max-height: 13rem;">
+                            <table id="policyTable" class="w-full text-xs">
+                                <thead>
+                                    <tr>
+                                        <th class="border p-1 bg-gray-100">State</th>
+                                        <th class="border p-1 bg-gray-100">Up</th>
+                                        <th class="border p-1 bg-gray-100">Down</th>
+                                        <th class="border p-1 bg-gray-100">Left</th>
+                                        <th class="border p-1 bg-gray-100">Right</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="policyTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="font-bold mb-2">Legend & Explanation</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-semibold text-sm">Grid Colors</h3>
+                    <ul class="list-disc list-inside text-sm">
+                        <li><span class="inline-block w-3 h-3 bg-green-500"></span> Green cell background: Positive Q-values</li>
+                        <li><span class="inline-block w-3 h-3 bg-red-500"></span> Red cell background: Negative Q-values</li>
+                        <li><span class="inline-block">🎯</span> Target/reward location</li>
+                        <li><span class="inline-block">❌</span> Penalty location</li>
+                        <li><span class="inline-block">⚪</span> Current state being updated</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-sm">ε-soft Policy</h3>
+                    <p class="text-sm">Each cell shows action probabilities with arrows. The darker the arrow, the higher the probability of taking that action in the state.</p>
+                    <p class="text-sm mt-1">For ε-soft policies:</p>
+                    <ul class="list-disc list-inside text-sm">
+                        <li>Best action probability: 1-ε+ε/|A(s)|</li>
+                        <li>Other actions probability: ε/|A(s)|</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let state = {
+            epsilon: 0.2,
+            gridSize: 4,
+            speed: 1,
+            episodeCount: 0,
+            currentStep: 'initialize',
+            isRunning: false,
+            episode: [],
+            returns: {},
+            qValues: {},
+            policy: {},
+            currentState: null,
+            currentAction: null,
+            returnValue: null,
+            visitedPairs: [],
+            visitedStates: [],
+            rewardLocations: [],
+            penaltyLocations: [],
+            timer: null
+        };
+
+        const actions = ['up', 'down', 'left', 'right'];
+
+        // Initialize
+        function initializeGridWorld() {
+            state.episodeCount = 0;
+            state.currentStep = 'initialize';
+            state.episode = [];
+            state.visitedPairs = [];
+            state.visitedStates = [];
+            state.currentState = null;
+            state.currentAction = null;
+            state.returnValue = null;
+            
+            const allStates = [];
+            for (let i = 0; i < state.gridSize; i++) {
+                for (let j = 0; j < state.gridSize; j++) {
+                    allStates.push(`${i},${j}`);
+                }
+            }
+            
+            state.qValues = {};
+            state.returns = {};
+            state.policy = {};
+            
+            allStates.forEach(s => {
+                state.qValues[s] = {};
+                state.returns[s] = {};
+                state.policy[s] = {};
+                
+                actions.forEach(action => {
+                    state.qValues[s][action] = (Math.random() * 0.2 - 0.1).toFixed(2);
+                    state.returns[s][action] = [];
+                    state.policy[s][action] = (1/actions.length).toFixed(2);
+                });
+            });
+            
+            // Random reward and penalty locations
+            const rewardX = Math.floor(Math.random() * state.gridSize);
+            const rewardY = Math.floor(Math.random() * state.gridSize);
+            state.rewardLocations = [`${rewardX},${rewardY}`];
+            
+            let penaltyX, penaltyY;
+            do {
+                penaltyX = Math.floor(Math.random() * state.gridSize);
+                penaltyY = Math.floor(Math.random() * state.gridSize);
+            } while (penaltyX === rewardX && penaltyY === rewardY);
+            
+            state.penaltyLocations = [`${penaltyX},${penaltyY}`];
+            
+            updateUI();
+        }
+
+        function selectAction(s) {
+            const rand = Math.random();
+            
+            let bestAction = null;
+            let bestValue = -Infinity;
+            
+            for (const action of actions) {
+                if (parseFloat(state.qValues[s][action]) > bestValue) {
+                    bestValue = parseFloat(state.qValues[s][action]);
+                    bestAction = action;
+                }
+            }
+            
+            const greedyProb = 1 - state.epsilon + (state.epsilon / actions.length);
+            
+            if (rand < greedyProb) {
+                return bestAction;
+            } else {
+                const nonGreedyActions = actions.filter(a => a !== bestAction);
+                const randIndex = Math.floor(Math.random() * nonGreedyActions.length);
+                return nonGreedyActions[randIndex];
+            }
+        }
+
+        function getNextStateAndReward(s, action) {
+            const [i, j] = s.split(',').map(Number);
+            const rand = Math.random();
+            
+            let newI = i;
+            let newJ = j;
+            
+            if (rand < 0.8) {
+                if (action === 'up') newI = Math.max(0, i - 1);
+                else if (action === 'down') newI = Math.min(state.gridSize - 1, i + 1);
+                else if (action === 'left') newJ = Math.max(0, j - 1);
+                else if (action === 'right') newJ = Math.min(state.gridSize - 1, j + 1);
+            } else {
+                const randDir = Math.floor(Math.random() * 4);
+                if (randDir === 0) newI = Math.max(0, i - 1);
+                else if (randDir === 1) newI = Math.min(state.gridSize - 1, i + 1);
+                else if (randDir === 2) newJ = Math.max(0, j - 1);
+                else if (randDir === 3) newJ = Math.min(state.gridSize - 1, j + 1);
+            }
+            
+            const nextState = `${newI},${newJ}`;
+            let reward = -0.1;
+            
+            if (state.rewardLocations.includes(nextState)) {
+                reward = 1.0;
+            } else if (state.penaltyLocations.includes(nextState)) {
+                reward = -1.0;
+            }
+            
+            return [nextState, reward];
+        }
+
+        function generateEpisode() {
+            state.episode = [];
+            state.visitedPairs = [];
+            state.visitedStates = [];
+            
+            let i = Math.floor(Math.random() * state.gridSize);
+            let j = Math.floor(Math.random() * state.gridSize);
+            let s = `${i},${j}`;
+            
+            let step = 0;
+            let terminated = false;
+            
+            while (!terminated && step < 100) {
+                const action = selectAction(s);
+                const [nextState, reward] = getNextStateAndReward(s, action);
+                
+                state.episode.push({ state: s, action, reward, nextState });
+                state.visitedPairs.push(`${s}-${action}`);
+                if (!state.visitedStates.includes(s)) state.visitedStates.push(s);
+                
+                if (state.rewardLocations.includes(nextState) || state.penaltyLocations.includes(nextState)) {
+                    terminated = true;
+                }
+                
+                s = nextState;
+                step++;
+            }
+            
+            state.currentState = null;
+        }
+
+        function processEpisode() {
+            let G = 0;
+            const gamma = 0.9;
+            const processedPairs = [];
+            
+            for (let t = state.episode.length - 1; t >= 0; t--) {
+                const step = state.episode[t];
+                const { state: s, action, reward } = step;
+                const pair = `${s}-${action}`;
+                
+                G = reward + gamma * G;
+                
+                if (!processedPairs.includes(pair)) {
+                    processedPairs.push(pair);
+                    
+                    if (!state.returns[s][action]) {
+                        state.returns[s][action] = [];
+                    }
+                    state.returns[s][action].push(G);
+                    
+                    const avg = state.returns[s][action].reduce((sum, val) => sum + val, 0) / state.returns[s][action].length;
+                    state.qValues[s][action] = avg.toFixed(2);
+                    
+                    state.currentState = s;
+                    state.currentAction = action;
+                    state.returnValue = G.toFixed(2);
+                }
+            }
+        }
+
+        function updatePolicy() {
+            state.visitedStates.forEach(s => {
+                let bestAction = null;
+                let bestValue = -Infinity;
+                
+                actions.forEach(action => {
+                    const value = parseFloat(state.qValues[s][action]);
+                    if (value > bestValue) {
+                        bestValue = value;
+                        bestAction = action;
+                    }
+                });
+                
+                actions.forEach(action => {
+                    if (action === bestAction) {
+                        state.policy[s][action] = (1 - state.epsilon + state.epsilon / actions.length).toFixed(2);
+                    } else {
+                        state.policy[s][action] = (state.epsilon / actions.length).toFixed(2);
+                    }
+                });
+            });
+            
+            state.currentState = null;
+            state.currentAction = null;
+            state.returnValue = null;
+        }
+
+        function runStep() {
+            if (state.currentStep === 'initialize') {
+                state.currentStep = 'generate_episode';
+            } else if (state.currentStep === 'generate_episode') {
+                generateEpisode();
+                state.currentStep = 'process_episode';
+            } else if (state.currentStep === 'process_episode') {
+                processEpisode();
+                state.currentStep = 'update_policy';
+            } else if (state.currentStep === 'update_policy') {
+                updatePolicy();
+                state.episodeCount++;
+                state.currentStep = 'generate_episode';
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('episodeCount').textContent = state.episodeCount;
+            document.getElementById('currentStep').textContent = state.currentStep.replace('_', ' ');
+            
+            // Update step highlighting
+            ['step1', 'step2', 'step3', 'step4'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('font-bold', 'text-blue-600');
+            });
+            
+            if (state.currentStep === 'initialize') document.getElementById('step1').classList.add('font-bold', 'text-blue-600');
+            else if (state.currentStep === 'generate_episode') document.getElementById('step2').classList.add('font-bold', 'text-blue-600');
+            else if (state.currentStep === 'process_episode') document.getElementById('step3').classList.add('font-bold', 'text-blue-600');
+            else if (state.currentStep === 'update_policy') document.getElementById('step4').classList.add('font-bold', 'text-blue-600');
+            
+            // Update episode list
+            const episodeList = document.getElementById('episodeList');
+            if (state.episode.length > 0) {
+                episodeList.innerHTML = state.episode.map((step, idx) => 
+                    `<li class="${state.visitedPairs.indexOf(`${step.state}-${step.action}`) === idx ? 'font-bold' : ''}">
+                        State: ${step.state}, Action: ${step.action}, Reward: ${step.reward}
+                    </li>`
+                ).join('');
+            } else {
+                episodeList.innerHTML = '<p class="text-sm italic">No episode generated yet</p>';
+            }
+            
+            // Update current update
+            const updateDiv = document.getElementById('currentUpdate');
+            if (state.currentState) {
+                updateDiv.style.display = 'block';
+                document.getElementById('updateState').textContent = state.currentState;
+                document.getElementById('updateAction').textContent = state.currentAction;
+                document.getElementById('updateReturn').textContent = state.returnValue;
+                document.getElementById('updateQValue').textContent = state.qValues[state.currentState]?.[state.currentAction];
+            } else {
+                updateDiv.style.display = 'none';
+            }
+            
+            // Update gridworld
+            const gridworld = document.getElementById('gridworld');
+            gridworld.style.gridTemplateColumns = `repeat(${state.gridSize}, minmax(0, 1fr))`;
+            gridworld.innerHTML = '';
+            
+            for (let i = 0; i < state.gridSize; i++) {
+                for (let j = 0; j < state.gridSize; j++) {
+                    const s = `${i},${j}`;
+                    const cell = document.createElement('div');
+                    
+                    let borderClass = 'border-gray-300';
+                    let bgClass = 'bg-white';
+                    
+                    if (state.rewardLocations.includes(s)) {
+                        bgClass = 'bg-green-200';
+                        borderClass = 'border-green-500';
+                    } else if (state.penaltyLocations.includes(s)) {
+                        bgClass = 'bg-red-200';
+                        borderClass = 'border-red-500';
+                    }
+                    
+                    cell.className = `aspect-square border ${borderClass} ${bgClass} flex items-center justify-center relative text-xs`;
+                    cell.style.position = 'relative';
+                    
+                    const gridCellDiv = document.createElement('div');
+                    gridCellDiv.className = 'grid-cell';
+                    
+                    // Add action cells
+                    ['up', 'right', 'left', 'down'].forEach(action => {
+                        const actionCell = document.createElement('div');
+                        actionCell.className = `action-cell ${getColorClass(s, action)}`;
+                        
+                        const arrow = document.createElement('span');
+                        arrow.className = 'arrow';
+                        arrow.style.opacity = Math.max(0.2, parseFloat(state.policy[s][action]));
+                        arrow.textContent = getArrowChar(action);
+                        
+                        actionCell.appendChild(arrow);
+                        gridCellDiv.appendChild(actionCell);
+                    });
+                    
+                    cell.appendChild(gridCellDiv);
+                    
+                    // Add overlay icons
+                    const overlay = document.createElement('div');
+                    overlay.className = 'absolute text-xs font-bold';
+                    overlay.style.position = 'absolute';
+                    overlay.style.top = '50%';
+                    overlay.style.left = '50%';
+                    overlay.style.transform = 'translate(-50%, -50%)';
+                    overlay.style.pointerEvents = 'none';
+                    overlay.style.zIndex = '10';
+                    
+                    if (state.currentState === s) overlay.textContent = '⚪';
+                    else if (state.rewardLocations.includes(s)) overlay.textContent = '🎯';
+                    else if (state.penaltyLocations.includes(s)) overlay.textContent = '❌';
+                    
+                    if (overlay.textContent) cell.appendChild(overlay);
+                    
+                    gridworld.appendChild(cell);
+                }
+            }
+            
+            // Update Q-table
+            const qTableBody = document.getElementById('qTableBody');
+            qTableBody.innerHTML = Object.keys(state.qValues).map(s => `
+                <tr class="${state.visitedStates.includes(s) ? 'bg-blue-50' : ''}">
+                    <td class="border p-1">${s}</td>
+                    <td class="border p-1">${state.qValues[s].up}</td>
+                    <td class="border p-1">${state.qValues[s].down}</td>
+                    <td class="border p-1">${state.qValues[s].left}</td>
+                    <td class="border p-1">${state.qValues[s].right}</td>
+                </tr>
+            `).join('');
+            
+            // Update policy table
+            const policyTableBody = document.getElementById('policyTableBody');
+            policyTableBody.innerHTML = Object.keys(state.policy).map(s => `
+                <tr class="${state.visitedStates.includes(s) ? 'bg-blue-50' : ''}">
+                    <td class="border p-1">${s}</td>
+                    <td class="border p-1">${state.policy[s].up}</td>
+                    <td class="border p-1">${state.policy[s].down}</td>
+                    <td class="border p-1">${state.policy[s].left}</td>
+                    <td class="border p-1">${state.policy[s].right}</td>
+                </tr>
+            `).join('');
+        }
+
+        function getColorClass(s, action) {
+            const val = parseFloat(state.qValues[s][action]);
+            
+            if (val > 0) {
+                const intensity = Math.min(Math.abs(val) * 500, 500);
+                if (intensity > 400) return 'bg-green-500';
+                if (intensity > 300) return 'bg-green-400';
+                if (intensity > 200) return 'bg-green-300';
+                if (intensity > 100) return 'bg-green-200';
+                return 'bg-green-100';
+            } else if (val < 0) {
+                const intensity = Math.min(Math.abs(val) * 500, 500);
+                if (intensity > 400) return 'bg-red-500';
+                if (intensity > 300) return 'bg-red-400';
+                if (intensity > 200) return 'bg-red-300';
+                if (intensity > 100) return 'bg-red-200';
+                return 'bg-red-100';
+            }
+            
+            return 'bg-gray-100';
+        }
+
+        function getArrowChar(action) {
+            const arrows = { up: '↑', down: '↓', left: '←', right: '→' };
+            return arrows[action];
+        }
+
+        function startLoop() {
+            if (state.timer) clearInterval(state.timer);
+            state.timer = setInterval(() => {
+                if (state.isRunning) runStep();
+            }, 1000 / state.speed);
+        }
+
+        // Event listeners
+        document.getElementById('epsilonSlider').addEventListener('input', (e) => {
+            state.epsilon = parseFloat(e.target.value);
+            document.getElementById('epsilonValue').textContent = state.epsilon.toFixed(1);
+        });
+
+        document.getElementById('gridSizeSlider').addEventListener('input', (e) => {
+            if (!state.isRunning) {
+                state.gridSize = parseInt(e.target.value);
+                document.getElementById('gridSizeValue').textContent = `${state.gridSize}x${state.gridSize}`;
+                initializeGridWorld();
+            }
+        });
+
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            state.speed = parseFloat(e.target.value);
+            document.getElementById('speedValue').textContent = `${state.speed}x`;
+            if (state.isRunning) startLoop();
+        });
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            state.isRunning = !state.isRunning;
+            const btn = document.getElementById('startBtn');
+            if (state.isRunning) {
+                btn.textContent = 'Pause';
+                btn.className = 'px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600';
+                startLoop();
+            } else {
+                btn.textContent = 'Start';
+                btn.className = 'px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600';
+            }
+            updateButtonStates();
+        });
+
+        document.getElementById('stepBtn').addEventListener('click', () => {
+            if (!state.isRunning) runStep();
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (!state.isRunning) initializeGridWorld();
+        });
+
+        function updateButtonStates() {
+            const disabled = state.isRunning;
+            document.getElementById('stepBtn').disabled = disabled;
+            document.getElementById('resetBtn').disabled = disabled;
+            document.getElementById('gridSizeSlider').disabled = disabled;
+            document.getElementById('epsilonSlider').disabled = disabled;
+            
+            if (disabled) {
+                document.getElementById('stepBtn').classList.add('opacity-50', 'cursor-not-allowed');
+                document.getElementById('resetBtn').classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                document.getElementById('stepBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+                document.getElementById('resetBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeGridWorld();
+        });
+    </script>
+</body>
+</html>

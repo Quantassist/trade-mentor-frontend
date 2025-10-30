@@ -15,3 +15,4 @@ export const ExampleFormSchema = z.object({
 })
 
 export type ExampleFormValues = z.infer<typeof ExampleFormSchema>
+export type ExampleFormInput = z.input<typeof ExampleFormSchema>

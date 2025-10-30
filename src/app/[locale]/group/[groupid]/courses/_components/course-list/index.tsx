@@ -56,7 +56,7 @@ export const CourseList = ({ groupid, filter = "all", canManage = false }: Cours
 
   return (
     <div className="divide-y divide-themeGray">
-      {items.map((c: any) => {
+      {items.map((c: any, idx: number) => {
         const thumb = c.thumbnail ? `https://ucarecdn.com/${c.thumbnail}/-/scale_crop/160x100/center/-/format/auto/` : null
         const progress = Math.min(Math.max(Number(c.progress || 0), 0), 100)
         const resumeHref = `/group/${groupid}/courses/${c.id}` // course page redirects to correct section
@@ -66,7 +66,7 @@ export const CourseList = ({ groupid, filter = "all", canManage = false }: Cours
             <div className="flex items-start gap-4">
               <div className="relative h-24 w-40 shrink-0 rounded-lg overflow-hidden ring-1 ring-white/5">
                 {thumb ? (
-                  <Image src={thumb} alt="cover" fill sizes="160px" className="object-cover" />
+                  <Image src={thumb} alt={c.name || "cover"} fill sizes="160px" priority={idx === 0} className="object-cover" />
                 ) : (
                   <div className="h-full w-full bg-themeGray" />
                 )}

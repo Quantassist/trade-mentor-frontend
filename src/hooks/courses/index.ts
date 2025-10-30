@@ -22,10 +22,10 @@ import {
   onUpdateInteractiveRunner,
 } from "@/actions/courses"
 import { onGetGroupInfo } from "@/actions/groups"
-import { CaseStudyFormSchema, type CaseStudyFormValues } from "@/components/form/case-study/schema"
+import { CaseStudyFormSchema, type CaseStudyFormValues, type CaseStudyFormInput } from "@/components/form/case-study/schema"
 import { CourseContentSchema } from "@/components/form/course-content/schema"
 import { CreateCourseSchema, UpdateCourseSchema } from "@/components/form/create-course/schema"
-import { ExampleFormSchema, type ExampleFormValues } from "@/components/form/example/schema"
+import { ExampleFormSchema, type ExampleFormValues, type ExampleFormInput } from "@/components/form/example/schema"
 import { InteractiveFormSchema, InteractiveFormValues } from "@/components/form/interactive/schema"
 import { InteractiveRunnerSchema, type InteractiveRunnerValues } from "@/components/form/interactive/runner-schema"
 import { QuizFormSchema, type QuizFormValues } from "@/components/form/quiz/schema"
@@ -51,6 +51,34 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
   const locale = useLocale()
   const [onPrivacy, setOnPrivacy] = useState<string | undefined>("open")
   const buttonRef = useRef<HTMLButtonElement | null>(null)
+  const enumToLabel = (v: any): string => {
+    if (!v) return "All levels"
+    const s = String(v)
+    if (s === "BEGINNER" || s === "Beginner") return "Beginner"
+    if (s === "INTERMEDIATE" || s === "Intermediate") return "Intermediate"
+    if (s === "ADVANCED" || s === "Advanced") return "Advanced"
+    if (s.toLowerCase() === "all" || s === "All levels") return "All levels"
+    return "All levels"
+  }
+  const labelToEnum = (v: any): string | null => {
+    if (!v) return null
+    const s = String(v)
+    if (s === "All levels") return null
+    if (s === "Beginner" || s === "BEGINNER") return "BEGINNER"
+    if (s === "Intermediate" || s === "INTERMEDIATE") return "INTERMEDIATE"
+    if (s === "Advanced" || s === "ADVANCED") return "ADVANCED"
+    return null
+  }
+  const normalizeOutcomes = (value: any): string[] => {
+    if (!Array.isArray(value)) return []
+    return (value as any[])
+      .map((x) => {
+        if (typeof x === "string") return x
+        if (x && typeof x === "object" && typeof (x as any).outcome === "string") return (x as any).outcome
+        return null
+      })
+      .filter(Boolean) as string[]
+  }
   const {
     handleSubmit,
     register,
@@ -66,8 +94,11 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
       ? {
           name: initial.name,
           description: initial.description,
-          level: initial.level ?? "All levels",
-          learnOutcomes: Array.isArray(initial.learnOutcomes) ? initial.learnOutcomes : [""],
+          level: enumToLabel(initial.level),
+          learnOutcomes: (() => {
+            const arr = normalizeOutcomes(initial.learnOutcomes)
+            return arr.length > 0 ? arr : [""]
+          })(),
           faqs: Array.isArray(initial.faq) ? initial.faq : [],
           mentors: Array.isArray(initial.mentors)
             ? initial.mentors.map((m: any, idx: number) => ({
@@ -132,7 +163,8 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
           const uploaded = await upload.uploadFile(data.image[0])
           thumbnail = uploaded.uuid
         }
-        const includeLevel = initial.level !== undefined || (data.level && data.level !== "All levels")
+        const mappedLevel = labelToEnum(data.level)
+        const includeLevel = (typeof initial.level !== "undefined") ? (mappedLevel !== initial.level) : (mappedLevel !== null)
         const cleanedOutcomes = (data.learnOutcomes || []).filter(Boolean)
         const includeOutcomes = initial.learnOutcomes !== undefined || cleanedOutcomes.length > 0
         const includeFaqs = initial.faq !== undefined || (Array.isArray(data.faqs) && data.faqs.length > 0)
@@ -141,7 +173,7 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
           description: data.description,
           privacy: data.privacy,
           published: data.published,
-          ...(includeLevel ? { level: data.level } : {}),
+          ...(includeLevel ? { level: mappedLevel } : {}),
           ...(includeOutcomes ? { learnOutcomes: cleanedOutcomes } : {}),
           ...(includeFaqs ? { faqs: data.faqs } : {}),
           ...(Array.isArray(data.mentors) ? { mentors: data.mentors } : {}),
@@ -161,7 +193,7 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
           data.privacy,
           data.published,
           {
-            level: data.level,
+            level: labelToEnum(data.level) as any,
             learnOutcomes: data.learnOutcomes?.filter(Boolean),
             faqs: data.faqs,
             mentors: Array.isArray(data.mentors) ? data.mentors : [],
@@ -832,7 +864,7 @@ export const useCaseStudyContent = (
   opts?: { onSuccess?: () => void; initialTitle?: string },
 ) => {
   const client = useQueryClient()
-  const { register, handleSubmit, formState: { errors }, setValue, reset, control } = useForm<CaseStudyFormValues>({
+  const { register, handleSubmit, formState: { errors }, setValue, reset, control } = useForm<CaseStudyFormInput>({
     resolver: zodResolver(CaseStudyFormSchema),
     defaultValues: {
       title: opts?.initialTitle ?? "",
@@ -863,7 +895,7 @@ export const useCaseStudyContent = (
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["update-case-study", sectionid, locale],
-    mutationFn: async (values: CaseStudyFormValues) => {
+    mutationFn: async (values: CaseStudyFormInput) => {
       // Update section title if changed
       const nextTitle = (values.title || "").trim()
       const prevTitle = (opts?.initialTitle || "").trim()
@@ -871,7 +903,7 @@ export const useCaseStudyContent = (
         await onUpdateSection(groupid, sectionid, "NAME", nextTitle)
       }
       // Trim empties for arrays and remove title from payload
-      const { title, ...rest } = values
+      const { title, ...rest } = values as any
       const payload = {
         ...rest,
         data_points: (rest.data_points || []).filter(Boolean),
@@ -917,7 +949,7 @@ export const useExampleContent = (
   opts?: { onSuccess?: () => void },
 ) => {
   const client = useQueryClient()
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ExampleFormValues>({
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ExampleFormInput>({
     resolver: zodResolver(ExampleFormSchema),
     defaultValues: {
       scenario_title: initial?.scenario_title ?? "",
@@ -942,7 +974,7 @@ export const useExampleContent = (
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["update-example", sectionid, locale],
-    mutationFn: async (values: ExampleFormValues) => {
+    mutationFn: async (values: ExampleFormInput) => {
       const cleanedPairs = (values.qa_pairs || []).filter(p => (p?.question || "").trim() || (p?.answer || "").trim())
       const payload = {
         scenario_title: values.scenario_title,

@@ -5,11 +5,11 @@ import { GlobalAccordion } from "@/components/global/accordion"
 import { GlassSheet } from "@/components/global/glass-sheet"
 import { IconRenderer } from "@/components/global/icon-renderer"
 import { ReorderableList } from "@/components/global/reorderable-list"
-import { SECTION_TYPES } from "@/constants/icons"
 import { AccordionContent } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import { SECTION_TYPES } from "@/constants/icons"
 import { useCourseModule } from "@/hooks/courses"
 import { Link } from "@/i18n/navigation"
 import { Check } from "@/icons"
@@ -167,12 +167,12 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                   <Link
                                     ref={contentRef}
                                     href={`/group/${groupid}/courses/${courseId}/${section.id}`}
-                                    className="flex flex-1 items-center gap-3"
+                                    className="flex flex-1 items-start gap-3"
                                     onClick={() => setActiveSection(section.id)}
                                     onDoubleClick={canManage ? onEditSection : undefined}
                                   >
                                     {section.complete ? <Check /> : <Circle />}
-                                    <IconRenderer icon={section.icon} mode={isSelected ? "LIGHT" : "DARK"} />
+                                    {/* <IconRenderer icon={section.icon} mode={isSelected ? "LIGHT" : "DARK"} /> */}
                                     <div className="flex min-w-0 flex-col">
                                       {editSection && activeSection === section.id ? (
                                         <Input
@@ -182,7 +182,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                       ) : sectionUpdatePending && activeSection === section.id ? (
                                         updateVariables?.content
                                       ) : (
-                                        <span className="truncate text-[15px] md:text-base">{section.name}</span>
+                                        <span className="whitespace-normal break-words leading-snug text-[15px] md:text-base">{section.name}</span>
                                       )}
                                       <div className="mt-0.5 flex items-center gap-2 text-[11px] md:text-xs text-themeTextGray">
                                         <span className="px-1.5 py-0.5 rounded border border-themeGray/60 bg-white/5 text-[10px] uppercase tracking-wide text-themeTextGray">
