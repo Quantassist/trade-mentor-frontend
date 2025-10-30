@@ -22,10 +22,11 @@ export type SectionTypeOption = {
 
 // Section types for course sections
 export const SECTION_TYPES: SectionTypeOption[] = [
-  { id: "video", label: "Video", icon: "video" },
-  { id: "text", label: "Text", icon: "text" },
-  { id: "resource", label: "Resources", icon: "resource" },
-  { id: "reflection", label: "Reflection", icon: "reflection" },
+  { id: "concept", label: "Concept", icon: "doc" },
+  { id: "example", label: "Example", icon: "doc" },
+  { id: "case_study", label: "Case Study", icon: "doc" },
+  { id: "interactive", label: "Interactive", icon: "doc" },
   { id: "quiz", label: "Quiz", icon: "quiz" },
-  { id: "assessment", label: "Assessment", icon: "assessment" },
+  { id: "reflection", label: "Reflection", icon: "reflection" },
+  { id: "callout", label: "Callout", icon: "announcement" },
 ]

@@ -5,6 +5,7 @@ import { GlobalAccordion } from "@/components/global/accordion"
 import { GlassSheet } from "@/components/global/glass-sheet"
 import { IconRenderer } from "@/components/global/icon-renderer"
 import { ReorderableList } from "@/components/global/reorderable-list"
+import { SECTION_TYPES } from "@/constants/icons"
 import { AccordionContent } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -183,9 +184,9 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                       ) : (
                                         <span className="truncate text-[15px] md:text-base">{section.name}</span>
                                       )}
-                                      <div className="mt-0.5 flex items-center gap-1 text-[11px] md:text-xs text-themeTextGray">
-                                        <span className={(locale === "en" ? "uppercase " : "") + "tracking-wide"}>
-                                          {tr(section.icon as any)}
+                                      <div className="mt-0.5 flex items-center gap-2 text-[11px] md:text-xs text-themeTextGray">
+                                        <span className="px-1.5 py-0.5 rounded border border-themeGray/60 bg-white/5 text-[10px] uppercase tracking-wide text-themeTextGray">
+                                          {SECTION_TYPES.find((t) => t.id === (section.type || "concept"))?.label || section.type || "Concept"}
                                         </span>
                                       </div>
                                     </div>

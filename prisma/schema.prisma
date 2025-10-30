@@ -2,49 +2,47 @@ generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
 model MentorProfile {
-  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId             String?  @unique @db.Uuid
-  displayName        String
-  title              String?
-  organization       String?
-  headshotUrl        String?
-  bio                String?
+  id                  String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String?                    @unique @db.Uuid
+  displayName         String
+  title               String?
+  organization        String?
+  headshotUrl         String?
+  bio                 String?
   experienceStartYear DateTime?
-  socials            Json?
-  slug               String   @unique
-  isActive           Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  courses            CourseMentor[]
-  translations       MentorProfileTranslation[]
+  socials             Json?
+  slug                String                     @unique
+  isActive            Boolean                    @default(true)
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+  courses             CourseMentor[]
+  user                User?                      @relation(fields: [userId], references: [id])
+  translations        MentorProfileTranslation[]
 }
 
 model CourseMentor {
-  courseId   String   @db.Uuid
-  mentorId   String   @db.Uuid
-  role       MentorRole @default(PRIMARY)
-  sortOrder  Int      @default(0)
-  createdAt  DateTime @default(now())
-
-  Course     Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  Mentor     MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  courseId  String        @db.Uuid
+  mentorId  String        @db.Uuid
+  role      MentorRole    @default(PRIMARY)
+  sortOrder Int           @default(0)
+  createdAt DateTime      @default(now())
+  Course    Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  Mentor    MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
 
   @@id([courseId, mentorId])
   @@index([mentorId, sortOrder])
 }
 
-enum MentorRole {
-  PRIMARY
-  CO_AUTHOR
-  GUEST
-  TA
-}
-
 model MentorProfileTranslation {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  mentorId    String  @db.Uuid
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mentorId    String        @db.Uuid
   locale      String
   displayName String?
   title       String?
@@ -55,30 +53,27 @@ model MentorProfileTranslation {
   @@index([locale])
 }
 
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
-
 model User {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstname    String
-  lastname     String
-  createdAt    DateTime  @default(now())
-  clerkId      String    @unique
-  image        String?
-  locale       String?   @default("en")
-  stripeId     String?
-  isSuperAdmin Boolean   @default(false)
-  comments     Comment[]
-  group        Group[]
-  likes        Like[]
-  membership   Members[]
-  message      Message[]
-  posts        Post[]
-  progress     UserCourseProgress[]
-  mentorProfile  MentorProfile?
+  id            String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstname     String
+  lastname      String
+  createdAt     DateTime             @default(now())
+  clerkId       String               @unique
+  image         String?
+  stripeId      String?
+  isSuperAdmin  Boolean              @default(false)
+  locale        String?              @default("en")
+  comments      Comment[]
+  group         Group[]
+  likes         Like[]
+  membership    Members[]
+  mentorProfile MentorProfile?
+  message       Message[]
+  posts         Post[]
+  progress      UserCourseProgress[]
+  sectionProgress UserSectionProgress[]
+  quizAttempts     UserSectionQuizAttempt[]
+  reflections      UserSectionReflection[]
 }
 
 model Subscription {
@@ -91,8 +86,8 @@ model Subscription {
 }
 
 model Group {
-  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String         @unique
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String             @unique
   category        String
   thumbnail       String?
   description     String?
@@ -100,18 +95,18 @@ model Group {
   jsonDescription String?
   htmlDescription String?
   icon            String?
-  privacy         GROUP_PRIVACY  @default(PRIVATE)
-  active          Boolean        @default(false)
-  createdAt       DateTime       @default(now())
-  userId          String         @db.Uuid
+  privacy         GROUP_PRIVACY      @default(PRIVATE)
+  active          Boolean            @default(false)
+  createdAt       DateTime           @default(now())
+  userId          String             @db.Uuid
   domain          String?
   affiliate       Affiliate?
   channel         Channel[]
   courses         Course[]
-  User            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  translations    GroupTranslation[]
   member          Members[]
   subscription    Subscription[]
-  translations    GroupTranslation[]
 }
 
 model Members {
@@ -127,20 +122,20 @@ model Members {
 }
 
 model Post {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  content     Json
-  htmlContent String
-  jsonContent String
-  authorId    String    @db.Uuid
-  channelId   String    @db.Uuid
-  title       String
-  comments    Comment[]
-  likes       Like[]
+  id           String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  content      Json
+  htmlContent  String
+  authorId     String            @db.Uuid
+  channelId    String            @db.Uuid
+  title        String
+  jsonContent  String
+  comments     Comment[]
+  likes        Like[]
+  author       User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  channel      Channel           @relation(fields: [channelId], references: [id], onDelete: Cascade)
   translations PostTranslation[]
-  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  channel     Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
 }
 
 model Like {
@@ -153,18 +148,17 @@ model Like {
 }
 
 model Comment {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  createdAt DateTime @default(now())
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime  @default(now())
   content   String
-  postId    String   @db.Uuid
-  userId    String   @db.Uuid
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String    @db.Uuid
+  userId    String    @db.Uuid
+  commentId String?   @db.Uuid
   replied   Boolean?  @default(false)
-  //self relation 1 to many for comments
-  reply Comment[] @relation(name: "CommentToComment")
-  Comment Comment? @relation(name: "CommentToComment", fields: [commentId], references: [id])
-  commentId String? @db.Uuid
+  Comment   Comment?  @relation("CommentToComment", fields: [commentId], references: [id])
+  reply     Comment[] @relation("CommentToComment")
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Channel {
@@ -178,71 +172,155 @@ model Channel {
 }
 
 model Course {
-  id            String   @id @db.Uuid
-  name          String
-  thumbnail     String
-  published     Boolean  @default(false)
-  privacy       String
-  description   String
-  level         String?
-  learnOutcomes Json?
-  faq           Json?
-  createdAt     DateTime @default(now())
-  groupId       String?  @db.Uuid
-  Group         Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  modules       Module[]
-  translations  CourseTranslation[]
-  progress      UserCourseProgress[]
-  isDeleted     Boolean  @default(false) @map("is_deleted")
-  mentors       CourseMentor[]
+  id               String               @id @db.Uuid
+  name             String
+  thumbnail        String
+  published        Boolean              @default(false)
+  privacy          String
+  description      String
+  createdAt        DateTime             @default(now())
+  groupId          String?              @db.Uuid
+  faq              Json?
+  learnOutcomes    Json?
+  level            journey_level?
+  isDeleted        Boolean              @default(false) @map("is_deleted")
+  slug             String               @unique(map: "course_slug_unique_idx")
+  target_audience  String?
+  status           String?
+  prerequisites    String[]             @default([])
+  tags             String[]             @default([])
+  estimatedMinutes Int?
+  Group            Group?               @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  mentors          CourseMentor[]
+  translations     CourseTranslation[]
+  modules          Module[]
+  progress         UserCourseProgress[]
 }
 
 model Module {
-  id           String    @id @db.Uuid
-  courseId     String?   @db.Uuid
-  title        String
-  createdAt    DateTime  @default(now())
-  order        Int       @default(0)
-  Course       Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  section      Section[]
-  translations ModuleTranslation[]
+  id                 String              @id @db.Uuid
+  courseId           String?             @db.Uuid
+  title              String
+  createdAt          DateTime            @default(now())
+  order              Int                 @default(0)
+  slug               String?             @unique(map: "module_slug_unique_idx")
+  subtitle           String?
+  difficulty         String?
+  learningObjectives String[]            @default([])
+  estimatedMinutes   Int?
+  Course             Course?             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  translations       ModuleTranslation[]
+  section            Section[]
 
   @@index([courseId, order])
 }
 
 model Section {
-  id          String   @id @db.Uuid
-  moduleId    String?  @db.Uuid
-  name        String   @default("New Section")
-  icon        String   @default("doc")
-  content     String?
-  htmlContent String?
-  jsonContent String?
-  createdAt   DateTime @default(now())
-  order       Int      @default(0)
-  Module      Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  id           String               @id @db.Uuid
+  moduleId     String?              @db.Uuid
+  name         String               @default("New Section")
+  icon         String               @default("doc")
+  content      String?
+  htmlContent  String?
+  jsonContent  Json?
+  createdAt    DateTime             @default(now())
+  order        Int                  @default(0)
+  type         content_block_type?
+  anchorIds    String[]             @default([])
+  blockPayload Json?
+  Module       Module?              @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   translations SectionTranslation[]
+  userProgress UserSectionProgress[]
+  quizAttempts UserSectionQuizAttempt[]
+  reflections  UserSectionReflection[]
 
   @@index([moduleId, order])
+  @@index([type], map: "section_type_idx")
 }
 
 model UserCourseProgress {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId           String   @db.Uuid
-  courseId         String   @db.Uuid
-  lastModuleId     String?  @db.Uuid
-  lastSectionId    String?  @db.Uuid
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String   @db.Uuid
+  courseId          String   @db.Uuid
+  lastModuleId      String?  @db.Uuid
+  lastSectionId     String?  @db.Uuid
   completedSections String[] @default([])
-  progress         Float    @default(0)
-  isComplete       Boolean  @default(false)
-  updatedAt        DateTime @updatedAt
-  createdAt        DateTime @default(now())
-  User             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress          Float    @default(0)
+  updatedAt         DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  isComplete        Boolean  @default(false)
+  Course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  User              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
   @@index([userId, progress, updatedAt])
   @@index([courseId])
+}
+
+model UserSectionProgress {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String   @db.Uuid
+  sectionId        String   @db.Uuid
+  locale           String?
+  completed        Boolean  @default(false)
+  progressPct      Float    @default(0)
+  lastVisited      DateTime @default(now())
+  lastScorePct     Float?
+  passed           Boolean?
+  lastQuizAttemptId String?  @db.Uuid
+  lastReflectionId   String?  @db.Uuid
+  data             Json?
+  updatedAt        DateTime @updatedAt
+
+  User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sectionId, locale])
+  @@index([userId, sectionId])
+  @@index([sectionId, updatedAt])
+}
+
+model UserSectionQuizAttempt {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String   @db.Uuid
+  sectionId        String   @db.Uuid
+  locale           String?
+  attemptNo        Int
+  selectedIndexes  Int[]
+  correctCount     Int
+  totalQuestions   Int
+  scorePct         Float
+  passed           Boolean
+  quizSnapshotJson Json
+  durationMs       Int?
+  submittedAt      DateTime @default(now())
+
+  User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sectionId, attemptNo])
+  @@index([userId, sectionId, submittedAt])
+  @@index([sectionId, submittedAt])
+}
+
+model UserSectionReflection {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String   @db.Uuid
+  sectionId        String   @db.Uuid
+  locale           String?
+  responseText     String
+  charCount        Int
+  promptSnapshot   String?
+  guidanceSnapshot String?
+  savedAt          DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sectionId, locale])
+  @@index([userId, sectionId, updatedAt])
+  @@index([sectionId, updatedAt])
 }
 
 model Affiliate {
@@ -262,13 +340,13 @@ model Message {
 }
 
 model GroupTranslation {
-  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  groupId           String  @db.Uuid
-  locale            String
-  name              String?
-  descriptionJson   Json?
-  descriptionHtml   String?
-  Group             Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupId         String  @db.Uuid
+  locale          String
+  name            String?
+  descriptionJson Json?
+  descriptionHtml String?
+  Group           Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, locale])
   @@index([locale])
@@ -280,8 +358,9 @@ model CourseTranslation {
   locale          String
   name            String?
   description     String?
-  learnOutcomes   Json?
   faq             Json?
+  learnOutcomes   Json?
+  target_audience String?
   Course          Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([courseId, locale])
@@ -289,41 +368,58 @@ model CourseTranslation {
 }
 
 model ModuleTranslation {
-  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  moduleId  String @db.Uuid
-  locale    String
-  title     String?
-  Module    Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  id                 String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId           String  @db.Uuid
+  locale             String
+  title              String?
+  subtitle           String?
+  learningObjectives Json?
+  Module             Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
   @@unique([moduleId, locale])
   @@index([locale])
 }
 
 model SectionTranslation {
-  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sectionId     String @db.Uuid
-  locale        String
-  name          String?
-  contentJson   Json?
-  contentHtml   String?
-  contentText   String?
-  Section       Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sectionId   String  @db.Uuid
+  locale      String
+  name        String?
+  contentJson Json?
+  contentHtml String?
+  contentText String?
+  Section     Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
   @@unique([sectionId, locale])
   @@index([locale])
 }
 
 model PostTranslation {
-  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  postId        String @db.Uuid
-  locale        String
-  title         String?
-  contentJson   Json?
-  contentHtml   String?
-  Post          Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId      String  @db.Uuid
+  locale      String
+  title       String?
+  contentJson Json?
+  contentHtml String?
+  Post        Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([postId, locale])
   @@index([locale])
+}
+
+model Anchor {
+  id         String   @id @db.Uuid
+  shortLabel String   @unique
+  title      String
+  excerpt    String
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+}
+
+enum MentorRole {
+  PRIMARY
+  CO_AUTHOR
+  GUEST
+  TA
 }
 
 enum GROUP_PRIVACY {
@@ -337,4 +433,20 @@ enum GroupRole {
   MODERATOR
   INSTRUCTOR
   MEMBER
+}
+
+enum content_block_type {
+  concept
+  example
+  case_study
+  interactive
+  quiz
+  reflection
+  callout
+}
+
+enum journey_level {
+  beginner
+  intermediate
+  advanced
 }

@@ -2,17 +2,7 @@
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@hookform/error-message"
 // import Placeholder from "@tiptap/extension-placeholder"
-import {
-  CharacterCount,
-  EditorBubble,
-  EditorCommand,
-  EditorCommandEmpty,
-  EditorCommandItem,
-  EditorContent,
-  EditorRoot,
-  handleCommandNavigation,
-  JSONContent,
-} from "novel"
+import { EditorBubble, EditorCommand, EditorCommandEmpty, EditorCommandItem, EditorContent, EditorRoot, handleCommandNavigation, JSONContent } from "novel"
 
 // import { CharacterCount, handleCommandNavigation } from "novel/extensions"
 import { upload } from "@/lib/uploadcare"
@@ -70,16 +60,11 @@ const BlockTextEditor = ({
     () => [
       ...defaultExtensions,
       slashCommand,
-      CharacterCount.configure({
-        limit: max,
-      }),
-      // Placeholder.configure({
-      //     placeholder: "Type / to insert element...",
-      // }),
+      // Do not enforce a hard character cap to avoid trimming initial content.
+      // CharacterCount from novel appears to enforce the limit and can drop leading content.
       Video as any,
-      // Image,
     ],
-    [max],
+    [],
   )
 
   // Image upload handler for paste/drag events (memoized)
