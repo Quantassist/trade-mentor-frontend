@@ -2,6 +2,8 @@
 
 import { onAuthenticatedUser, onGetUserGroupRole } from "@/actions/auth"
 import { client } from "@/lib/prisma"
+import { sectionTypeSchemaMap } from "@/types/section-schemas"
+
 import { canCreateCourse, hasPermission } from "@/lib/rbac"
 import { cache } from "react"
 const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || "en"
@@ -17,6 +19,65 @@ const getAuthedUserId = async (): Promise<string | null> => {
   }
 }
 
+export const onUpdateInteractiveRunner = async (
+  groupid: string,
+  sectionid: string,
+  code: string,
+  meta: { artifact_type?: 'react' | 'html'; allowed_libraries?: string[]; scope_config?: any; version?: number },
+) => {
+  try {
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401 as const, message: 'Unauthorized' }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, 'section:edit')) {
+      return { status: 403 as const, message: 'Forbidden' }
+    }
+
+    // Validate allowlisted libraries
+    const ALLOWLIST = new Set<string>([
+      'lucide-react',
+      'dayjs',
+      'classnames',
+      'clsx',
+      'framer-motion',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
+      'recharts',
+    ])
+    const allowed = Array.isArray(meta?.allowed_libraries) ? meta.allowed_libraries : []
+    for (const lib of allowed) {
+      if (!ALLOWLIST.has(lib)) {
+        return { status: 422 as const, message: `Library not allowed: ${lib}` }
+      }
+    }
+
+    // Fetch current jsonContent and merge
+    const base = await client.section.findUnique({ where: { id: sectionid }, select: { jsonContent: true } })
+    let current: any = null
+    try {
+      current = base?.jsonContent ? (typeof base.jsonContent === 'string' ? JSON.parse(base.jsonContent as any) : base?.jsonContent) : null
+    } catch {
+      current = null
+    }
+    const nextJson = {
+      ...(current && typeof current === 'object' ? current : {}),
+      interactiveRunner: {
+        code: code || '',
+        meta: {
+          artifact_type: meta?.artifact_type ?? 'react',
+          allowed_libraries: allowed,
+          scope_config: meta?.scope_config ?? {},
+          ...(typeof meta?.version === 'number' ? { version: meta.version } : {}),
+        },
+      },
+    }
+
+    await client.section.update({ where: { id: sectionid }, data: { jsonContent: nextJson as any } })
+    return { status: 200 as const, message: 'Interactive runner saved' }
+  } catch (error) {
+    return { status: 400 as const, message: 'Oops! something went wrong' }
+  }
+}
 // Update an existing course and its translations
 export const onUpdateCourse = async (
   groupid: string,
@@ -160,6 +221,19 @@ export const onGetCourseAbout = cache(async (courseId: string, locale?: string) 
     })
     if (!course) return { status: 404 as const, message: "Course not found" }
 
+    // Normalize learnOutcomes to string[] so UI can render consistently
+    const normalizeLearnOutcomes = (value: any): string[] => {
+      if (!Array.isArray(value)) return []
+      return (value as any[])
+        .map((x) => {
+          if (typeof x === "string") return x
+          if (x && typeof x === "object" && typeof (x as any).outcome === "string") return (x as any).outcome
+          return null
+        })
+        .filter(Boolean) as string[]
+    }
+    let learnOutcomes = normalizeLearnOutcomes((course as any).learnOutcomes)
+
     // Locale overlay similar to onGetSectionInfo
     if (locale && locale !== DEFAULT_LOCALE) {
       const t = await client.courseTranslation.findUnique({
@@ -168,8 +242,10 @@ export const onGetCourseAbout = cache(async (courseId: string, locale?: string) 
       if (t) {
         (course as any).name = t.name ?? course.name
         ;(course as any).description = (t as any).description ?? course.description
-        ;(course as any).learnOutcomes = (t as any).learnOutcomes ?? course.learnOutcomes
         ;(course as any).faq = (t as any).faq ?? course.faq
+        if ((t as any).learnOutcomes != null) {
+          learnOutcomes = normalizeLearnOutcomes((t as any).learnOutcomes)
+        }
       }
     }
 
@@ -182,6 +258,7 @@ export const onGetCourseAbout = cache(async (courseId: string, locale?: string) 
       status: 200 as const,
       course: {
         ...course,
+        learnOutcomes,
         moduleCount,
         totalLessons,
       },
@@ -317,17 +394,18 @@ export const onCreateGroupCourse = async (
       },
       data: {
         courses: {
-          create: {
+          create: ({
             id: courseid,
             name,
             thumbnail: image,
             description,
             privacy,
             published,
-            level: extras?.level ?? null,
+            // Cast to enum type expected by Prisma (journey_level)
+            level: (extras?.level as any) ?? null,
             learnOutcomes: (extras?.learnOutcomes as any) ?? undefined,
             faq: (extras?.faqs as any) ?? undefined,
-          },
+          }) as any,
         },
       },
     })
@@ -543,6 +621,18 @@ export const onGetGroupCourses = cache(async (
       return { status: 404 as const, message: "No courses found" }
     }
 
+    // Helper: normalize learnOutcomes to string[] for consistent UI rendering
+    const normalizeLearnOutcomes = (value: any): string[] => {
+      if (!Array.isArray(value)) return []
+      return (value as any[])
+        .map((x) => {
+          if (typeof x === "string") return x
+          if (x && typeof x === "object" && typeof (x as any).outcome === "string") return (x as any).outcome
+          return null
+        })
+        .filter(Boolean) as string[]
+    }
+
     // Overlay translations if locale is provided and not default
     if (locale && locale !== DEFAULT_LOCALE) {
       for (const c of courses as any[]) {
@@ -554,6 +644,11 @@ export const onGetGroupCourses = cache(async (
           c.faq = t.faq ?? c.faq
         }
       }
+    }
+
+    // Normalize learnOutcomes for all courses (post-translation overlay)
+    for (const c of courses as any[]) {
+      c.learnOutcomes = normalizeLearnOutcomes(c.learnOutcomes)
     }
 
     // If no user, return raw courses for "all" only (published only)
@@ -642,6 +737,7 @@ export const onGetCourseModules = cache(async (courseId: string) => {
               id: true,
               name: true,
               icon: true,
+              type: true,
               order: true,
               createdAt: true,
               moduleId: true,
@@ -873,12 +969,201 @@ export const onUpdateSection = async (
   }
 }
 
+export const onSubmitQuizAttempt = async (
+  groupid: string,
+  sectionid: string,
+  answers: number[],
+  locale?: string,
+) => {
+  try {
+    const userId = await getAuthedUserId()
+    if (!userId) return { status: 401 as const, message: "Unauthorized" }
+
+    const info = await onGetSectionInfo(sectionid, locale)
+    if (info.status !== 200) return { status: 404 as const, message: "Section not found" }
+    const section: any = (info as any).section
+    if (section.type !== "quiz") return { status: 400 as const, message: "Not a quiz section" }
+    const items: any[] = Array.isArray(section.blockPayload?.items) ? section.blockPayload.items : []
+    const total = items.length
+    if (answers.length !== total) return { status: 400 as const, message: "Invalid answers" }
+    let correct = 0
+    items.forEach((q, i) => {
+      const idx = answers[i]
+      if (q?.choices?.[idx]?.correct) correct += 1
+    })
+    const scorePct = total > 0 ? (correct / total) * 100 : 0
+    const passThreshold = typeof section.blockPayload?.pass_threshold === "number" ? section.blockPayload.pass_threshold : 70
+    const passed = scorePct >= passThreshold
+
+    const count = await client.userSectionQuizAttempt.count({ where: { userId, sectionId: sectionid } })
+    const attempt = await client.userSectionQuizAttempt.create({
+      data: {
+        userId,
+        sectionId: sectionid,
+        locale: locale ?? null,
+        attemptNo: count + 1,
+        selectedIndexes: answers,
+        correctCount: correct,
+        totalQuestions: total,
+        scorePct,
+        passed,
+        quizSnapshotJson: section.blockPayload as any,
+      },
+    })
+
+    const latestAttemptData = {
+      lastAttempt: {
+        attemptNo: count + 1,
+        selectedIndexes: answers,
+        correctCount: correct,
+        totalQuestions: total,
+        scorePct,
+        passed,
+        submittedAt: new Date().toISOString(),
+      },
+    }
+    const destLocaleQuiz = locale && locale !== DEFAULT_LOCALE ? locale : null
+    const existingProgressQuiz = await client.userSectionProgress.findFirst({
+      where: { userId, sectionId: sectionid, locale: destLocaleQuiz },
+      select: { data: true },
+    })
+    const mergedQuizData = { ...(existingProgressQuiz?.data as any || {}), ...latestAttemptData }
+    {
+      const destLocale = locale && locale !== DEFAULT_LOCALE ? locale : null
+      const row = await client.userSectionProgress.findFirst({ where: { userId, sectionId: sectionid, locale: destLocale } })
+      if (row) {
+        await client.userSectionProgress.update({
+          where: { id: row.id },
+          data: { lastVisited: new Date(), lastScorePct: scorePct, passed, lastQuizAttemptId: attempt.id, data: mergedQuizData as any },
+        })
+      } else {
+        await client.userSectionProgress.create({
+          data: {
+            userId,
+            sectionId: sectionid,
+            locale: destLocale,
+            lastVisited: new Date(),
+            lastScorePct: scorePct,
+            passed,
+            lastQuizAttemptId: attempt.id,
+            data: mergedQuizData as any,
+          },
+        })
+      }
+    }
+
+    if (passed) {
+      const sec = await client.section.findUnique({ where: { id: sectionid }, select: { id: true, Module: { select: { id: true, courseId: true } } } })
+      if (sec?.Module?.courseId) {
+        const courseId = sec.Module.courseId
+        const totalSections = await client.section.count({ where: { Module: { is: { courseId } } } })
+        const existing = await client.userCourseProgress.findUnique({ where: { userId_courseId: { userId, courseId } }, select: { completedSections: true } })
+        const prev = new Set(existing?.completedSections ?? [])
+        prev.add(sectionid)
+        const completedSections = Array.from(prev)
+        const progressPct = totalSections > 0 ? (completedSections.length / totalSections) * 100 : 0
+        await client.userCourseProgress.upsert({
+          where: { userId_courseId: { userId, courseId } },
+          create: { userId, courseId, lastSectionId: sectionid, lastModuleId: sec.Module.id, completedSections, progress: progressPct, isComplete: progressPct >= 100 },
+          update: { lastSectionId: sectionid, lastModuleId: sec.Module.id, completedSections: { set: completedSections }, progress: progressPct, isComplete: progressPct >= 100 },
+        })
+      }
+    }
+
+    return { status: 200 as const, correct, total, scorePct, passed }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+}
+
+export const onSaveReflectionResponse = async (
+  groupid: string,
+  sectionid: string,
+  responseText: string,
+  locale?: string,
+) => {
+  try {
+    const userId = await getAuthedUserId()
+    if (!userId) return { status: 401 as const, message: "Unauthorized" }
+
+    const info = await onGetSectionInfo(sectionid, locale)
+    if (info.status !== 200) return { status: 404 as const, message: "Section not found" }
+    const section: any = (info as any).section
+    if (section.type !== "reflection") return { status: 400 as const, message: "Not a reflection section" }
+    const min = typeof section.blockPayload?.min_chars === "number" ? section.blockPayload.min_chars : 20
+    const charCount = responseText?.length ?? 0
+    if (charCount < min) return { status: 422 as const, message: `Minimum ${min} characters required` }
+
+    const saved = await client.userSectionReflection.upsert({
+      where: { userId_sectionId_locale: { userId, sectionId: sectionid, locale: locale ?? null } },
+      update: { responseText, charCount },
+      create: {
+        userId,
+        sectionId: sectionid,
+        locale: locale ?? null,
+        responseText,
+        charCount,
+        promptSnapshot: section.blockPayload?.prompt_md ?? null,
+        guidanceSnapshot: section.blockPayload?.guidance_md ?? null,
+      },
+    } as any)
+
+    const latestReflectionData = {
+      lastReflection: {
+        responseText,
+        charCount,
+        savedAt: new Date().toISOString(),
+      },
+    }
+    const destLocaleRefl = locale && locale !== DEFAULT_LOCALE ? locale : null
+    const existingProgressRefl = await client.userSectionProgress.findFirst({
+      where: { userId, sectionId: sectionid, locale: destLocaleRefl },
+      select: { data: true },
+    })
+    const mergedReflData = { ...(existingProgressRefl?.data as any || {}), ...latestReflectionData }
+    {
+      const destLocale = locale && locale !== DEFAULT_LOCALE ? locale : null
+      const row = await client.userSectionProgress.findFirst({ where: { userId, sectionId: sectionid, locale: destLocale } })
+      if (row) {
+        await client.userSectionProgress.update({
+          where: { id: row.id },
+          data: { lastVisited: new Date(), lastReflectionId: saved.id, completed: true, data: mergedReflData as any },
+        })
+      } else {
+        await client.userSectionProgress.create({
+          data: { userId, sectionId: sectionid, locale: destLocale, lastVisited: new Date(), lastReflectionId: saved.id, completed: true, data: mergedReflData as any },
+        })
+      }
+    }
+
+    const sec = await client.section.findUnique({ where: { id: sectionid }, select: { id: true, Module: { select: { id: true, courseId: true } } } })
+    if (sec?.Module?.courseId) {
+      const courseId = sec.Module.courseId
+      const totalSections = await client.section.count({ where: { Module: { is: { courseId } } } })
+      const existing = await client.userCourseProgress.findUnique({ where: { userId_courseId: { userId, courseId } }, select: { completedSections: true } })
+      const prev = new Set(existing?.completedSections ?? [])
+      prev.add(sectionid)
+      const completedSections = Array.from(prev)
+      const progressPct = totalSections > 0 ? (completedSections.length / totalSections) * 100 : 0
+      await client.userCourseProgress.upsert({
+        where: { userId_courseId: { userId, courseId } },
+        create: { userId, courseId, lastSectionId: sectionid, lastModuleId: sec.Module.id, completedSections, progress: progressPct, isComplete: progressPct >= 100 },
+        update: { lastSectionId: sectionid, lastModuleId: sec.Module.id, completedSections: { set: completedSections }, progress: progressPct, isComplete: progressPct >= 100 },
+      })
+    }
+
+    return { status: 200 as const, saved: true, id: saved.id, charCount }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+}
 export const onCreateModuleSection = async (
   groupid: string,
   moduleid: string,
   sectionid: string,
   name?: string,
   icon?: string,
+  options?: { type?: string; initialPayload?: any },
 ) => {
   try {
     // RBAC: section:create (by module's group)
@@ -898,6 +1183,8 @@ export const onCreateModuleSection = async (
             id: sectionid,
             ...(name ? { name } : {}),
             ...(icon ? { icon } : {}),
+            ...(options?.type ? { type: options.type as any } : {}),
+            ...(options?.initialPayload ? { blockPayload: options.initialPayload as any } : {}),
             order: count,
           },
         },
@@ -948,25 +1235,64 @@ export const onGetSectionInfo = cache(async (sectionid: string, locale?: string)
       })
     }
 
+    const coerceJson = (val: any) => {
+      if (val === null || val === undefined) return undefined
+      if (typeof val === "string") {
+        try { return JSON.parse(val) } catch { return undefined }
+      }
+      return val as any
+    }
+
+    let jsonContent: any = coerceJson((section as any).jsonContent)
+    let htmlContent: string | undefined = (section as any).htmlContent ?? undefined
+    let content: string | undefined = (section as any).content ?? undefined
+    let blockPayload: any = (section as any).blockPayload ?? undefined
+
     if (locale && locale !== DEFAULT_LOCALE) {
       const translation = await client.sectionTranslation.findUnique({
         where: { sectionId_locale: { sectionId: sectionid, locale } },
       })
-      const effective = {
-        ...section,
-        name: translation?.name ?? section.name,
-        htmlContent: translation?.contentHtml ?? section.htmlContent ?? undefined,
-        jsonContent:
-          translation?.contentJson !== undefined && translation?.contentJson !== null
-            ? JSON.stringify(translation.contentJson)
-            : section.jsonContent ?? undefined,
-        content: translation?.contentText ?? section.content ?? undefined,
-        complete: completed,
+      if (section.type === "concept") {
+        jsonContent = translation?.contentJson ?? jsonContent
+        htmlContent = translation?.contentHtml ?? htmlContent
+        content = translation?.contentText ?? content
+      } else {
+        blockPayload = (translation as any)?.blockPayload ?? blockPayload
       }
-      return { status: 200, section: effective }
     }
 
-    return { status: 200, section: { ...section, complete: completed } }
+    // Latest per-user per-section snapshot
+    let userSnapshot: any = null
+    if (userId) {
+      const whereLocale = locale && locale !== DEFAULT_LOCALE ? { locale } : { locale: null }
+      const progressRow = await client.userSectionProgress.findFirst({ where: { userId, sectionId: sectionid, ...whereLocale } })
+      const data: any = (progressRow?.data as any) || {}
+      userSnapshot = {
+        progress: progressRow
+          ? {
+              completed: progressRow.completed,
+              progressPct: progressRow.progressPct,
+              lastVisited: progressRow.lastVisited,
+              lastScorePct: progressRow.lastScorePct,
+              passed: progressRow.passed,
+              lastQuizAttemptId: progressRow.lastQuizAttemptId,
+              lastReflectionId: progressRow.lastReflectionId,
+            }
+          : null,
+        lastAttempt: data?.lastAttempt ?? null,
+        lastReflection: data?.lastReflection ?? null,
+      }
+    }
+
+    const effective = {
+      ...section,
+      jsonContent,
+      htmlContent,
+      content,
+      blockPayload,
+      complete: completed,
+    }
+    return { status: 200, section: effective, user: userSnapshot }
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }
@@ -987,6 +1313,9 @@ export const onUpdateCourseSectionContent = async (
     if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "section:edit")) {
       return { status: 403, message: "Forbidden" }
     }
+    // Relaxed: allow scripts and inline handlers for interactive HTML demos (per product requirement)
+    // NOTE: Keep this path locked behind section:edit RBAC. Consider DOMPurify in the future with a permissive allowlist.
+    const sanitized = html || ""
     if (locale && locale !== DEFAULT_LOCALE) {
       let parsed: any = null
       try {
@@ -999,12 +1328,12 @@ export const onUpdateCourseSectionContent = async (
         create: {
           sectionId: sectionid,
           locale,
-          contentHtml: html,
+          contentHtml: sanitized,
           contentJson: parsed,
           contentText: content,
         },
         update: {
-          contentHtml: html,
+          contentHtml: sanitized,
           contentJson: parsed,
           contentText: content,
         },
@@ -1014,13 +1343,19 @@ export const onUpdateCourseSectionContent = async (
       }
       return { status: 404, message: "No sections found" }
     }
+    let parsed: any = null
+    try {
+      parsed = json ? JSON.parse(json) : null
+    } catch (_) {
+      parsed = null
+    }
     const section = await client.section.update({
       where: {
         id: sectionid,
       },
       data: {
-        htmlContent: html,
-        jsonContent: json,
+        htmlContent: sanitized,
+        jsonContent: parsed,
         content,
       },
     })
@@ -1033,5 +1368,50 @@ export const onUpdateCourseSectionContent = async (
       status: 400,
       message: "Oops! something went wrong",
     }
+  }
+}
+
+export const onUpdateSectionTypedPayload = async (
+  groupid: string,
+  sectionid: string,
+  payload: any,
+  locale?: string,
+) => {
+  try {
+    const userRole = await onGetUserGroupRole(groupid)
+    if (userRole.status !== 200) return { status: 401 as const, message: "Unauthorized" }
+    if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "section:edit")) {
+      return { status: 403 as const, message: "Forbidden" }
+    }
+    const base = await client.section.findUnique({ where: { id: sectionid }, select: { type: true } })
+    const type = base?.type as string | undefined
+    if (type && sectionTypeSchemaMap[type]) {
+      const parsed = sectionTypeSchemaMap[type].safeParse(payload)
+      if (!parsed.success) {
+        return { status: 422 as const, message: "Invalid payload", issues: parsed.error.flatten() }
+      }
+      payload = parsed.data as any
+    }
+    if (locale && locale !== DEFAULT_LOCALE) {
+      await client.sectionTranslation.upsert({
+        where: { sectionId_locale: { sectionId: sectionid, locale } },
+        create: {
+          sectionId: sectionid,
+          locale,
+          blockPayload: payload as any,
+        },
+        update: {
+          blockPayload: payload as any,
+        },
+      } as any)
+      return { status: 200 as const, message: "Typed payload updated (translation)" }
+    }
+    await client.section.update({
+      where: { id: sectionid },
+      data: { blockPayload: payload as any },
+    })
+    return { status: 200 as const, message: "Typed payload updated" }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
   }
 }

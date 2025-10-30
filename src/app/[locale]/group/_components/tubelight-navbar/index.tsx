@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { LucideIcon } from "lucide-react"
 import Link from "next/link"
-import type { ElementType, ReactNode } from "react"
+import type { ElementType, ReactNode, ComponentType } from "react"
 import { useEffect, useMemo, useState } from "react"
 
 interface NavItem {
@@ -71,7 +71,7 @@ export function NavBar({
       >
         {items.map((item) => {
           const Icon =
-            typeof item.icon === "function" ? (item.icon as ElementType) : null
+            typeof item.icon === "function" ? (item.icon as ComponentType<any>) : null
           const isActive = activeTab === item.name
 
           return (
@@ -93,7 +93,7 @@ export function NavBar({
                 {isActive && (
                   <span className="mr-2 inline-flex items-center">
                     {Icon ? (
-                      <Icon size={16} strokeWidth={2.2} />
+                      <Icon {...({ size: 16, strokeWidth: 2.2 } as any)} />
                     ) : (
                       (item.icon as ReactNode)
                     )}
@@ -103,7 +103,7 @@ export function NavBar({
               </span>
               <span className={cn(forceShowLabels ? "hidden" : "sm:hidden")}>
                 {Icon ? (
-                  <Icon size={18} strokeWidth={2.5} />
+                  <Icon {...({ size: 18, strokeWidth: 2.5 } as any)} />
                 ) : (
                   (item.icon as ReactNode)
                 )}

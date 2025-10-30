@@ -54,7 +54,7 @@ export const CourseContentForm = ({
     <form onSubmit={onUpdateContent} className="flex flex-col p-5 bg-[#12151b]" ref={editor}>
       <BlockTextEditor
         onEdit={onEditDescription}
-        max={1000}
+        max={2000}
         inline
         min={10}
         disabled={canManage ? false : true}

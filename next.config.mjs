@@ -9,6 +9,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "ucarecdn.com",
       },
+      {
+        protocol: "https",
+        hostname: "cdn2.thecatapi.com",
+      },
     ],
   },
 };

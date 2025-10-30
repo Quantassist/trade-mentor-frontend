@@ -230,20 +230,28 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
     }
   }, [initial?.thumbnail])
   useEffect(() => {
-    // Prefill translation tab data from initial.translations
     if (Array.isArray(initial?.translations) && initial.translations.length > 0) {
       const nameMap: Record<string, string> = {}
       const descMap: Record<string, string> = {}
       const outMap: Record<string, string[]> = {}
       const faqMap: Record<string, { question: string; answer: string }[]> = {}
+      const normalizeOutcomes = (value: any): string[] => {
+        if (!Array.isArray(value)) return []
+        return (value as any[])
+          .map((x) => {
+            if (typeof x === "string") return x
+            if (x && typeof x === "object" && typeof (x as any).outcome === "string") return (x as any).outcome
+            return null
+          })
+          .filter(Boolean) as string[]
+      }
       for (const t of initial.translations) {
         if (!t?.locale || t.locale === defaultLocale) continue
         const l = t.locale
         nameMap[l] = t.name ?? ""
-        // backend returns `description`; older code may use `descriptionHtml/Json`, we only read `description`
         const faqAny = (t as any).faqs ?? (t as any).faq
         descMap[l] = (t as any).description ?? ""
-        outMap[l] = (t as any).learnOutcomes ?? []
+        outMap[l] = normalizeOutcomes((t as any).learnOutcomes ?? [])
         faqMap[l] = Array.isArray(faqAny) ? faqAny : []
       }
       setTNames(nameMap)
@@ -278,7 +286,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
         >
           <form
             onSubmit={onCreateCourse}
-            className="flex flex-col gap-y-5 mt-5 max-h-[70vh] overflow-y-auto pr-2"
+            className="flex flex-col gap-y-5 mt-5 pr-2"
           >
             {/* Locale tabs for localized fields */}
             <Tabs value={activeLocale} onValueChange={setActiveLocale} className="w-full">
@@ -566,7 +574,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
                     />
                   )
                 })()}
-                <Card className="bg-transparent text-themeTextGray flex justify-center items-center border-themeGray hover:bg-themeBlack transition duration-100 cursor-pointer border-dashed aspect-video rounded-xl">
+                <Card className="bg-[#161a20] border-themeGray/60 text-themeTextGray flex justify-center items-center hover:bg-themeBlack transition duration-100 cursor-pointer border-dashed rounded-xl h-32">
                   Upload Image
                 </Card>
               </span>
@@ -581,7 +589,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
               />
             </Label>
             {imagePreview && (
-              <div className="relative h-24 w-40 rounded-lg overflow-hidden ring-1 ring-white/5">
+              <div className="relative h-28 w-48 rounded-lg overflow-hidden ring-1 ring-white/10">
                 <img src={imagePreview} alt="preview" className="h-full w-full object-cover" />
               </div>
             )}
