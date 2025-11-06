@@ -111,11 +111,14 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
               <div className="relative">
                 <div className="absolute left-2 top-2 bottom-2 w-px bg-white" />
                 <ul className="space-y-4">
-                  {steps.map((s: string, i: number) => (
+                  {steps.map((s: any, i: number) => (
                     <li key={i} className="relative pl-8">
                       <div className="absolute left-0 top-3 h-3 w-3 rounded-full bg-[#b9a9ff]" />
                       <div className="rounded-md border border-themeGray/60 bg-[#12151b] p-3 text-themeTextWhite shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-                        {s}
+                        {s?.date_period ? (
+                          <div className="text-xs text-[#b9a9ff] mb-1">{s.date_period}</div>
+                        ) : null}
+                        <div className="text-themeTextWhite">{s?.event_description}</div>
                       </div>
                     </li>
                   ))}

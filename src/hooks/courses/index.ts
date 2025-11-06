@@ -748,6 +748,7 @@ export const useCreateSectionForm = (moduleid: string, groupid: string) => {
     const initialPayload =
       type === "case_study"
         ? {
+            block_title: "",
             background_md: "",
             analysis_md: "",
             decision_md: "",
@@ -756,16 +757,21 @@ export const useCreateSectionForm = (moduleid: string, groupid: string) => {
             timeline_steps: [],
             learning_points: [],
             sebi_context: "",
+            branching_points: [],
           }
         :
       type === "example"
         ? {
-            scenario_title: "",
+            block_title: "",
             scenario_md: "",
+            persona: [],
             qa_pairs: [],
-            tips_md: "",
-            takeaways: [],
-            indian_context: false,
+            financial_context: {
+              time_horizon: "",
+              risk_tolerance: "",
+              available_amount: "",
+              current_situation: "",
+            },
           }
         :
       type === "reflection"
@@ -863,11 +869,13 @@ export const useCaseStudyContent = (
   locale?: string,
   opts?: { onSuccess?: () => void; initialTitle?: string },
 ) => {
+
   const client = useQueryClient()
   const { register, handleSubmit, formState: { errors }, setValue, reset, control } = useForm<CaseStudyFormInput>({
     resolver: zodResolver(CaseStudyFormSchema),
     defaultValues: {
       title: opts?.initialTitle ?? "",
+      block_title: initial?.block_title ?? "",
       background_md: initial?.background_md ?? "",
       analysis_md: initial?.analysis_md ?? "",
       decision_md: initial?.decision_md ?? "",
@@ -876,12 +884,14 @@ export const useCaseStudyContent = (
       timeline_steps: Array.isArray(initial?.timeline_steps) ? initial.timeline_steps : [],
       learning_points: Array.isArray(initial?.learning_points) ? initial.learning_points : [],
       sebi_context: initial?.sebi_context ?? "",
+      branching_points: Array.isArray(initial?.branching_points) ? initial.branching_points : [],
     },
   })
 
   useEffect(() => {
     reset({
       title: opts?.initialTitle ?? "",
+      block_title: initial?.block_title ?? "",
       background_md: initial?.background_md ?? "",
       analysis_md: initial?.analysis_md ?? "",
       decision_md: initial?.decision_md ?? "",
@@ -890,6 +900,7 @@ export const useCaseStudyContent = (
       timeline_steps: Array.isArray(initial?.timeline_steps) ? initial.timeline_steps : [],
       learning_points: Array.isArray(initial?.learning_points) ? initial.learning_points : [],
       sebi_context: initial?.sebi_context ?? "",
+      branching_points: Array.isArray(initial?.branching_points) ? initial.branching_points : [],
     })
   }, [sectionid, groupid, locale, initial, reset, opts?.initialTitle])
 
@@ -907,11 +918,23 @@ export const useCaseStudyContent = (
       const payload = {
         ...rest,
         data_points: (rest.data_points || []).filter(Boolean),
-        timeline_steps: (rest.timeline_steps || []).filter(Boolean),
+        timeline_steps: (rest.timeline_steps || []).filter((t: any) => (t?.date_period || t?.event_description)),
         learning_points: (rest.learning_points || []).filter(Boolean),
+        branching_points: (rest.branching_points || [])
+          .map((bp: any) => ({
+            node_id: (bp?.node_id || "").trim(),
+            decision_prompt: (bp?.decision_prompt || "").trim(),
+            options: Array.isArray(bp?.options) ? bp.options.filter((op: any) => (op?.option_text || "").trim()).map((op: any) => ({
+              option_text: (op?.option_text || "").trim(),
+              is_correct: !!op?.is_correct,
+              option_consequence: (op?.option_consequence || "").trim(),
+            })) : [],
+          }))
+          .filter((bp: any) => bp.node_id || bp.decision_prompt),
       }
       return await onUpdateSectionTypedPayload(groupid, sectionid, payload as any, locale)
     },
+
     onSuccess: (data: any) => {
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message })
       if (data?.status === 200) {
@@ -952,23 +975,31 @@ export const useExampleContent = (
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ExampleFormInput>({
     resolver: zodResolver(ExampleFormSchema),
     defaultValues: {
-      scenario_title: initial?.scenario_title ?? "",
+      block_title: initial?.block_title ?? "",
       scenario_md: initial?.scenario_md ?? "",
+      persona: Array.isArray(initial?.persona) ? initial.persona : [],
       qa_pairs: Array.isArray(initial?.qa_pairs) ? initial.qa_pairs : [],
-      tips_md: initial?.tips_md ?? "",
-      takeaways: Array.isArray(initial?.takeaways) ? initial.takeaways : [],
-      indian_context: !!initial?.indian_context,
+      financial_context: initial?.financial_context ?? {
+        time_horizon: "",
+        risk_tolerance: "",
+        available_amount: "",
+        current_situation: "",
+      },
     },
   })
 
   useEffect(() => {
     reset({
-      scenario_title: initial?.scenario_title ?? "",
+      block_title: initial?.block_title ?? "",
       scenario_md: initial?.scenario_md ?? "",
+      persona: Array.isArray(initial?.persona) ? initial.persona : [],
       qa_pairs: Array.isArray(initial?.qa_pairs) ? initial.qa_pairs : [],
-      tips_md: initial?.tips_md ?? "",
-      takeaways: Array.isArray(initial?.takeaways) ? initial.takeaways : [],
-      indian_context: !!initial?.indian_context,
+      financial_context: initial?.financial_context ?? {
+        time_horizon: "",
+        risk_tolerance: "",
+        available_amount: "",
+        current_situation: "",
+      },
     })
   }, [sectionid, groupid, locale, initial, reset])
 
@@ -977,12 +1008,16 @@ export const useExampleContent = (
     mutationFn: async (values: ExampleFormInput) => {
       const cleanedPairs = (values.qa_pairs || []).filter(p => (p?.question || "").trim() || (p?.answer || "").trim())
       const payload = {
-        scenario_title: values.scenario_title,
+        block_title: values.block_title,
         scenario_md: values.scenario_md,
+        persona: Array.isArray(values.persona) ? values.persona.filter(p => (p?.name || "").trim() || typeof p?.age === "number") : [],
         qa_pairs: cleanedPairs,
-        tips_md: values.tips_md,
-        takeaways: (values.takeaways || []).filter(Boolean),
-        indian_context: !!values.indian_context,
+        financial_context: values.financial_context || {
+          time_horizon: "",
+          risk_tolerance: "",
+          available_amount: "",
+          current_situation: "",
+        },
       }
       return await onUpdateSectionTypedPayload(groupid, sectionid, payload as any, locale)
     },
