@@ -6,6 +6,7 @@ import { useCourseSectionInfo, useGroupRole, useSubmitQuizAttempt } from "@/hook
 import type { QuizBlockPayload } from "@/types/sections"
 import { Lightbulb } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import SectionAnchors from "@/components/anchors/section-anchors"
 
 type Props = { payload: QuizBlockPayload; sectionid: string; groupid: string; locale?: string; user?: any; initial?: any }
 
@@ -34,6 +35,8 @@ export default function QuizView({ payload, sectionid, groupid, locale, user, in
   const passThreshold = typeof effective?.pass_threshold === "number" ? effective!.pass_threshold : 70
   const typeLabel = ((effective?.quiz_type as string) || "quiz").replace(/_/g, " ")
   const typeBadge = typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)
+  const moduleId = (data?.section?.Module?.id as string) || undefined
+  const anchorIds = Array.isArray((data as any)?.section?.anchorIds) ? (data as any).section.anchorIds : []
 
   // Prefill from last attempt, if any (from hydrated data first, fallback to user prop)
   useEffect(() => {
@@ -52,6 +55,7 @@ export default function QuizView({ payload, sectionid, groupid, locale, user, in
   return (
     <>
       <div className="p-5 md:p-6 space-y-6">
+        <SectionAnchors moduleId={moduleId} anchorIds={anchorIds} />
         <div className="flex items-center gap-4">
           <span className="rounded-full border border-themeGray/60 bg-[#0f0f14] px-3 py-1.5 text-xs md:text-sm text-themeTextGray ring-1 ring-white/5">{typeBadge}</span>
           <div className="mx-auto" />

@@ -268,6 +268,21 @@ export const onGetCourseAbout = cache(async (courseId: string, locale?: string) 
   }
 })
 
+// Fetch all anchors for a module (SSR-cacheable)
+export const onGetModuleAnchors = cache(async (moduleId: string) => {
+  try {
+    if (!moduleId) return { status: 400 as const, message: "Invalid module id" }
+    const anchors = await client.anchor.findMany({
+      where: { moduleId },
+      select: { id: true, shortLabel: true, title: true, excerpt: true },
+      orderBy: { createdAt: "asc" },
+    })
+    return { status: 200 as const, anchors }
+  } catch (error) {
+    return { status: 400 as const, message: "Oops! something went wrong" }
+  }
+})
+
 // Fetch user's ongoing courses (progress > 0 and < 100), ordered by recent activity
 export const onGetOngoingCourses = cache(async (limit = 3) => {
   try {

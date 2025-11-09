@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import InteractiveContentForm from "@/components/form/interactive"
 import InteractiveRunnerForm from "@/components/form/interactive/runner"
 import { useCourseSectionInfo, useGroupRole } from "@/hooks/courses"
+import SectionAnchors from "@/components/anchors/section-anchors"
 import { useRunner } from "react-runner"
 
 type Props = {
@@ -21,6 +22,8 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
   const { canEdit } = useGroupRole(groupid)
   const [editOpen, setEditOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'html' | 'react'>('html')
+  const moduleId = (data?.section?.Module?.id as string) || undefined
+  const anchorIds = Array.isArray((data as any)?.section?.anchorIds) ? (data as any).section.anchorIds : []
 
   const html = useMemo(() => (data as any)?.section?.htmlContent as string | undefined, [data])
   const runner = useMemo(() => {
@@ -95,6 +98,7 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
   return (
     <>
       <div className="p-5 md:p-6 space-y-4">
+        <SectionAnchors moduleId={moduleId} anchorIds={anchorIds} />
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-white">Interactive Demo</h2>
           {canEdit && (

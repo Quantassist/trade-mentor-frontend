@@ -19,8 +19,14 @@ const CourseLayout = async ({ params, children }: CourseLayoutProps) => {
   const client = new QueryClient()
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <div className="grid grid-cols-1 h-full lg:grid-cols-4 overflow-hidden">
-        <div className="bg-themeBlack p-5 overflow-y-auto">
+      <div className="relative min-h-screen md:flex md:items-start">
+        <div
+          className="bg-themeBlack p-5 md:pt-0 md:fixed md:w-80 md:overflow-y-auto md:z-0"
+          style={{
+            top: "calc(var(--group-navbar-h, 5rem) - 1px)",
+            height: "calc(100dvh - (var(--group-navbar-h, 5rem) - 1px))",
+          }}
+        >
           <CreateCourseModule // Optimistic UI component
             courseid={courseid}
             groupid={groupid}
@@ -30,7 +36,7 @@ const CourseLayout = async ({ params, children }: CourseLayoutProps) => {
             groupid={groupid}
           />
         </div>
-        <div className="lg:col-span-3 max-h-full h-full pb-10 overflow-y-auto bg-[#101011]/90">
+        <div className="flex-1 md:ml-80 pb-10 bg-[#101011]/90">
           {children}
         </div>
       </div>

@@ -8,6 +8,7 @@ import { useCourseSectionInfo, useGroupRole } from "@/hooks/courses"
 import type { CaseStudyBlockPayload } from "@/types/sections"
 import { CalendarDays, CheckCircle2, Landmark, ListTree, Sparkles } from "lucide-react"
 import { useMemo, useState } from "react"
+import SectionAnchors from "@/components/anchors/section-anchors"
 
 type Props = { payload: CaseStudyBlockPayload; sectionid: string; groupid: string; locale?: string; initial?: any }
 
@@ -28,10 +29,13 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
   ], [effectivePayload])
   const allIds = useMemo(() => leftItems.map(x => x.id), [leftItems])
   const [open, setOpen] = useState<string[]>(["background", "analysis", "decision", "outcome"]) 
+  const moduleId = (data?.section?.Module?.id as string) || undefined
+  const anchorIds = Array.isArray((data as any)?.section?.anchorIds) ? (data as any).section.anchorIds : []
 
   return (
     <>
     <div className="p-5 md:p-6">
+      <SectionAnchors moduleId={moduleId} anchorIds={anchorIds} className="mb-4" />
       {canEdit && (
         <div className="mb-5 flex justify-end">
           <Button type="button" className="rounded-md px-3 py-1.5 text-sm text-white bg-[#4F46E5] hover:bg-[#4F46E5]/90 ring-1 ring-[#4F46E5]/30"

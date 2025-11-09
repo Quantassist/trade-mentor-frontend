@@ -10,6 +10,7 @@ import {
   onGetGroupCourses,
   onGetMentorProfiles,
   onGetSectionInfo,
+  onGetModuleAnchors,
   onReorderModules,
   onReorderSections,
   onSaveReflectionResponse,
@@ -588,6 +589,26 @@ export const useCourseSectionInfo = (sectionid: string, locale?: string, initial
     staleTime: initial ? 10_000 : 0,
   })
   return { data }
+}
+
+// Fetch and cache all anchors for a module; return list and byId map for O(1) lookups
+export const useModuleAnchors = (moduleId: string | undefined, locale?: string) => {
+  const { data } = useQuery({
+    enabled: !!moduleId,
+    queryKey: ["module-anchors", moduleId, locale],
+    queryFn: () => onGetModuleAnchors(moduleId as string),
+    staleTime: 5 * 60_000,
+    gcTime: 60 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: false,
+  })
+  const anchorsList = (data?.status === 200 ? (data as any).anchors : []) as Array<{ id: string; shortLabel: string; title: string; excerpt: string }>
+  const anchorsById = (anchorsList || []).reduce((acc: Record<string, any>, a) => {
+    acc[a.id] = a
+    return acc
+  }, {} as Record<string, { id: string; shortLabel: string; title: string; excerpt: string }>)
+  return { anchorsList, anchorsById }
 }
 
 export const useCourseContent = (

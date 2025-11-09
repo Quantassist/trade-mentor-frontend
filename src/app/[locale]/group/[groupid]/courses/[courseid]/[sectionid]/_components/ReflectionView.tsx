@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useCourseSectionInfo, useGroupRole, useSaveReflection } from "@/hooks/courses"
 import ReflectionContentForm from "@/components/form/reflection/index"
 import { Lightbulb, Sparkles } from "lucide-react"
+import SectionAnchors from "@/components/anchors/section-anchors"
 
 type Props = { payload: ReflectionBlockPayload; sectionid: string; groupid: string; locale?: string; user?: any; initial?: any }
 
@@ -34,6 +35,10 @@ export default function ReflectionView({ payload, sectionid, groupid, locale, us
 
   return (
     <div className="p-5 md:p-6 space-y-6">
+      <SectionAnchors
+        moduleId={(data?.section?.Module?.id as string) || undefined}
+        anchorIds={Array.isArray((data as any)?.section?.anchorIds) ? (data as any).section.anchorIds : []}
+      />
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           {effective?.reflection_type ? (

@@ -1,13 +1,14 @@
 "use client"
-import React, { useState } from "react"
-import type { ExampleBlockPayload } from "@/types/sections"
+import ExampleContentForm from "@/components/form/example/index"
 import { Markdown } from "@/components/global/markdown"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { HelpCircle, UserRound, BadgeCheck, Clock, IndianRupee, ClipboardList, Target } from "lucide-react"
 import { useCourseSectionInfo, useGroupRole } from "@/hooks/courses"
-import ExampleContentForm from "@/components/form/example/index"
+import type { ExampleBlockPayload } from "@/types/sections"
+import { BadgeCheck, ClipboardList, Clock, HelpCircle, IndianRupee, Target, UserRound } from "lucide-react"
+import { useState } from "react"
+import SectionAnchors from "@/components/anchors/section-anchors"
 
 type Props = { payload: ExampleBlockPayload; sectionid: string; groupid: string; locale?: string; initial?: any }
 
@@ -19,14 +20,18 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
   const pairs = Array.isArray(effective?.qa_pairs) ? effective!.qa_pairs : []
   const count = pairs.length
   const [open, setOpen] = useState<string[]>([])
+  const moduleId = (data?.section?.Module?.id as string) || undefined
+  const anchorIds = Array.isArray((data as any)?.section?.anchorIds) ? (data as any).section.anchorIds : []
 
   return (
     <>
       <div className="p-5 md:p-6 space-y-5">
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
+          {/* <div className="space-y-1">
             <h2 className="text-xl md:text-2xl font-semibold text-white">{(effective as any)?.block_title}</h2>
-          </div>
+          </div> */}
+
+        <SectionAnchors moduleId={moduleId} anchorIds={anchorIds} />
           {canEdit && (
             <Button type="button" className="rounded-md px-3 py-1.5 text-sm text-white bg-[#4F46E5] hover:bg-[#4F46E5]/90 ring-1 ring-[#4F46E5]/30"
               onClick={() => setEditOpen(true)}>

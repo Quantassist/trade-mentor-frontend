@@ -9,12 +9,13 @@ import { AccordionContent } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { SECTION_TYPES } from "@/constants/icons"
 import { useCourseModule } from "@/hooks/courses"
 import { Link } from "@/i18n/navigation"
 import { Check } from "@/icons"
 import { cn } from "@/lib/utils"
-import { Circle, GripVertical, Pencil, Plus, Trash2 } from "lucide-react"
+import { Circle, GripVertical, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { useEffect, useState } from "react"
 
@@ -91,6 +92,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                   editable={<Input ref={inputRef} className="bg-themeBlack border-themeGray" />}
                   onEdit={canManage ? () => onEditModule(module.id) : undefined}
                   id={module.id}
+                  defaultOpen={Array.isArray(module.section) && module.section.some((s: any) => s.id === selectedSectionId)}
                   title={
                     <div className="flex w-full items-center gap-3">
                       {handleProps && (
@@ -153,7 +155,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                 <div
                                   key={section.id}
                                   className={cn(
-                                    "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border text-[15px] md:text-base",
+                                    "group relative flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border text-[15px] md:text-base",
                                     isSelected
                                       ? "bg-[#0B0B10] text-white border-[#3A3A41] ring-1 ring-[#4F46E5]/30"
                                       : "text-themeTextGray hover:bg-white/5 border-transparent",
@@ -167,7 +169,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                   <Link
                                     ref={contentRef}
                                     href={`/group/${groupid}/courses/${courseId}/${section.id}`}
-                                    className="flex flex-1 items-start gap-3"
+                                    className="min-w-0 flex flex-1 items-start gap-3"
                                     onClick={() => setActiveSection(section.id)}
                                     onDoubleClick={canManage ? onEditSection : undefined}
                                   >
@@ -182,7 +184,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                       ) : sectionUpdatePending && activeSection === section.id ? (
                                         updateVariables?.content
                                       ) : (
-                                        <span className="whitespace-normal break-words leading-snug text-[15px] md:text-base">{section.name}</span>
+                                        <span className="block whitespace-normal break-words leading-snug text-[15px] md:text-base">{section.name}</span>
                                       )}
                                       <div className="mt-0.5 flex items-center gap-2 text-[11px] md:text-xs text-themeTextGray">
                                         <span className="px-1.5 py-0.5 rounded border border-themeGray/60 bg-white/5 text-[10px] uppercase tracking-wide text-themeTextGray">
@@ -192,44 +194,46 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                     </div>
                                   </Link>
                                   {canManage && (
-                                    <GlassSheet
-                                      trigger={
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="icon"
-                                          className="ml-2 text-themeTextGray hover:text-white"
-                                        >
-                                          <Pencil className="h-4 w-4" />
-                                        </Button>
-                                      }
-                                      triggerClass=""
-                                      className="w-[380px] sm:w-[420px]"
-                                    >
-                                      <h3 className="mb-4 text-lg font-semibold">Edit Section</h3>
-                                      <SectionEditForm
-                                        groupid={groupid}
-                                        sectionid={section.id}
-                                        initialName={section.name}
-                                        initialIcon={section.icon}
-                                      />
-                                    </GlassSheet>
-                                  )}
-                                  {canManage && (
-                                    <Button
-                                      type="button"
-                                      aria-label="Delete section"
-                                      variant="ghost"
-                                      size="icon"
-                                      className="ml-1 text-themeTextGray hover:text-red-400"
-                                      onClick={() => {
-                                        if (confirm("Delete this section?")) {
-                                          deleteSection(section.id)
-                                        }
-                                      }}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                    <div className="absolute right-2 top-1.5 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity">
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-themeTextGray hover:text-white">
+                                            <MoreVertical className="h-4 w-4" />
+                                          </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent align="end" className="w-40 p-1 bg-[#161a20] border-themeGray/60">
+                                          <GlassSheet
+                                            trigger={
+                                              <Button type="button" variant="ghost" className="w-full justify-start px-2 py-1.5 text-sm text-themeTextWhite hover:bg-white/5">
+                                                Edit
+                                              </Button>
+                                            }
+                                            triggerClass=""
+                                            className="w-[380px] sm:w-[420px]"
+                                          >
+                                            <h3 className="mb-4 text-lg font-semibold">Edit Section</h3>
+                                            <SectionEditForm
+                                              groupid={groupid}
+                                              sectionid={section.id}
+                                              initialName={section.name}
+                                              initialIcon={section.icon}
+                                            />
+                                          </GlassSheet>
+                                          <Button
+                                            type="button"
+                                            variant="ghost"
+                                            className="w-full justify-start px-2 py-1.5 text-sm text-red-300 hover:bg-white/5"
+                                            onClick={() => {
+                                              if (confirm("Delete this section?")) {
+                                                deleteSection(section.id)
+                                              }
+                                            }}
+                                          >
+                                            Delete
+                                          </Button>
+                                        </PopoverContent>
+                                      </Popover>
+                                    </div>
                                   )}
                                 </div>
                               )
