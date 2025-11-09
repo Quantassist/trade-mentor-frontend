@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useExampleContent } from "@/hooks/courses"
-import type { ExampleFormValues } from "./schema"
 import { useFieldArray } from "react-hook-form"
 
 type Props = {
@@ -20,14 +19,14 @@ export default function ExampleContentForm({ groupid, sectionid, locale, initial
   const { register, control, onUpdateExample, isPending } = useExampleContent(sectionid, groupid, initial, locale, { onSuccess: onCancel })
 
   const qaPairs = useFieldArray({ control: control as any, name: "qa_pairs" as any })
-  const takeaways = useFieldArray({ control: control as any, name: "takeaways" as any })
+  const persona = useFieldArray({ control: control as any, name: "persona" as any })
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); e.stopPropagation(); onUpdateExample(); }} className="space-y-4 pb-24">
       <div className="space-y-2">
-        <Label className="text-themeTextWhite">Scenario title</Label>
+        <Label className="text-themeTextWhite">Scenario Title</Label>
         <Input className="bg-[#161a20] border-themeGray/60 text-white" placeholder="Optional"
-          {...register("scenario_title")} />
+          {...register("block_title")} />
       </div>
 
       <div className="space-y-2">
@@ -36,6 +35,46 @@ export default function ExampleContentForm({ groupid, sectionid, locale, initial
       </div>
 
       <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-themeTextWhite">Persona</Label>
+          <Button type="button" variant="secondary" className="bg-[#0f0f14] border border-themeGray/60 text-white"
+            onClick={() => (persona as any).append({ name: "", age: 0, occupation: "", financial_goal: "" })}>Add persona</Button>
+        </div>
+        <div className="space-y-4">
+          {persona.fields.map((f, i) => (
+            <div key={f.id} className="rounded-md border border-themeGray/60 p-3 bg-[#161a20] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#b9a9ff]">Persona {i + 1}</span>
+                <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => persona.remove(i)}>Remove</Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Input className="bg-[#12151b] border-themeGray/60 text-white" placeholder="Name"
+                  {...register(`persona.${i}.name` as const)} />
+                <Input type="number" className="bg-[#12151b] border-themeGray/60 text-white" placeholder="Age"
+                  {...register(`persona.${i}.age` as const, { valueAsNumber: true })} />
+                <Input className="bg-[#12151b] border-themeGray/60 text-white" placeholder="Occupation"
+                  {...register(`persona.${i}.occupation` as const)} />
+                <Input className="bg-[#12151b] border-themeGray/60 text-white" placeholder="Financial goal"
+                  {...register(`persona.${i}.financial_goal` as const)} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-themeTextWhite">Financial Context</Label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <Input className="bg-[#161a20] border-themeGray/60 text-white" placeholder="Time horizon"
+            {...register("financial_context.time_horizon")} />
+          <Input className="bg-[#161a20] border-themeGray/60 text-white" placeholder="Risk tolerance"
+            {...register("financial_context.risk_tolerance")} />
+          <Input className="bg-[#161a20] border-themeGray/60 text-white" placeholder="Available amount"
+            {...register("financial_context.available_amount")} />
+          <Input className="bg-[#161a20] border-themeGray/60 text-white" placeholder="Current situation"
+            {...register("financial_context.current_situation")} />
+        </div>
+      </div>
         <div className="flex items-center justify-between">
           <Label className="text-themeTextWhite">Q&A Pairs</Label>
           <Button type="button" variant="secondary" className="bg-[#0f0f14] border border-themeGray/60 text-white"
@@ -55,30 +94,11 @@ export default function ExampleContentForm({ groupid, sectionid, locale, initial
             </div>
           ))}
         </div>
-      </div>
+      {/* </div> */}
 
-      <div className="space-y-2">
-        <Label className="text-themeTextWhite">Tips (Markdown)</Label>
-        <Textarea rows={4} className="bg-[#12151b] border-themeGray/60 text-themeTextWhite" {...register("tips_md")} />
-      </div>
+      {/* Removed tips/takeaways per new payload */}
 
-      <div className="space-y-2">
-        <Label className="text-themeTextWhite">Key Takeaways</Label>
-        <div className="space-y-2">
-          {takeaways.fields.map((f, i) => (
-            <div key={f.id} className="flex items-center gap-2">
-              <Input className="bg-[#161a20] border-themeGray/60 text-white" {...register(`takeaways.${i}` as const)} />
-              <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => takeaways.remove(i)}>Remove</Button>
-            </div>
-          ))}
-          <Button type="button" variant="secondary" className="bg-[#0f0f14] border border-themeGray/60 text-white" onClick={() => (takeaways as any).append("")}>Add</Button>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <input id="indian_context" type="checkbox" className="h-4 w-4" {...register("indian_context")} />
-        <Label htmlFor="indian_context" className="text-themeTextWhite">Indian context</Label>
-      </div>
+      {/* Removed indian_context per new payload */}
 
       <DialogFooter className="sticky bottom-0 left-0 right-0 bg-[#161a20] border-t border-themeGray/60 pt-3">
         <Button type="button" variant="ghost" className="text-themeTextGray" onClick={onCancel}>Cancel</Button>

@@ -8,6 +8,7 @@ import { useCourseSectionInfo, useGroupRole } from "@/hooks/courses"
 import type { CaseStudyBlockPayload } from "@/types/sections"
 import { CalendarDays, CheckCircle2, Landmark, ListTree, Sparkles } from "lucide-react"
 import { useMemo, useState } from "react"
+import SectionAnchors from "@/components/anchors/section-anchors"
 
 type Props = { payload: CaseStudyBlockPayload; sectionid: string; groupid: string; locale?: string; initial?: any }
 
@@ -28,10 +29,13 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
   ], [effectivePayload])
   const allIds = useMemo(() => leftItems.map(x => x.id), [leftItems])
   const [open, setOpen] = useState<string[]>(["background", "analysis", "decision", "outcome"]) 
+  const moduleId = (data?.section?.Module?.id as string) || undefined
+  const anchorIds = Array.isArray((data as any)?.section?.anchorIds) ? (data as any).section.anchorIds : []
 
   return (
     <>
     <div className="p-5 md:p-6">
+      <SectionAnchors moduleId={moduleId} anchorIds={anchorIds} className="mb-4" />
       {canEdit && (
         <div className="mb-5 flex justify-end">
           <Button type="button" className="rounded-md px-3 py-1.5 text-sm text-white bg-[#4F46E5] hover:bg-[#4F46E5]/90 ring-1 ring-[#4F46E5]/30"
@@ -111,11 +115,14 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
               <div className="relative">
                 <div className="absolute left-2 top-2 bottom-2 w-px bg-white" />
                 <ul className="space-y-4">
-                  {steps.map((s: string, i: number) => (
+                  {steps.map((s: any, i: number) => (
                     <li key={i} className="relative pl-8">
                       <div className="absolute left-0 top-3 h-3 w-3 rounded-full bg-[#b9a9ff]" />
                       <div className="rounded-md border border-themeGray/60 bg-[#12151b] p-3 text-themeTextWhite shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-                        {s}
+                        {s?.date_period ? (
+                          <div className="text-xs text-[#b9a9ff] mb-1">{s.date_period}</div>
+                        ) : null}
+                        <div className="text-themeTextWhite">{s?.event_description}</div>
                       </div>
                     </li>
                   ))}

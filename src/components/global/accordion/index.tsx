@@ -16,6 +16,7 @@ type GlobalAccordionProps = {
   children: React.ReactNode
   itemClassName?: string
   triggerClassName?: string
+  defaultOpen?: boolean
 }
 
 export const GlobalAccordion = ({
@@ -28,9 +29,10 @@ export const GlobalAccordion = ({
   editable,
   itemClassName,
   triggerClassName,
+  defaultOpen,
 }: GlobalAccordionProps) => {
   return (
-    <Accordion type="single" collapsible>
+    <Accordion type="single" collapsible defaultValue={defaultOpen ? id : undefined}>
       <AccordionItem className={cn("bg-none", itemClassName)} value={id}>
         <AccordionTrigger
           ref={ref}

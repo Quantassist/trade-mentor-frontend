@@ -24,23 +24,54 @@ export type ConceptBlockPayload = {
   sebi_context: string
 }
 
+export type Persona = {
+  name: string
+  age: number
+  occupation?: string
+  financial_goal?: string
+}
+
+export type FinancialContext = {
+  time_horizon?: string
+  risk_tolerance?: string
+  available_amount?: string
+  current_situation?: string
+}
+
 export type ExampleBlockPayload = {
-  scenario_title: string
-  scenario_md: string
+  block_title?: string | null
+  scenario_md?: string | null
+  persona: Persona[]
   qa_pairs: QAPair[]
-  indian_context: boolean
+  financial_context?: FinancialContext
+  image_prompts?: string[]
+}
+
+export type TimelineStep = { date_period: string; event_description: string }
+
+export type BranchingOption = {
+  option_text: string
+  is_correct?: boolean
+  option_consequence?: string
+}
+
+export type BranchingNode = {
+  node_id: string
+  decision_prompt: string
+  options: BranchingOption[]
 }
 
 export type CaseStudyBlockPayload = {
-  title: string
-  background_md: string
+  block_title?: string | null
+  background_md?: string | null
+  analysis_md?: string | null
+  decision_md?: string | null
+  outcome_md?: string | null
   data_points: string[]
-  timeline_steps: string[]
-  analysis_md: string
-  decision_md: string
-  outcome_md: string
+  timeline_steps: TimelineStep[]
   learning_points: string[]
-  sebi_context: string
+  sebi_context?: string | null
+  branching_points?: BranchingNode[]
 }
 
 export type WidgetConfig = {

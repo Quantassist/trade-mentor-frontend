@@ -4,6 +4,7 @@ import { HtmlParser } from "@/components/global/html-parser"
 import { Loader } from "@/components/global/loader"
 import BlockTextEditor from "@/components/global/rich-text-editor"
 import { Button } from "@/components/ui/button"
+import SectionAnchors from "@/components/anchors/section-anchors"
 import { useCourseContent, useCourseSectionInfo } from "@/hooks/courses"
 import { useQuery } from "@tanstack/react-query"
 
@@ -52,6 +53,11 @@ export const CourseContentForm = ({
   )
   return canManage ? (
     <form onSubmit={onUpdateContent} className="flex flex-col p-5 bg-[#12151b]" ref={editor}>
+      <SectionAnchors
+        moduleId={(data?.section?.Module?.id as string) || undefined}
+        anchorIds={Array.isArray((data as any)?.section?.anchorIds) ? (data as any).section.anchorIds : []}
+        className="mb-3"
+      />
       <BlockTextEditor
         onEdit={onEditDescription}
         max={2000}
@@ -79,6 +85,11 @@ export const CourseContentForm = ({
     </form>
   ) : (
     <div className="bg-[#12151b] p-5">
+      <SectionAnchors
+        moduleId={(data?.section?.Module?.id as string) || undefined}
+        anchorIds={Array.isArray((data as any)?.section?.anchorIds) ? (data as any).section.anchorIds : []}
+        className="mb-3"
+      />
       <HtmlParser html={data?.section?.htmlContent!} />
     </div>
   )

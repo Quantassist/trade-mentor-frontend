@@ -67,14 +67,43 @@ export default function CaseStudyContentForm({ groupid, sectionid, locale, initi
         </div>
         <div className="space-y-2">
           <Label className="text-themeTextWhite">Timeline Steps</Label>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {timeline.fields.map((f, i) => (
-              <div key={f.id} className="flex items-center gap-2">
-                <Input className="bg-[#161a20] border-themeGray/60 text-white" {...register(`timeline_steps.${i}` as const)} />
-                <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => timeline.remove(i)}>Remove</Button>
+              <div key={f.id} className="rounded-md border border-themeGray/60 bg-[#13161c] p-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <div className="md:col-span-1">
+                    <Label className="text-themeTextGray">Date/Period</Label>
+                    <Input
+                      className="mt-1 bg-[#161a20] border-themeGray/60 text-white"
+                      {...register(`timeline_steps.${i}.date_period` as const)}
+                      placeholder="e.g., Jan 2020 - Mar 2021"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label className="text-themeTextGray">Event Description</Label>
+                    <Textarea
+                      rows={3}
+                      className="mt-1 bg-[#161a20] border-themeGray/60 text-themeTextWhite"
+                      {...register(`timeline_steps.${i}.event_description` as const)}
+                      placeholder="Describe what happened in this period"
+                    />
+                  </div>
+                </div>
+                <div className="mt-2 flex justify-end">
+                  <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => timeline.remove(i)}>
+                    Remove
+                  </Button>
+                </div>
               </div>
             ))}
-            <Button type="button" variant="secondary" className="bg-[#0f0f14] border border-themeGray/60 text-white" onClick={() => (timeline as any).append("")}>Add</Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="bg-[#0f0f14] border border-themeGray/60 text-white"
+              onClick={() => (timeline as any).append({ date_period: "", event_description: "" })}
+            >
+              Add
+            </Button>
           </div>
         </div>
         <div className="space-y-2">

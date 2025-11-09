@@ -34,28 +34,79 @@ export const reflectionSchema = z.object({
 })
 
 export const caseStudySchema = z.object({
+  block_title: z.string().optional().nullable(),
   background_md: z.string().optional().nullable(),
   analysis_md: z.string().optional().nullable(),
   decision_md: z.string().optional().nullable(),
   outcome_md: z.string().optional().nullable(),
   data_points: z.array(z.string()).optional().default([]),
-  timeline_steps: z.array(z.string()).optional().default([]),
+  timeline_steps: z
+    .array(
+      z.object({
+        date_period: z.string().trim(),
+        event_description: z.string().trim(),
+      }),
+    )
+    .optional()
+    .default([]),
   learning_points: z.array(z.string()).optional().default([]),
   sebi_context: z.string().optional().nullable(),
+  branching_points: z
+    .array(
+      z.object({
+        node_id: z.string().trim(),
+        decision_prompt: z.string().trim(),
+        options: z.array(
+          z.object({
+            is_correct: z.boolean().optional().default(false),
+            option_text: z.string().trim(),
+            option_consequence: z.string().trim().optional().default(""),
+          }),
+        ).default([]),
+      }),
+    )
+    .optional()
+    .default([]),
 })
 
 export const exampleSchema = z.object({
-  scenario_title: z.string().optional().nullable(),
+  block_title: z.string().optional().nullable(),
   scenario_md: z.string().optional().nullable(),
-  qa_pairs: z.array(
-    z.object({
-      question: z.string().trim().optional().default(""),
-      answer: z.string().trim().optional().default(""),
+  persona: z
+    .array(
+      z.object({
+        name: z.string().trim(),
+        age: z.number().int().nonnegative(),
+        occupation: z.string().trim().optional().default(""),
+        financial_goal: z.string().trim().optional().default(""),
+      }),
+    )
+    .optional()
+    .default([]),
+  qa_pairs: z
+    .array(
+      z.object({
+        question: z.string().trim().optional().default(""),
+        answer: z.string().trim().optional().default(""),
+      }),
+    )
+    .optional()
+    .default([]),
+  image_prompts: z.array(z.string()).optional().default([]),
+  financial_context: z
+    .object({
+      time_horizon: z.string().trim().optional().default(""),
+      risk_tolerance: z.string().trim().optional().default(""),
+      available_amount: z.string().trim().optional().default(""),
+      current_situation: z.string().trim().optional().default(""),
     })
-  ).optional().default([]),
-  tips_md: z.string().optional().nullable(),
-  takeaways: z.array(z.string().trim()).optional().default([]),
-  indian_context: z.boolean().optional().default(false),
+    .optional()
+    .default({
+      time_horizon: "",
+      risk_tolerance: "",
+      available_amount: "",
+      current_situation: "",
+    }),
 })
 
 export type QuizPayloadInput = z.infer<typeof quizSchema>

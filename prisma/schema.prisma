@@ -54,26 +54,26 @@ model MentorProfileTranslation {
 }
 
 model User {
-  id            String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstname     String
-  lastname      String
-  createdAt     DateTime             @default(now())
-  clerkId       String               @unique
-  image         String?
-  stripeId      String?
-  isSuperAdmin  Boolean              @default(false)
-  locale        String?              @default("en")
-  comments      Comment[]
-  group         Group[]
-  likes         Like[]
-  membership    Members[]
-  mentorProfile MentorProfile?
-  message       Message[]
-  posts         Post[]
-  progress      UserCourseProgress[]
+  id              String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstname       String
+  lastname        String
+  createdAt       DateTime                 @default(now())
+  clerkId         String                   @unique
+  image           String?
+  stripeId        String?
+  isSuperAdmin    Boolean                  @default(false)
+  locale          String?                  @default("en")
+  comments        Comment[]
+  group           Group[]
+  likes           Like[]
+  membership      Members[]
+  mentorProfile   MentorProfile?
+  message         Message[]
+  posts           Post[]
+  progress        UserCourseProgress[]
   sectionProgress UserSectionProgress[]
-  quizAttempts     UserSectionQuizAttempt[]
-  reflections      UserSectionReflection[]
+  quizAttempts    UserSectionQuizAttempt[]
+  reflections     UserSectionReflection[]
 }
 
 model Subscription {
@@ -208,6 +208,7 @@ model Module {
   difficulty         String?
   learningObjectives String[]            @default([])
   estimatedMinutes   Int?
+  Anchor             Anchor[]
   Course             Course?             @relation(fields: [courseId], references: [id], onDelete: Cascade)
   translations       ModuleTranslation[]
   section            Section[]
@@ -216,19 +217,19 @@ model Module {
 }
 
 model Section {
-  id           String               @id @db.Uuid
-  moduleId     String?              @db.Uuid
-  name         String               @default("New Section")
-  icon         String               @default("doc")
+  id           String                   @id @db.Uuid
+  moduleId     String?                  @db.Uuid
+  name         String                   @default("New Section")
+  icon         String                   @default("doc")
   content      String?
   htmlContent  String?
   jsonContent  Json?
-  createdAt    DateTime             @default(now())
-  order        Int                  @default(0)
+  createdAt    DateTime                 @default(now())
+  order        Int                      @default(0)
   type         content_block_type?
-  anchorIds    String[]             @default([])
+  anchorIds    String[]                 @default([])
   blockPayload Json?
-  Module       Module?              @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  Module       Module?                  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   translations SectionTranslation[]
   userProgress UserSectionProgress[]
   quizAttempts UserSectionQuizAttempt[]
@@ -258,22 +259,21 @@ model UserCourseProgress {
 }
 
 model UserSectionProgress {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId           String   @db.Uuid
-  sectionId        String   @db.Uuid
-  locale           String?
-  completed        Boolean  @default(false)
-  progressPct      Float    @default(0)
-  lastVisited      DateTime @default(now())
-  lastScorePct     Float?
-  passed           Boolean?
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String   @db.Uuid
+  sectionId         String   @db.Uuid
+  locale            String?
+  completed         Boolean  @default(false)
+  progressPct       Float    @default(0)
+  lastVisited       DateTime @default(now())
+  lastScorePct      Float?
+  passed            Boolean?
   lastQuizAttemptId String?  @db.Uuid
-  lastReflectionId   String?  @db.Uuid
-  data             Json?
-  updatedAt        DateTime @updatedAt
-
-  User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  lastReflectionId  String?  @db.Uuid
+  data              Json?
+  updatedAt         DateTime @updatedAt
+  Section           Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  User              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, sectionId, locale])
   @@index([userId, sectionId])
@@ -294,9 +294,8 @@ model UserSectionQuizAttempt {
   quizSnapshotJson Json
   durationMs       Int?
   submittedAt      DateTime @default(now())
-
-  User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  Section          Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  User             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, sectionId, attemptNo])
   @@index([userId, sectionId, submittedAt])
@@ -314,9 +313,8 @@ model UserSectionReflection {
   guidanceSnapshot String?
   savedAt          DateTime @default(now())
   updatedAt        DateTime @updatedAt
-
-  User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  Section          Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  User             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, sectionId, locale])
   @@index([userId, sectionId, updatedAt])
@@ -413,6 +411,10 @@ model Anchor {
   title      String
   excerpt    String
   createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  moduleId   String?  @db.Uuid
+  Module     Module?  @relation(fields: [moduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([moduleId])
 }
 
 enum MentorRole {
@@ -443,6 +445,7 @@ enum content_block_type {
   quiz
   reflection
   callout
+  anchor
 }
 
 enum journey_level {
