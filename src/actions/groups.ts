@@ -989,19 +989,20 @@ export const onGetPaginatedPosts = async (
 export const onJoinGroup = async (groupid: string) => {
   try {
     const user = await onAuthenticatedUser()
-    const member = await client.group.update({
+    const membership = await client.members.upsert({
       where: {
-        id: groupid,
-      },
-      data: {
-        member: {
-          create: {
-            userId: user.id,
-          },
+        userId_groupId: {
+          userId: user.id,
+          groupId: groupid,
         },
       },
+      update: {},
+      create: {
+        userId: user.id,
+        groupId: groupid,
+      },
     })
-    if (member) {
+    if (membership) {
       return { status: 200 }
     }
     return { status: 404, message: "Oops! something went wrong" }

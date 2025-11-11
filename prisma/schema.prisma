@@ -111,14 +111,15 @@ model Group {
 
 model Members {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String?   @db.Uuid
-  groupId   String?   @db.Uuid
+  userId    String    @db.Uuid
+  groupId   String    @db.Uuid
   createdAt DateTime  @default(now())
   role      GroupRole @default(MEMBER)
   Group     Group?    @relation(fields: [groupId], references: [id])
   User      User?     @relation(fields: [userId], references: [id])
 
   @@index([userId, groupId])
+  @@unique([userId, groupId])
 }
 
 model Post {
