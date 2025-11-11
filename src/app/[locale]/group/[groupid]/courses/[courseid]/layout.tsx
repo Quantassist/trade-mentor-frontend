@@ -19,9 +19,9 @@ const CourseLayout = async ({ params, children }: CourseLayoutProps) => {
   const client = new QueryClient()
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <div className="relative min-h-screen md:flex md:items-start">
+      <div className="min-h-[100svh] md:flex">
         <div
-          className="bg-themeBlack p-5 md:pt-0 md:fixed md:w-80 md:overflow-y-auto md:z-0"
+          className="bg-themeBlack p-5 md:fixed md:z-0 md:overflow-y-auto md:w-80"
           style={{
             top: "calc(var(--group-navbar-h, 5rem) - 1px)",
             height: "calc(100dvh - (var(--group-navbar-h, 5rem) - 1px))",

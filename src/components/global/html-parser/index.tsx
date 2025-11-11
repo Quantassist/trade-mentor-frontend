@@ -53,7 +53,7 @@ export const HtmlParser = ({ html }: HtmlParserProps) => {
                   src={src}
                   alt={alt}
                   fill
-                  sizes="100vw"
+                  sizes="(min-width: 1024px) 800px, 100vw"
                   className="object-contain rounded-lg border border-themeGray/60"
                 />
               </span>

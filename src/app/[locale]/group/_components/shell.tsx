@@ -4,8 +4,8 @@ import { SideBar } from "@/components/global/sidebar"
 import { useSidebar } from "@/components/global/sidebar/sidebar-context"
 import { cn } from "@/lib/utils"
 import React from "react"
-import ClientNavbarWrapper from "./navbar/ClientNavbarWrapper"
 import { MobileChannelBar } from "./mobile-channels"
+import ClientNavbarWrapper from "./navbar/ClientNavbarWrapper"
 
 export function GroupShell({
   groupid,
@@ -21,7 +21,7 @@ export function GroupShell({
   const { collapsed } = useSidebar()
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen md:pt-5">
       <SideBar groupid={groupid} userid={userid} />
       <div
         className={cn(
@@ -32,11 +32,9 @@ export function GroupShell({
             : "md:ml-[300px] lg:ml-[300px] xl:ml-[300px]",
         )}
       >
-        <div className="sticky top-0 z-40">
-          <ClientNavbarWrapper>{navbar}</ClientNavbarWrapper>
-        </div>
-        <div className="overflow-hidden">
-          {/* Mobile channels bar under navbar */}
+        <ClientNavbarWrapper>{navbar}</ClientNavbarWrapper>
+        {/* Mobile channels bar under navbar */}
+        <div className="overflow-x-hidden">
           <MobileChannelBar groupid={groupid} userid={userid} />
           {children}
         </div>

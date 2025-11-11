@@ -1,31 +1,46 @@
 "use client"
 
-import { useLayoutEffect, useRef } from "react"
+import React, { useEffect, useLayoutEffect, useRef } from "react"
 
-type Props = { children: React.ReactNode }
+export default function ClientNavbarWrapper({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement | null>(null)
 
-export default function ClientNavbarWrapper({ children }: Props) {
-  const ref = useRef<HTMLDivElement>(null)
+  // Set CSS var for navbar height on :root
+  const setVar = () => {
+    const h = ref.current?.offsetHeight || 0
+    if (h > 0) {
+      document.documentElement.style.setProperty("--group-navbar-h", `${h}px`)
+    }
+  }
 
   useLayoutEffect(() => {
-    const setVar = () => {
-      const h = ref.current?.offsetHeight ?? 0
-      if (typeof document !== "undefined") {
-        document.documentElement.style.setProperty("--group-navbar-h", `${h}px`)
-      }
-    }
     setVar()
-    const ro = new ResizeObserver(() => setVar())
-    if (ref.current) ro.observe(ref.current)
-    window.addEventListener("resize", setVar)
-    return () => {
-      ro.disconnect()
-      window.removeEventListener("resize", setVar)
+    if (!ref.current) return
+
+    // Prefer ResizeObserver when available
+    let ro: ResizeObserver | null = null
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => setVar())
+      ro.observe(ref.current)
+    } else {
+      const onResize = () => setVar()
+      window.addEventListener("resize", onResize)
+      return () => window.removeEventListener("resize", onResize)
     }
+    return () => {
+      if (ro && ref.current) ro.disconnect()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Also re-apply after mount in case fonts cause reflow
+  useEffect(() => {
+    const t = setTimeout(setVar, 50)
+    return () => clearTimeout(t)
   }, [])
 
   return (
-    <div ref={ref} className="sticky top-0 z-40">
+    <div ref={ref} className="sticky top-0 z-40 w-full max-w-full overflow-x-hidden">
       {children}
     </div>
   )

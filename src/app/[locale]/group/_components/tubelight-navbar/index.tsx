@@ -21,6 +21,7 @@ interface NavBarProps {
   position?: "fixed" | "inline"
   forceShowLabels?: boolean
   fullWidth?: boolean
+  stackedOnMobile?: boolean
 }
 
 export function NavBar({
@@ -31,6 +32,7 @@ export function NavBar({
   position = "inline",
   forceShowLabels = false,
   fullWidth = false,
+  stackedOnMobile = false,
 }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0]?.name ?? "")
   const [isMobile, setIsMobile] = useState(false)
@@ -73,6 +75,7 @@ export function NavBar({
           const Icon =
             typeof item.icon === "function" ? (item.icon as ComponentType<any>) : null
           const isActive = activeTab === item.name
+          const stacked = stackedOnMobile && isMobile
 
           return (
             <Link
@@ -87,27 +90,45 @@ export function NavBar({
                 "text-foreground/80 hover:text-primary",
                 isActive && "bg-muted text-primary",
                 fullWidth && "flex-1 min-w-0 px-3",
+                stacked && "flex-col gap-0.5 px-3 py-2",
               )}
             >
-              <span className={cn("items-center", forceShowLabels ? "inline-flex" : "hidden sm:inline-flex")}> 
-                {isActive && (
-                  <span className="mr-2 inline-flex items-center">
+              {stacked ? (
+                <>
+                  <span className="inline-flex items-center">
                     {Icon ? (
-                      <Icon {...({ size: 16, strokeWidth: 2.2 } as any)} />
+                      <Icon {...({ size: 18, strokeWidth: 2.5 } as any)} />
                     ) : (
                       (item.icon as ReactNode)
                     )}
                   </span>
-                )}
-                {item.name}
-              </span>
-              <span className={cn(forceShowLabels ? "hidden" : "sm:hidden")}>
-                {Icon ? (
-                  <Icon {...({ size: 18, strokeWidth: 2.5 } as any)} />
-                ) : (
-                  (item.icon as ReactNode)
-                )}
-              </span>
+                  <span className="block text-[11px] leading-tight mt-0.5">
+                    {item.name}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className={cn("items-center", forceShowLabels ? "inline-flex" : "hidden sm:inline-flex")}>
+                    {isActive && (
+                      <span className="mr-2 inline-flex items-center">
+                        {Icon ? (
+                          <Icon {...({ size: 16, strokeWidth: 2.2 } as any)} />
+                        ) : (
+                          (item.icon as ReactNode)
+                        )}
+                      </span>
+                    )}
+                    {item.name}
+                  </span>
+                  <span className={cn(forceShowLabels ? "hidden" : "sm:hidden")}>
+                    {Icon ? (
+                      <Icon {...({ size: 18, strokeWidth: 2.5 } as any)} />
+                    ) : (
+                      (item.icon as ReactNode)
+                    )}
+                  </span>
+                </>
+              )}
               {isActive && (
                 <motion.div
                   layoutId="lamp"

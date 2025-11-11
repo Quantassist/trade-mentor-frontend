@@ -51,7 +51,7 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <div className="grid lg:grid-cols-4 grid-cols-1 gap-x-5 w-full flex-1 h-0 px-5">
+      <div className="grid lg:grid-cols-4 grid-cols-1 gap-x-5 w-full px-5 min-h-[calc(100dvh-var(--group-navbar-h,5rem))]">
         <div className="col-span-1 lg:inline relative hidden py-5">
           <LeaderBoardCard light />
         </div>

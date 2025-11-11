@@ -107,6 +107,8 @@ export const MobileBottomGroupNav = () => {
       }}
       position="fixed"
       className="md:hidden"
+      stackedOnMobile
+      fullWidth
     />
   )
 }
