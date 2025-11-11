@@ -31,7 +31,11 @@ export const CourseContentForm = ({
     refetchOnReconnect: true,
     refetchOnMount: false,
   })
-  const canManage = about?.group?.userId === userid
+  const canManage = Boolean(
+    (about as any)?.isSuperAdmin ||
+    (about as any)?.groupOwner ||
+    (about as any)?.role === "ADMIN"
+  )
   const {
     errors,
     onUpdateContent,
