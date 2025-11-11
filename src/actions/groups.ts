@@ -3,6 +3,7 @@
 import { CreateGroupSchema } from "@/components/form/create-group/schema"
 import { defaultLocale } from "@/i18n/config"
 import { client } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 import axios from "axios"
 import { revalidatePath } from "next/cache"
 import { cache } from "react"
@@ -989,24 +990,32 @@ export const onGetPaginatedPosts = async (
 export const onJoinGroup = async (groupid: string) => {
   try {
     const user = await onAuthenticatedUser()
-    const membership = await client.members.upsert({
-      where: {
-        userId_groupId: {
-          userId: user.id,
-          groupId: groupid,
-        },
-      },
-      update: {},
-      create: {
+    if (user.status !== 200) {
+      return { status: 401, message: "Unauthorized" }
+    }
+
+    const existing = await client.members.findFirst({
+      where: { userId: user.id, groupId: groupid },
+      select: { id: true },
+    })
+
+    if (existing) {
+      return { status: 200 }
+    }
+
+    await client.members.create({
+      data: {
         userId: user.id,
         groupId: groupid,
       },
     })
-    if (membership) {
+
+    return { status: 200 }
+  } catch (error: any) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      // Unique constraint violation (likely due to race): treat as success
       return { status: 200 }
     }
-    return { status: 404, message: "Oops! something went wrong" }
-  } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }
 }
