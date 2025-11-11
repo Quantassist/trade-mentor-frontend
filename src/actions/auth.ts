@@ -215,7 +215,15 @@ export const onGetUserGroupRole = cache(async (
   try {
     const user = await getCurrentUserWithGroup(groupId)
     if (!user) return { status: 401, message: "Unauthorized" }
-    
+    // SuperAdmin bypass: always authorize regardless of membership
+    if (user.isSuperAdmin) {
+      return {
+        status: 200,
+        isSuperAdmin: true,
+        isOwner: false,
+      }
+    }
+
     // Check if user is the group owner
     const isOwner = user.group.length > 0 && user.group[0].userId === user.id
 
