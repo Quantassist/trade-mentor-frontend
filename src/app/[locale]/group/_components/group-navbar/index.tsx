@@ -106,9 +106,9 @@ export const MobileBottomGroupNav = () => {
         onSetSection(item.url)
       }}
       position="fixed"
-      className="md:hidden"
-      stackedOnMobile
+      stackedMobile
       fullWidth
+      className="md:hidden w-full px-2 pb-[env(safe-area-inset-bottom)]"
     />
   )
 }

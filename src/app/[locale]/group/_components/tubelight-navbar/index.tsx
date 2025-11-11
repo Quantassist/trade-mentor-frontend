@@ -21,7 +21,7 @@ interface NavBarProps {
   position?: "fixed" | "inline"
   forceShowLabels?: boolean
   fullWidth?: boolean
-  stackedOnMobile?: boolean
+  stackedMobile?: boolean
 }
 
 export function NavBar({
@@ -32,7 +32,7 @@ export function NavBar({
   position = "inline",
   forceShowLabels = false,
   fullWidth = false,
-  stackedOnMobile = false,
+  stackedMobile = false,
 }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0]?.name ?? "")
   const [isMobile, setIsMobile] = useState(false)
@@ -60,11 +60,11 @@ export function NavBar({
 
   const containerPositionClass =
     position === "fixed"
-      ? "fixed inset-x-0 bottom-0 z-50 flex justify-center"
+      ? "fixed inset-x-0 bottom-0 z-50 flex justify-center w-full max-w-full"
       : "relative"
 
   return (
-    <div className={cn(containerPositionClass, fullWidth && "w-full", className)}>
+    <div className={cn(containerPositionClass, fullWidth && "w-full box-border max-w-full overflow-x-hidden", className)}>
       <div
         className={cn(
           "pointer-events-auto flex items-center bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg",
@@ -75,7 +75,7 @@ export function NavBar({
           const Icon =
             typeof item.icon === "function" ? (item.icon as ComponentType<any>) : null
           const isActive = activeTab === item.name
-          const stacked = stackedOnMobile && isMobile
+          const isStacked = stackedMobile && isMobile
 
           return (
             <Link
@@ -86,25 +86,23 @@ export function NavBar({
                 onItemClick?.(item)
               }}
               className={cn(
-                "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors flex items-center justify-center",
+                "relative cursor-pointer text-sm font-semibold rounded-full transition-colors flex justify-center",
+                isStacked ? "px-4 py-2 min-w-[76px] flex-col items-center gap-0.5" : "px-6 py-2 items-center",
                 "text-foreground/80 hover:text-primary",
                 isActive && "bg-muted text-primary",
                 fullWidth && "flex-1 min-w-0 px-3",
-                stacked && "flex-col gap-0.5 px-3 py-2",
               )}
             >
-              {stacked ? (
+              {isStacked ? (
                 <>
                   <span className="inline-flex items-center">
                     {Icon ? (
-                      <Icon {...({ size: 18, strokeWidth: 2.5 } as any)} />
+                      <Icon {...({ size: 18, strokeWidth: 2.2 } as any)} />
                     ) : (
                       (item.icon as ReactNode)
                     )}
                   </span>
-                  <span className="block text-[11px] leading-tight mt-0.5">
-                    {item.name}
-                  </span>
+                  <span className="text-xs leading-tight mt-0.5">{item.name}</span>
                 </>
               ) : (
                 <>

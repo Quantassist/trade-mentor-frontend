@@ -4,7 +4,6 @@ import { SideBar } from "@/components/global/sidebar"
 import { useSidebar } from "@/components/global/sidebar/sidebar-context"
 import { cn } from "@/lib/utils"
 import React from "react"
-import { MobileChannelBar } from "./mobile-channels"
 import ClientNavbarWrapper from "./navbar/ClientNavbarWrapper"
 
 export function GroupShell({
@@ -35,7 +34,7 @@ export function GroupShell({
         <ClientNavbarWrapper>{navbar}</ClientNavbarWrapper>
         {/* Mobile channels bar under navbar */}
         <div className="overflow-x-hidden">
-          <MobileChannelBar groupid={groupid} userid={userid} />
+          {/* <MobileChannelBar groupid={groupid} userid={userid} /> */}
           {children}
         </div>
       </div>
