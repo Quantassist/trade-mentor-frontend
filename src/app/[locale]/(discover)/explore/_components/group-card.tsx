@@ -32,7 +32,7 @@ export const GroupCard = ({
         <img
           src={preview || `https://ucarecdn.com/${thumbnail}/`}
           alt="thumbnail"
-          className="w-full opacity-70 h-56"
+          className="w-full opacity-70 aspect-video object-cover"
         />
         <div className="p-6">
           <h3 className="text-lg text-themeTextGray font-bold">{name}</h3>

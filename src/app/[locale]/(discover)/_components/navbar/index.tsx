@@ -1,8 +1,8 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetUserGroups } from "@/actions/groups"
 import { GlassSheet } from "@/components/global/glass-sheet"
-import { UserWidget } from "@/components/global/user-widget"
 import { LocaleSwitcher } from "@/components/global/locale-switcher"
+import { UserWidget } from "@/components/global/user-widget"
 import { Button } from "@/components/ui/button"
 import { CheckBadge, Logout } from "@/icons"
 import { MenuIcon } from "lucide-react"
@@ -37,7 +37,7 @@ export const Navbar = async () => {
         <Link href={user.status === 200 ? `/group/create` : "/sign-in"}>
           <Button
             variant="outline"
-            className="bg-themeBlack rounded-2xl flex gap-2 border-themeGray hover:bg-themeGray"
+            className="bg-themeBlack rounded-2xl flex gap-2 border-themeGray hover:bg-themeGray/80 hover:border-themeGray"
           >
             <CheckBadge />
             Create Group
@@ -48,12 +48,9 @@ export const Navbar = async () => {
           <UserWidget image={user.image!} />
         ) : (
           <Link href="/sign-in">
-            <Button
-              variant="outline"
-              className="bg-themeBlack rounded-2xl flex gap-2 border-themeGray hover:bg-themeGray"
-            >
+            <Button className="rounded-2xl flex gap-2 font-medium bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] shadow-lg">
               <Logout />
-              Login
+              Login / Signup
             </Button>
           </Link>
         )}

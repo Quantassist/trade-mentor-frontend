@@ -200,7 +200,7 @@ export const onActivateSubscription = async (id: string) => {
 export const onGetStripeIntegration = async () => {
   try {
     const user = await onAuthenticatedUser()
-    const stripeId = await client.user.findUnique({
+    const stripeId = await client.appUser.findUnique({
       where: {
         id: user?.id,
       },

@@ -1,14 +1,15 @@
-import { RefreshCcw } from "lucide-react"
-import { JSX } from "react"
 import {
-  Buisness,
-  Fitness,
-  LifeStyle,
-  Music,
-  PersonalDevelopment,
-  SocialMedia,
-  Tech,
-} from "../icons"
+  BarChart3,
+  BookOpen,
+  Landmark,
+  LineChart,
+  PiggyBank,
+  RefreshCcw,
+  Target,
+  TrendingUp,
+  Wallet,
+} from "lucide-react"
+import { JSX } from "react"
 
 export type GroupListProps = {
   id: string
@@ -26,44 +27,50 @@ export const GROUP_LIST: GroupListProps[] = [
   },
   {
     id: "1",
-    label: "Fitness",
-    icon: <Fitness />,
-    path: "fitness",
+    label: "Technical Analysis",
+    icon: <TrendingUp />,
+    path: "technical-analysis",
   },
   {
     id: "2",
-    label: "Music",
-    icon: <Music />,
-    path: "music",
+    label: "Fundamental Analysis",
+    icon: <BarChart3 />,
+    path: "fundamental-analysis",
   },
   {
     id: "3",
-    label: "Buisness",
-    icon: <Buisness />,
-    path: "buisness",
+    label: "Personal Finance",
+    icon: <Wallet />,
+    path: "personal-finance",
   },
   {
     id: "4",
-    label: "Lifestyle",
-    icon: <LifeStyle />,
-    path: "lifestyle",
+    label: "Investing",
+    icon: <PiggyBank />,
+    path: "investing",
   },
   {
     id: "5",
-    label: "Personal Development",
-    icon: <PersonalDevelopment />,
-    path: "personal-development",
+    label: "Trading Strategies",
+    icon: <LineChart />,
+    path: "trading-strategies",
   },
   {
     id: "6",
-    label: "Social Media",
-    icon: <SocialMedia />,
-    path: "social-media",
+    label: "Market Basics",
+    icon: <Landmark />,
+    path: "market-basics",
   },
   {
     id: "7",
-    label: "Tech",
-    icon: <Tech />,
-    path: "tech",
+    label: "Financial Literacy",
+    icon: <BookOpen />,
+    path: "financial-literacy",
+  },
+  {
+    id: "8",
+    label: "Risk Management",
+    icon: <Target />,
+    path: "risk-management",
   },
 ]

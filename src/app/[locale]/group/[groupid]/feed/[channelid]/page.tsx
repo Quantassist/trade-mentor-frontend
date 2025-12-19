@@ -5,12 +5,13 @@ import { inGetChannelPosts } from "@/actions/groups"
 import { LeaderBoardCard } from "@/app/[locale]/group/_components/leaderboard"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
 import { OngoingCoursesWidget } from "@/components/global/ongoing-courses-widget"
-import { currentUser } from "@clerk/nextjs/server"
+import { auth } from "@/lib/auth"
 import {
   HydrationBoundary,
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query"
+import { headers } from "next/headers"
 import CreateNewPost from "./_components/create-post"
 import { PostFeed } from "./_components/post-feed"
 
@@ -22,7 +23,9 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
   const client = new QueryClient()
   const { groupid, channelid, locale } = await params
 
-  const userPromise = currentUser()
+  const sessionPromise = auth.api.getSession({
+    headers: await headers(),
+  })
   const authUserPromise = onAuthenticatedUser()
 
   await Promise.allSettled([
@@ -47,7 +50,7 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
     }),
   ])
 
-  const [user, authUser] = await Promise.all([userPromise, authUserPromise])
+  const [session, authUser] = await Promise.all([sessionPromise, authUserPromise])
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
@@ -58,9 +61,9 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
         <div className="lg:col-span-2 flex flex-col gap-y-5 py-5">
           {/* <Menu orientation="desktop" /> */}
           <CreateNewPost
-            userImage={user?.imageUrl!}
+            userImage={session?.user?.image || ""}
             channelid={channelid}
-            username={user?.firstName!}
+            username={session?.user?.name?.split(" ")[0] || "User"}
             locale={locale}
             groupid={groupid}
           />

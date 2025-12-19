@@ -3,14 +3,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Logout, Settings } from "@/icons"
+import { signOut } from "@/lib/auth-client"
 import { supabaseClient } from "@/lib/utils"
 import { onOffline } from "@/redux/slices/online-member-slice"
 import { AppDispatch } from "@/redux/store"
-import { useClerk } from "@clerk/nextjs"
+import { User } from "lucide-react"
+import { useLocale, useTranslations } from "next-intl"
 import Link from "next/link"
 import { useDispatch } from "react-redux"
 import { DropDown } from "../drop-down"
-import { useLocale, useTranslations } from "next-intl"
 
 type UserWidgetProps = {
   image: string
@@ -19,7 +20,6 @@ type UserWidgetProps = {
 }
 
 export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
-  const { signOut } = useClerk()
   const locale = useLocale()
   const t = useTranslations("userMenu")
 
@@ -29,10 +29,16 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
 
   const dispath: AppDispatch = useDispatch()
 
-  const onLogout = () => {
+  const onLogout = async () => {
     untrackPresence()
     dispath(onOffline({ members: [{ id: userid! }] }))
-    signOut({ redirectUrl: "/" })
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.href = "/"
+        },
+      },
+    })
   }
 
   return (
@@ -46,8 +52,16 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
       }
     >
       <Link
-        href={`/${locale}/group/${groupid}/settings/general`}
-        className="flex gap-x-2 px-2"
+        href={`/${locale}/profile`}
+        className="flex gap-x-2 px-2 py-1.5 items-center hover:bg-themeGray/20 rounded-md transition-colors"
+      >
+        <User className="h-4 w-4" />
+        {t("profile") || "Profile"}
+      </Link>
+
+      <Link
+        href={`/${locale}/settings`}
+        className="flex gap-x-2 px-2 py-1.5 items-center hover:bg-themeGray/20 rounded-md transition-colors"
       >
         <Settings />
         {t("settings")}

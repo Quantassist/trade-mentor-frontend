@@ -1,7 +1,7 @@
 import { GradientText } from "@/components/global/gradient-text"
 import { Button } from "@/components/ui/button"
+import { Link } from "@/i18n/navigation"
 import { BadgePlus } from "@/icons/badge-plus"
-import Link from "next/link"
 
 export const CallToAction = () => {
   return (

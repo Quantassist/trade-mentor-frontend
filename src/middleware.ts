@@ -1,21 +1,46 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import createIntlMiddleware from "next-intl/middleware"
-import { NextResponse } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 
-const isProtectedRoute = createRouteMatcher("/group(.*)")
+const protectedRoutePatterns = [/^\/[a-z]{2}\/group(.*)/, /^\/group(.*)/]
 
-export default clerkMiddleware(async (auth, request) => {
-  // const baseHost = "localhost:3000"
+function isProtectedRoute(pathname: string): boolean {
+  return protectedRoutePatterns.some((pattern) => pattern.test(pathname))
+}
+
+export default async function middleware(request: NextRequest) {
   const baseHost = `${process.env.NEXT_PUBLIC_BASE_URL}`
   const host = request.headers.get("host")
   const reqPath = request.nextUrl.pathname
   const origin = request.nextUrl.origin
-  if (isProtectedRoute(request)) auth.protect()
 
-  // Do not apply locale redirection on the landing page
-  if (reqPath === "/" || reqPath.startsWith("/callback")) {
+  // Redirect root to default locale landing page
+  if (reqPath === "/") {
+    return NextResponse.redirect(new URL("/en", request.url))
+  }
+
+  // Do not apply locale redirection on callback routes
+  if (reqPath.startsWith("/callback")) {
     return NextResponse.next()
   }
+
+  // Don't apply middleware to API/TRPC routes
+  const isApiRoute = reqPath.startsWith("/api") || reqPath.startsWith("/trpc")
+  if (isApiRoute) {
+    return NextResponse.next()
+  }
+
+  // Check for protected routes - redirect to sign-in if not authenticated
+  if (isProtectedRoute(reqPath)) {
+    const sessionCookie = request.cookies.get("better-auth.session_token")
+    if (!sessionCookie) {
+      // Extract locale from path or default to 'en'
+      const localeMatch = reqPath.match(/^\/([a-z]{2})\//)
+      const locale = localeMatch ? localeMatch[1] : "en"
+      return NextResponse.redirect(new URL(`/${locale}/sign-in`, request.url))
+    }
+  }
+
+  // Handle custom domain routing
   if (!baseHost.includes(host as string) && reqPath.startsWith("/group")) {
     const response = await fetch(`${origin}/api/domain?host=${host}`, {
       method: "GET",
@@ -31,22 +56,15 @@ export default clerkMiddleware(async (auth, request) => {
     }
   }
 
-  // Locale routing for group routes using next-intl
+  // Locale routing using next-intl
   const intlMiddleware = createIntlMiddleware({
     locales: ["en", "hi"],
     defaultLocale: "en",
   })
 
-  // Don't apply locale middleware to API/TRPC routes to avoid prefixing /en or /hi
-  const isApiRoute = reqPath.startsWith("/api") || reqPath.startsWith("/trpc")
-  if (isApiRoute) {
-    return NextResponse.next()
-  }
-
   // Apply locale middleware for all other routes
   return intlMiddleware(request)
-  // return NextResponse.next()
-})
+}
 
 export const config = {
   matcher: [

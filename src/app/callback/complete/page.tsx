@@ -1,5 +1,6 @@
 import { onSignUpUser } from "@/actions/auth"
-import { currentUser } from "@clerk/nextjs/server"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 const CompleteOAuthAfterCallback = async ({
@@ -7,16 +8,22 @@ const CompleteOAuthAfterCallback = async ({
 }: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) => {
-  const user = await currentUser()
-  if (!user) return redirect("/sign-in")
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+  
+  if (!session?.user) return redirect("/sign-in")
+  
   const localeParam = (await searchParams)?.locale as string | undefined
-  const firstname = user.firstName ?? user.username ?? "User"
-  const lastname = user.lastName ?? ""
-  const image = user.hasImage ? user.imageUrl : null
+  const nameParts = (session.user.name || "User").split(" ")
+  const firstname = nameParts[0] || "User"
+  const lastname = nameParts.slice(1).join(" ") || ""
+  const image = session.user.image || null
+  
   const complete = await onSignUpUser({
     firstname,
     lastname,
-    clerkId: user.id,
+    betterAuthId: session.user.id,
     image,
     locale: localeParam,
   })

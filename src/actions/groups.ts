@@ -145,7 +145,7 @@ export const onCreateNewGroup = async (
   data: z.infer<typeof CreateGroupSchema>,
 ) => {
   try {
-    const created = await client.user.update({
+    const created = await client.appUser.update({
       where: {
         id: userId,
       },
@@ -252,7 +252,7 @@ export const onSearchGroups = async (
 
 export const onGetUserGroups = cache(async (id: string) => {
   try {
-    const groups = await client.user.findUnique({
+    const groups = await client.appUser.findUnique({
       where: {
         id,
       },

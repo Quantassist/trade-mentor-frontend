@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@/components/global/skeleton"
 import { useChannelPosts } from "@/hooks/groups"
-import { useUser } from "@clerk/nextjs"
+import { useSession } from "@/lib/auth-client"
 import { FeedCard } from "../feed-card"
 
 const ChannelPosts = ({ slug }: { slug: string }) => {
@@ -22,7 +22,8 @@ const ChannelPosts = ({ slug }: { slug: string }) => {
     },
   }
 
-  const { user } = useUser()
+  const { data: session } = useSession()
+  const nameParts = session?.user?.name?.split(" ") || []
 
   return (
     <div className="flex flex-col gap-5">
@@ -38,10 +39,10 @@ const ChannelPosts = ({ slug }: { slug: string }) => {
           post={{
             htmlContent: variables?.htmlContent || "",
             author: {
-              id: user?.id || "",
-              firstname: user?.firstName || "",
-              lastname: user?.lastName || "",
-              avatar: user?.imageUrl || "",
+              id: session?.user?.id || "",
+              firstname: nameParts[0] || "",
+              lastname: nameParts.slice(1).join(" ") || "",
+              avatar: session?.user?.image || "",
             },
             createdAt: new Date().toISOString(),
             channel: channel || { id: "", name: "" },

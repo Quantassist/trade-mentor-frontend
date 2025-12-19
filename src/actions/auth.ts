@@ -1,18 +1,27 @@
 "use server"
 
+import { auth } from "@/lib/auth"
 import { client } from "@/lib/prisma"
-import { currentUser } from "@clerk/nextjs/server"
 import type { GroupRole } from "@prisma/client"
 import { Prisma } from "@prisma/client"
+import { headers } from "next/headers"
 import { cache } from "react"
+
+// Get current Better Auth session
+const getSession = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+  return session
+}
 
 // Internal helpers (not exported) to centralize DB fetch logic
 const getCurrentUserBase = async () => {
-  const clerk = await currentUser()
-  if (!clerk) return null
+  const session = await getSession()
+  if (!session?.user) return null
 
-  return client.user.findUnique({
-    where: { clerkId: clerk.id },
+  return client.appUser.findUnique({
+    where: { betterAuthId: session.user.id },
     select: {
       id: true,
       firstname: true,
@@ -24,11 +33,11 @@ const getCurrentUserBase = async () => {
 }
 
 const getCurrentUserWithGroup = async (groupId: string) => {
-  const clerk = await currentUser()
-  if (!clerk) return null
+  const session = await getSession()
+  if (!session?.user) return null
 
-  return client.user.findUnique({
-    where: { clerkId: clerk.id },
+  return client.appUser.findUnique({
+    where: { betterAuthId: session.user.id },
     select: {
       id: true,
       isSuperAdmin: true,
@@ -47,7 +56,7 @@ const getCurrentUserWithGroup = async (groupId: string) => {
 export const onSignUpUser = async (data: {
   firstname: string
   lastname: string
-  clerkId: string
+  betterAuthId: string
   image: string | null
   locale?: string | null
 }) => {
@@ -55,12 +64,12 @@ export const onSignUpUser = async (data: {
     // Sanitize inputs (avoid null/undefined and trim)
     const firstname = (data.firstname ?? "").trim() || "User"
     const lastname = (data.lastname ?? "").trim()
-    const clerkId = data.clerkId
+    const betterAuthId = data.betterAuthId
     const image = data.image
 
     // If user already exists, return it (handles double-callbacks)
-    const existing = await client.user.findUnique({
-      where: { clerkId },
+    const existing = await client.appUser.findUnique({
+      where: { betterAuthId },
       select: { id: true },
     })
     if (existing) {
@@ -71,14 +80,13 @@ export const onSignUpUser = async (data: {
       }
     }
 
-    const createdUser = await client.user.create({
+    const createdUser = await client.appUser.create({
       data: {
         firstname,
         lastname,
-        clerkId,
+        betterAuthId,
         image,
         locale: data.locale ?? "en",
-        // subscription: { create: {} },
       },
     })
 
@@ -100,8 +108,8 @@ export const onSignUpUser = async (data: {
     // Handle unique constraint race condition (P2002)
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       try {
-        const user = await client.user.findUnique({
-          where: { clerkId: data.clerkId },
+        const user = await client.appUser.findUnique({
+          where: { betterAuthId: data.betterAuthId },
           select: { id: true },
         })
         if (user) {
@@ -139,11 +147,11 @@ export const onAuthenticatedUser = cache(async () => {
   }
 })
 
-export const onSignInUser = async (clerkId: string) => {
+export const onSignInUser = async (betterAuthId: string) => {
   try {
-    const loggedInUser = (await client.user.findUnique({
+    const loggedInUser = (await client.appUser.findUnique({
       where: {
-        clerkId,
+        betterAuthId,
       },
       select: {
         id: true,

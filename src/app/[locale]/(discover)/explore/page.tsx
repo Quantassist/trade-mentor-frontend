@@ -10,18 +10,23 @@ const ExplorePage = async () => {
   const query = new QueryClient()
 
   await query.prefetchQuery({
-    queryKey: ["fitness"],
-    queryFn: () => onGetExploreGroup("fitness", 0),
+    queryKey: ["technical-analysis"],
+    queryFn: () => onGetExploreGroup("technical-analysis", 0),
   })
 
   await query.prefetchQuery({
-    queryKey: ["music"],
-    queryFn: () => onGetExploreGroup("music", 0),
+    queryKey: ["fundamental-analysis"],
+    queryFn: () => onGetExploreGroup("fundamental-analysis", 0),
   })
 
   await query.prefetchQuery({
-    queryKey: ["lifestyle"],
-    queryFn: () => onGetExploreGroup("lifestyle", 0),
+    queryKey: ["personal-finance"],
+    queryFn: () => onGetExploreGroup("personal-finance", 0),
+  })
+
+  await query.prefetchQuery({
+    queryKey: ["investing"],
+    queryFn: () => onGetExploreGroup("investing", 0),
   })
 
   return (

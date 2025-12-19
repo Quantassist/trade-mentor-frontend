@@ -2,8 +2,8 @@ import { BackdropGradient } from "@/components/global/backdrop-gradient"
 import { GradientText } from "@/components/global/gradient-text"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
+import { Link } from "@/i18n/navigation"
 import { Check } from "@/icons/check"
-import Link from "next/link"
 
 export const PricingSection = () => {
   return (
