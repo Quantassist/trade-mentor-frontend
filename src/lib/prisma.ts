@@ -1,39 +1,23 @@
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "@prisma/client"
-import { Pool } from "pg"
 
 const connectionString = process.env.DATABASE_URL
 
-// Pool for app queries (public schema)
-const appPool = new Pool({
-  connectionString,
-})
-
-// Pool for Better Auth queries (betterauth schema)
-const authPool = new Pool({
-  connectionString,
-})
-
-// Set search_path for auth pool to betterauth schema
-authPool.on("connect", (client) => {
-  client.query("SET search_path TO betterauth")
-})
-
-const appAdapter = new PrismaPg(appPool)
-const authAdapter = new PrismaPg(authPool)
+// Use PrismaPg adapter with connection string (pgbouncer-compatible)
+// Prisma handles multi-schema via @@schema() directives in schema.prisma
+const adapter = new PrismaPg({ connectionString: connectionString! })
 
 declare global {
   var prisma: PrismaClient | undefined
-  var authPrisma: PrismaClient | undefined
 }
 
-// App client for public schema queries
-export const client = globalThis.prisma || new PrismaClient({ adapter: appAdapter })
+// Single Prisma client - handles both public and betterauth schemas
+// via @@schema() directives in schema.prisma
+export const client = globalThis.prisma || new PrismaClient({ adapter })
 
-// Auth client for betterauth schema queries
-export const authClient = globalThis.authPrisma || new PrismaClient({ adapter: authAdapter })
+// Export as authClient for Better Auth compatibility
+export const authClient = client
 
 if (process.env.NODE_ENV !== "production") {
   globalThis.prisma = client
-  globalThis.authPrisma = authClient
 }

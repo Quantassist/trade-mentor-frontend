@@ -1,21 +1,13 @@
 import { betterAuth } from "better-auth"
+import { prismaAdapter } from "better-auth/adapters/prisma"
 import { nextCookies } from "better-auth/next-js"
-import { Pool } from "pg"
-
-// Use Better Auth's native pg adapter with betterauth schema
-// Use DIRECT_URL (non-pgbouncer) for auth queries since we need search_path
-const authPool = new Pool({
-  connectionString: process.env.DIRECT_URL,
-})
-
-// Set search_path on each connection
-authPool.on("connect", (client) => {
-  client.query("SET search_path TO betterauth")
-})
+import { authClient } from "./prisma"
 
 export const auth = betterAuth({
   appName: "TradeMentor",
-  database: authPool,
+  database: prismaAdapter(authClient, {
+    provider: "postgresql",
+  }),
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
