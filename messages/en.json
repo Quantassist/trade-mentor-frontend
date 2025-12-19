@@ -75,6 +75,7 @@
   },
   "userMenu": {
     "title": "Account",
+    "profile": "Profile",
     "settings": "Settings",
     "logout": "Logout"
   },
@@ -88,6 +89,10 @@
       "title": "Create an account",
       "description": "Enter your details below to create your account"
     },
+    "tabs": {
+      "signIn": "Sign In",
+      "signUp": "Sign Up"
+    },
     "separator": {
       "orContinueWith": "OR CONTINUE WITH"
     },
@@ -96,16 +101,23 @@
       "signIn": "Sign in"
     },
     "signin": {
-      "title": "Login",
-      "description": "Enter your credentials to access your account"
+      "title": "Sign In",
+      "description": "Enter your email below to login to your account"
     },
     "google": {
       "signUpButton": "Sign up with Google",
       "signInButton": "Sign in with Google"
     },
+    "messages": {
+      "signInSuccess": "Successfully signed in",
+      "signInError": "Sign in failed",
+      "signUpSuccess": "Account created successfully",
+      "signUpError": "Sign up failed"
+    },
     "buttons": {
       "generateCode": "Generate Code",
-      "signUpWithEmail": "Sign Up with Email"
+      "signUpWithEmail": "Sign Up with Email",
+      "signInWithEmail": "Sign In with Email"
     },
     "form": {
       "firstname": {
@@ -136,28 +148,33 @@
       "placeholder": "Search for anything"
     },
     "slider": {
-      "fitness": {
-        "label": "Fitness",
-        "text": "Join top performing groups on TradeFlix"
+      "technical-analysis": {
+        "label": "Technical Analysis",
+        "text": "Master chart patterns and trading indicators"
       },
-      "music": {
-        "label": "Music",
-        "text": "Join top performing groups on TradeFlix"
+      "fundamental-analysis": {
+        "label": "Fundamental Analysis",
+        "text": "Learn to analyze company financials and valuations"
       },
-      "lifestyle": {
-        "label": "Lifestyle",
-        "text": "Join top performing groups on TradeFlix"
+      "personal-finance": {
+        "label": "Personal Finance",
+        "text": "Build wealth through smart money management"
+      },
+      "investing": {
+        "label": "Investing",
+        "text": "Discover long-term investment strategies"
       }
     },
     "categories": {
       "all": "All",
-      "fitness": "Fitness",
-      "music": "Music",
-      "business": "Business",
-      "lifestyle": "Lifestyle",
-      "personalDevelopment": "Personal Development",
-      "socialMedia": "Social Media",
-      "tech": "Tech"
+      "technical-analysis": "Technical Analysis",
+      "fundamental-analysis": "Fundamental Analysis",
+      "personal-finance": "Personal Finance",
+      "investing": "Investing",
+      "trading-strategies": "Trading Strategies",
+      "market-basics": "Market Basics",
+      "financial-literacy": "Financial Literacy",
+      "risk-management": "Risk Management"
     }
   }
 }

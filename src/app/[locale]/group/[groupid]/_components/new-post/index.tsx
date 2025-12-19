@@ -9,15 +9,15 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { useUser } from "@clerk/nextjs"
+import { useSession } from "@/lib/auth-client"
 import { useState } from "react"
 
 const NewPost = (groupid: string) => {
-  const { user } = useUser()
+  const { data: session } = useSession()
   const userDetails = {
-    name: `${user?.firstName} ${user?.lastName}`,
-    imageUrl: user?.imageUrl!,
-    id: user?.id!,
+    name: session?.user?.name || "User",
+    imageUrl: session?.user?.image || "",
+    id: session?.user?.id || "",
   }
 
   const [open, setOpen] = useState(false)
@@ -34,7 +34,7 @@ const NewPost = (groupid: string) => {
           <div className="w-full flex gap-6 items-center py-2 px-4 bg-[#1C1C1E] rounded-2xl border border-[#27272A]">
             <Avatar className="cursor-pointer">
               <AvatarImage
-                src={user?.imageUrl!}
+                src={session?.user?.image || ""}
                 alt="user"
                 className="h-11 w-11"
               />

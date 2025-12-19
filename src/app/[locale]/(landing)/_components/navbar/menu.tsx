@@ -3,8 +3,8 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { GROUPLE_CONSTANTS } from "@/constants"
 import { useLandingNavigation } from "@/hooks/navigation"
+import { Link } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
 
 type MenuProps = {
   orientation: "mobile" | "desktop"

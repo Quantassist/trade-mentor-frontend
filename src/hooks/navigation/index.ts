@@ -3,7 +3,6 @@ import { onGetGroupInfo } from "@/actions/groups"
 
 import { IChannelInfo, IGroupInfo, IGroups } from "@/components/global/sidebar"
 import { usePathname, useRouter } from "@/i18n/navigation"
-import { useUser } from "@clerk/nextjs"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useLocale } from "next-intl"
 import { usePathname as useNextPathname } from "next/navigation"
@@ -49,9 +48,6 @@ export const useNavigation = (groupid?: string) => {
 
 export const useSideBar = (groupid: string) => {
   const locale = useLocale()
-  const { user } = useUser()
-  // const userFromClerkId = await onGetUserFromClerkId(user?.id!)
-  // console.log("sidebar user", user)
   const { data: groups } = useQuery({
     queryKey: ["user-groups"],
     // queryFn: () => onGetUserGroups(userFromClerkId?.id!), // This will be overridden by prefetched data

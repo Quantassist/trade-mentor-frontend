@@ -1,5 +1,6 @@
+import { auth } from "@/lib/auth"
 import { client } from "@/lib/prisma"
-import { currentUser } from "@clerk/nextjs/server"
+import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
@@ -9,12 +10,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "locale required" }, { status: 400 })
     }
 
-    const clerk = await currentUser()
-    if (!clerk) return NextResponse.json({ error: "unauthorized" }, { status: 401 })
-    console.log(clerk.id)
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
+    if (!session?.user) return NextResponse.json({ error: "unauthorized" }, { status: 401 })
 
-
-    await client.user.update({ where: { clerkId: clerk.id }, data: { locale } })
+    await client.appUser.update({ where: { betterAuthId: session.user.id }, data: { locale } })
 
     return NextResponse.json({ ok: true })
   } catch (err) {

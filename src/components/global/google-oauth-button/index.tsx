@@ -12,16 +12,16 @@ type GoogleAuthButtonProps = {
 }
 
 export const GoogleAuthButton = ({ method, selectedLocale }: GoogleAuthButtonProps) => {
-  const { signUpWith, signInWith } = useGoogleAuth({ locale: selectedLocale })
+  const { signUpWithGoogle, signInWithGoogle } = useGoogleAuth({ locale: selectedLocale })
   const t = useTranslations("auth")
   return (
     <Button
       {...(method === "signin"
         ? {
-            onClick: () => signInWith("oauth_google"),
+            onClick: () => signInWithGoogle(),
           }
         : {
-            onClick: () => signUpWith("oauth_google"),
+            onClick: () => signUpWithGoogle(),
           })}
       className="w-full rounded-2xl flex gap-3 bg-themeBlack border-themeGray"
       variant="outline"

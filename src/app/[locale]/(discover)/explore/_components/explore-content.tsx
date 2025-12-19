@@ -1,10 +1,10 @@
 "use client"
 
 import { useAppSelector } from "@/redux/store"
+import { useTranslations } from "next-intl"
 import dynamic from "next/dynamic"
 import { ExploreSlider } from "./explore-slider"
 import { GroupList } from "./group-list"
-import { useTranslations } from "next-intl"
 
 const SearchGroups = dynamic(
   () =>
@@ -29,7 +29,7 @@ export const ExplorePageContent = ({
   const t = useTranslations("explore")
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col px-5 md:px-10">
       {isSearching || debounce ? (
         <SearchGroups
           searching={isSearching as boolean}
@@ -41,19 +41,24 @@ export const ExplorePageContent = ({
         (layout === "SLIDER" ? (
           <>
             <ExploreSlider
-              label={t("slider.fitness.label")}
-              text={t("slider.fitness.text")}
-              query="fitness"
+              label={t("slider.technical-analysis.label")}
+              text={t("slider.technical-analysis.text")}
+              query="technical-analysis"
             />
             <ExploreSlider
-              label={t("slider.music.label")}
-              text={t("slider.music.text")}
-              query="music"
+              label={t("slider.fundamental-analysis.label")}
+              text={t("slider.fundamental-analysis.text")}
+              query="fundamental-analysis"
             />
             <ExploreSlider
-              label={t("slider.lifestyle.label")}
-              text={t("slider.lifestyle.text")}
-              query="lifestyle"
+              label={t("slider.personal-finance.label")}
+              text={t("slider.personal-finance.text")}
+              query="personal-finance"
+            />
+            <ExploreSlider
+              label={t("slider.investing.label")}
+              text={t("slider.investing.text")}
+              query="investing"
             />
           </>
         ) : (

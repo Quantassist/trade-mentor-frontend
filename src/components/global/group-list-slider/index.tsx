@@ -34,6 +34,7 @@ export const GroupListSlider = ({
       freeMode
       label={label}
       overlay={overlay}
+      showNavigation
       {...rest}
     >
       {GROUPLE_CONSTANTS.groupList.map((item, i) => (

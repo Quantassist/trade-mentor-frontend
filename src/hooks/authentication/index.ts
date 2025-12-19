@@ -1,8 +1,6 @@
-import { onSignUpUser } from "@/actions/auth"
 import { SignInSchema } from "@/components/form/sign-in/schema"
 import { SignUpSchema } from "@/components/form/sign-up/schema"
-import { useSignIn, useSignUp } from "@clerk/nextjs"
-import { OAuthStrategy } from "@clerk/types"
+import { signIn, signUp } from "@/lib/auth-client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
@@ -12,10 +10,9 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 export const useAuthSignUp = (opts?: { locale?: "en" | "hi" }) => {
-  const { setActive, isLoaded, signUp } = useSignUp()
   const [creating, setCreating] = useState<boolean>(false)
-  const [verifying, setVerifying] = useState<boolean>(false)
-  const [code, setCode] = useState<string>("")
+  const router = useRouter()
+  const locale = opts?.locale ?? "en"
 
   const {
     register,
@@ -28,144 +25,70 @@ export const useAuthSignUp = (opts?: { locale?: "en" | "hi" }) => {
     mode: "onBlur",
   })
 
-  const router = useRouter()
-
-  const onGenerateCode = async (email: string, password: string) => {
-    if (!isLoaded)
-      return toast("Error", {
-        description: "Oops! something went wrong",
-      })
-    try {
-      if (email && password) {
-        await signUp.create({
-          emailAddress: getValues("email"),
-          password: getValues("password"),
-        })
-
-        await signUp.prepareEmailAddressVerification({
-          strategy: "email_code",
-        })
-
-        setVerifying(true)
-      } else {
-        return toast("Error", {
-          description: "No fields must be empty",
-        })
-      }
-    } catch (error) {
-      console.error(JSON.stringify(error, null, 2))
-    }
-  }
-
   const onInitiateUserRegistration = handleSubmit(async (values) => {
-    if (!isLoaded)
-      return toast("Error", {
-        description: "Oops! something went wrong",
-      })
-
     try {
       setCreating(true)
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code,
-      })
-
-      if (completeSignUp.status !== "complete") {
-        return toast("Error", {
-          description: "Oops! something went wrong, status in complete",
-        })
-      }
-
-      if (completeSignUp.status === "complete") {
-        if (!signUp.createdUserId) return
-        const user = await onSignUpUser({
-          firstname: values.firstname,
-          lastname: values.lastname,
-          clerkId: signUp.createdUserId,
-          image: null,
-          locale: opts?.locale ?? "en",
-        })
-
-        reset()
-
-        if (user.status === 200) {
-          toast("Success", {
-            description: user.message,
-          })
-          await setActive({
-            session: completeSignUp.createdSessionId,
-          })
-          // locale-aware redirect after email sign-up
-          router.push(`/${opts?.locale ?? "en"}/explore`)
+      await signUp.email(
+        {
+          email: values.email,
+          password: values.password,
+          name: `${values.firstname} ${values.lastname}`.trim(),
+        },
+        {
+          onSuccess: () => {
+            reset()
+            toast("Success", {
+              description: "Account created successfully",
+            })
+            router.push(`/callback/sign-in?locale=${locale}`)
+          },
+          onError: (ctx) => {
+            toast("Error", {
+              description: ctx.error.message || "Sign up failed",
+            })
+          },
         }
-        if (user.status !== 200) {
-          toast("Error", {
-            description: user.message + "action failed",
-          })
-          router.refresh
-        }
-        setCreating(false)
-        setVerifying(false)
-      } else {
-        console.error(JSON.stringify(completeSignUp, null, 2))
-      }
+      )
+      setCreating(false)
     } catch (error) {
-      console.error(JSON.stringify(error, null, 2))
+      console.error(error)
+      setCreating(false)
     }
   })
 
   return {
     register,
     errors,
-    onGenerateCode,
     onInitiateUserRegistration,
-    verifying,
     creating,
-    code,
-    setCode,
     getValues,
   }
 }
 
 export const useGoogleAuth = (opts?: { locale?: "en" | "hi" }) => {
-  const { signIn, isLoaded: LoadedSignIn } = useSignIn()
-  const { signUp, isLoaded: LoadedSignUp } = useSignUp()
-  const locale = opts?.locale
+  const locale = opts?.locale ?? "en"
 
-  const signInWith = (strategy: OAuthStrategy) => {
-    if (!LoadedSignIn) return
-    try {
-      return signIn.authenticateWithRedirect({
-        strategy,
-        redirectUrl: locale ? `/callback?locale=${locale}` : "/callback",
-        redirectUrlComplete: locale
-          ? `/callback/sign-in?locale=${locale}`
-          : "/callback/sign-in",
-      })
-    } catch (error) {
-      console.error(error)
-    }
+  const signInWithGoogle = async () => {
+    await signIn.social({
+      provider: "google",
+      callbackURL: `/callback/sign-in?locale=${locale}`,
+    })
   }
 
-  const signUpWith = (strategy: OAuthStrategy) => {
-    if (!LoadedSignUp) return
-    try {
-      return signUp.authenticateWithRedirect({
-        strategy,
-        redirectUrl: locale ? `/callback?locale=${locale}` : "/callback",
-        redirectUrlComplete: locale
-          ? `/callback/complete?locale=${locale}`
-          : "/callback/complete",
-      })
-    } catch (error) {
-      console.error(error)
-    }
+  const signUpWithGoogle = async () => {
+    await signIn.social({
+      provider: "google",
+      callbackURL: `/callback/sign-in?locale=${locale}`,
+    })
   }
 
-  return { signUpWith, signInWith }
+  return { signUpWithGoogle, signInWithGoogle }
 }
 
-export const useAuthSignIn = () => {
-  const { isLoaded, setActive, signIn } = useSignIn()
+export const useAuthSignIn = (opts?: { locale?: "en" | "hi" }) => {
+  const router = useRouter()
+  const locale = opts?.locale ?? "en"
+
   const {
     register,
     formState: { errors },
@@ -176,38 +99,32 @@ export const useAuthSignIn = () => {
     mode: "onBlur",
   })
 
-  const router = useRouter()
-
-  const onClerkAuth = async (email: string, password: string) => {
-    if (!isLoaded)
-      return toast("Error", {
-        description: "Oops! something went wrong",
-      })
-    try {
-      const authenticated = await signIn.create({
-        identifier: email,
-        password: password,
-      })
-
-      if (authenticated.status === "complete") {
-        reset()
-        await setActive({ session: authenticated.createdSessionId })
-        toast("Success", {
-          description: "Welcome back!",
-        })
-        router.push("/callback/sign-in")
+  const onBetterAuth = async (email: string, password: string) => {
+    await signIn.email(
+      {
+        email,
+        password,
+      },
+      {
+        onSuccess: () => {
+          reset()
+          toast("Success", {
+            description: "Welcome back!",
+          })
+          router.push(`/callback/sign-in?locale=${locale}`)
+        },
+        onError: (ctx) => {
+          toast("Error", {
+            description: ctx.error.message || "email/password is incorrect try again",
+          })
+        },
       }
-    } catch (error: any) {
-      if (error.errors[0].code === "form_password_incorrect")
-        toast("Error", {
-          description: "email/password is incorrect try again",
-        })
-    }
+    )
   }
 
   const { mutate: InitiateLoginFlow, isPending } = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
-      onClerkAuth(email, password),
+      onBetterAuth(email, password),
   })
 
   const onAuthenticateUser = handleSubmit(async (values) => {

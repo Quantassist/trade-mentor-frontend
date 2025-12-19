@@ -2,7 +2,6 @@ import { ThemeProvider } from "@/components/theme"
 import { Toaster } from "@/components/ui/sonner"
 import { ReactQueryProvider } from "@/react-query/provider"
 import { ReduxProvider } from "@/redux/provider"
-import { ClerkProvider } from "@clerk/nextjs"
 import type { Metadata } from "next"
 import { Noto_Sans_Devanagari, Plus_Jakarta_Sans } from "next/font/google"
 import "./globals.css"
@@ -21,21 +20,19 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={`${jakarta.variable} ${notoHindi.variable} ${jakarta.className}`}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            disableTransitionOnChange
-          >
-            <ReduxProvider>
-              <ReactQueryProvider>{children}</ReactQueryProvider>
-            </ReduxProvider>
-            <Toaster />
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${jakarta.variable} ${notoHindi.variable} ${jakarta.className}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          disableTransitionOnChange
+        >
+          <ReduxProvider>
+            <ReactQueryProvider>{children}</ReactQueryProvider>
+          </ReduxProvider>
+          <Toaster />
+        </ThemeProvider>
+      </body>
+    </html>
   )
 }

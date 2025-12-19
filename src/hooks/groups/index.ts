@@ -21,6 +21,7 @@ import { UpdateGallerySchema } from "@/components/form/media-gallery/schema"
 import { NewPostSchema } from "@/components/form/new-post-form/schema"
 import { IGroupInfo, IGroups } from "@/components/global/sidebar"
 import { usePathname, useRouter } from "@/i18n/navigation"
+import { useSession } from "@/lib/auth-client"
 import { supabaseClient, validateURLString } from "@/lib/utils"
 import {
   onClearList,
@@ -29,7 +30,6 @@ import {
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
 import { AppDispatch } from "@/redux/store"
-import { useUser } from "@clerk/nextjs"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { GroupRole } from "@prisma/client"
 import {
@@ -677,7 +677,7 @@ export const useNewPostForm = (groupid: string) => {
     },
   )
 
-  const { user } = useUser()
+  const { data: session } = useSession()
 
   const client = useQueryClient()
 

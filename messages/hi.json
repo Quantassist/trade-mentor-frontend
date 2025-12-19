@@ -37,28 +37,33 @@
       "placeholder": "कुछ भी खोजें"
     },
     "slider": {
-      "fitness": {
-        "label": "फिटनेस",
-        "text": "TradeFlix पर शीर्ष प्रदर्शन करने वाले समूहों से जुड़ें"
+      "technical-analysis": {
+        "label": "तकनीकी विश्लेषण",
+        "text": "चार्ट पैटर्न और ट्रेडिंग इंडिकेटर्स में महारत हासिल करें"
       },
-      "music": {
-        "label": "संगीत",
-        "text": "TradeFlix पर शीर्ष प्रदर्शन करने वाले समूहों से जुड़ें"
+      "fundamental-analysis": {
+        "label": "मौलिक विश्लेषण",
+        "text": "कंपनी के वित्तीय और मूल्यांकन का विश्लेषण करना सीखें"
       },
-      "lifestyle": {
-        "label": "लाइफस्टाइल",
-        "text": "TradeFlix पर शीर्ष प्रदर्शन करने वाले समूहों से जुड़ें"
+      "personal-finance": {
+        "label": "व्यक्तिगत वित्त",
+        "text": "स्मार्ट धन प्रबंधन के माध्यम से संपत्ति बनाएं"
+      },
+      "investing": {
+        "label": "निवेश",
+        "text": "दीर्घकालिक निवेश रणनीतियों की खोज करें"
       }
     },
     "categories": {
       "all": "सभी",
-      "fitness": "फिटनेस",
-      "music": "संगीत",
-      "business": "व्यवसाय",
-      "lifestyle": "लाइफस्टाइल",
-      "personalDevelopment": "व्यक्तिगत विकास",
-      "socialMedia": "सोशल मीडिया",
-      "tech": "टेक"
+      "technical-analysis": "तकनीकी विश्लेषण",
+      "fundamental-analysis": "मौलिक विश्लेषण",
+      "personal-finance": "व्यक्तिगत वित्त",
+      "investing": "निवेश",
+      "trading-strategies": "ट्रेडिंग रणनीतियाँ",
+      "market-basics": "बाज़ार की मूल बातें",
+      "financial-literacy": "वित्तीय साक्षरता",
+      "risk-management": "जोखिम प्रबंधन"
     }
   },
   "courses": {
@@ -104,6 +109,7 @@
   },
   "userMenu": {
     "title": "खाता",
+    "profile": "प्रोफ़ाइल",
     "settings": "सेटिंग्स",
     "logout": "लॉगआउट"
   },

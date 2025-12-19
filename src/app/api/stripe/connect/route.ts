@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       // TODO:  Use real integration
       console.log(account)
       const user = await onAuthenticatedUser()
-      const integrateStripeAccount = await client.user.update({
+      const integrateStripeAccount = await client.appUser.update({
         where: {
           id: user?.id,
         },
