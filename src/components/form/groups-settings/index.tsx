@@ -1,7 +1,6 @@
 "use client"
 
 import { GroupCard } from "@/app/[locale]/(discover)/explore/_components/group-card"
-import { FormGenerator } from "@/components/global/form-generator"
 import { Loader } from "@/components/global/loader"
 import BlockTextEditor from "@/components/global/rich-text-editor"
 import { Button } from "@/components/ui/button"
@@ -32,13 +31,30 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
 
   return (
     <form
-      className="flex flex-col h-full w-full items-start gap-y-5"
+      className="flex flex-col h-full w-full gap-6 max-w-4xl"
       onSubmit={onUpdate}
     >
-      <div className="flex lg:flex-row flex-col gap-10">
-        <div className="flex flex-col gap-3 items-start">
-          <p>Group Preview</p>
-
+      {/* Cover Image Section */}
+      <div className="bg-[#161a20] border border-themeGray/60 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-base font-semibold text-white">Cover Image</h3>
+            <p className="text-xs text-themeTextGray mt-0.5">Displayed on your group card</p>
+          </div>
+          <Label
+            htmlFor="thumbnail-upload"
+            className="text-sm px-4 py-2 bg-themeGray border border-themeGray/80 text-white rounded-lg hover:bg-themeGray/80 cursor-pointer transition-colors"
+          >
+            <Input
+              type="file"
+              id="thumbnail-upload"
+              className="hidden"
+              {...register("thumbnail")}
+            />
+            Change Cover
+          </Label>
+        </div>
+        <div className="rounded-lg overflow-hidden max-w-md">
           <GroupCard
             id={data?.group?.id!}
             createdAt={data?.group?.createdAt!}
@@ -50,23 +66,14 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
             name={data?.group?.name!}
             preview={previewThumbnail}
           />
-          <Label
-            htmlFor="thumbnail-upload"
-            className="border-2 border-themeGray bg-themeGray/50 px-5 py-3 rounded-lg hover:bg-themeBlack cursor-pointer"
-          >
-            <Input
-              type="file"
-              id="thumbnail-upload"
-              className="hidden"
-              {...register("thumbnail")}
-            />
-            Change Cover
-          </Label>
         </div>
-        <div className="flex-1 flex flex-col gap-3 items-start">
-          <p className="">Icon Preview</p>
+      </div>
+
+      {/* Group Icon Section */}
+      <div className="bg-[#161a20] border border-themeGray/60 rounded-xl p-5">
+        <div className="flex items-center gap-6">
           <img
-            className="w-20 h-20 rounded-xl"
+            className="w-20 h-20 rounded-xl object-cover ring-2 ring-white/10 shrink-0"
             src={
               previewIcon ||
               (data?.group?.icon &&
@@ -75,45 +82,67 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
             }
             alt="icon"
           />
-          <Label
-            className="border-2 border-themeGray bg-themeGray/50 px-5 py-3 rounded-lg cursor-pointer hover:bg-themeBlack"
-            htmlFor="icon-upload"
-          >
-            <Input
-              type="file"
-              id="icon-upload"
-              className="hidden"
-              {...register("icon")}
-            />
-            Change Icon
-          </Label>
+          <div className="flex flex-col gap-2">
+            <div>
+              <h3 className="text-base font-semibold text-white">Group Icon</h3>
+              <p className="text-xs text-themeTextGray mt-0.5">Square image, recommended 200x200px</p>
+            </div>
+            <Label
+              className="text-sm px-4 py-2 bg-themeGray border border-themeGray/80 text-white rounded-lg cursor-pointer hover:bg-themeGray/80 transition-colors w-fit"
+              htmlFor="icon-upload"
+            >
+              <Input
+                type="file"
+                id="icon-upload"
+                className="hidden"
+                {...register("icon")}
+              />
+              Change Icon
+            </Label>
+          </div>
         </div>
       </div>
-      <div className="flex flex-col w-full lg:w-8/12 2xl:w-7/12 gap-y-5">
-        <FormGenerator
-          register={register}
-          name="name"
-          placeholder={data?.group?.name!}
-          label="Group Name"
-          errors={errors}
-          inputType="input"
-          type="text"
-        />
-        <Label className="flex flex-col gap-y-2">
-          <p>Group Description</p>
-          <BlockTextEditor
-            errors={errors}
-            name="jsondescription"
-            min={150}
-            max={10000}
-            textContent={onDescription}
-            content={onJsonDescription}
-            setContent={setJsonDescription}
-            setTextContent={setOnDescription}
-          />
-        </Label>
-        <Button className="self-start" type="submit">
-          <Loader loading={isPending}>Update Settings</Loader>
+
+      {/* Details Section */}
+      <div className="bg-[#161a20] border border-themeGray/60 rounded-xl p-5">
+        <h3 className="text-lg font-semibold text-white mb-5">Group Details</h3>
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-themeTextGray">Group Name</Label>
+            <Input
+              {...register("name")}
+              placeholder={data?.group?.name!}
+              className="bg-[#1e2329] border-themeGray/60 text-white placeholder:text-themeTextGray/50 focus:border-[#d4f0e7]/50 focus:ring-[#d4f0e7]/20"
+            />
+            {errors.name && (
+              <p className="text-xs text-red-400">{errors.name.message}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-themeTextGray">Group Description</Label>
+            <div className="bg-[#1e2329] border border-themeGray/60 rounded-lg overflow-hidden">
+              <BlockTextEditor
+                errors={errors}
+                name="jsondescription"
+                min={150}
+                max={10000}
+                textContent={onDescription}
+                content={onJsonDescription}
+                setContent={setJsonDescription}
+                setTextContent={setOnDescription}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Submit Button */}
+      <div className="flex">
+        <Button 
+          type="submit"
+          className="bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] font-medium px-6"
+        >
+          <Loader loading={isPending}>Save Changes</Loader>
         </Button>
       </div>
     </form>

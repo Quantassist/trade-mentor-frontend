@@ -4,11 +4,11 @@ import { setRequestLocale } from "next-intl/server"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
-type SettingsPageProps = {
+type AccountPageProps = {
   params: Promise<{ locale: string }>
 }
 
-export default async function SettingsPage({ params }: SettingsPageProps) {
+export default async function AccountPage({ params }: AccountPageProps) {
   const { locale } = await params
   setRequestLocale(locale)
 
@@ -26,8 +26,8 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-white">Settings</h1>
-        <p className="text-themeTextGray mt-1">Manage your account settings and preferences</p>
+        <h1 className="text-2xl font-bold text-white">Account</h1>
+        <p className="text-sm text-themeTextGray mt-1">Manage your account settings and preferences</p>
       </div>
       <SettingsForm session={session} activeSessions={activeSessions || []} />
     </div>

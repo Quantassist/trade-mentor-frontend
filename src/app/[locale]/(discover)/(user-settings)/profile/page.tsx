@@ -1,14 +1,14 @@
+import { ProfileForm } from "@/components/form/user-profile"
 import { auth } from "@/lib/auth"
 import { setRequestLocale } from "next-intl/server"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
-type UserLayoutProps = {
-  children: React.ReactNode
+type ProfilePageProps = {
   params: Promise<{ locale: string }>
 }
 
-const UserLayout = async ({ children, params }: UserLayoutProps) => {
+export default async function ProfilePage({ params }: ProfilePageProps) {
   const { locale } = await params
   setRequestLocale(locale)
 
@@ -19,12 +19,12 @@ const UserLayout = async ({ children, params }: UserLayoutProps) => {
   if (!session) redirect(`/${locale}/sign-in`)
 
   return (
-    <div className="min-h-screen bg-themeBlack">
-      <div className="container max-w-4xl mx-auto py-8 px-4">
-        {children}
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-white">Profile</h1>
+        <p className="text-sm text-themeTextGray mt-1">Manage your account information</p>
       </div>
+      <ProfileForm session={session} />
     </div>
   )
 }
-
-export default UserLayout

@@ -28,15 +28,17 @@ export const GroupCard = ({
 
   return (
     <Link href={`/about/${id}`}>
-      <Card className="bg-themeBlack border-themeGray rounded-xl overflow-hidden">
-        <img
-          src={preview || `https://ucarecdn.com/${thumbnail}/`}
-          alt="thumbnail"
-          className="w-full opacity-70 aspect-video object-cover"
-        />
-        <div className="p-6">
-          <h3 className="text-lg text-themeTextGray font-bold">{name}</h3>
-          <p className="text-base text-themeTextGray">
+      <Card className="bg-themeBlack border-themeGray rounded-xl overflow-hidden group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-black/20 hover:border-themeGray/80">
+        <div className="overflow-hidden">
+          <img
+            src={preview || `https://ucarecdn.com/${thumbnail}/`}
+            alt="thumbnail"
+            className="w-full opacity-70 aspect-video object-cover transition-all duration-300 group-hover:opacity-90 group-hover:scale-105"
+          />
+        </div>
+        <div className="p-5">
+          <h3 className="text-lg text-white font-bold group-hover:text-[#d4f0e7] transition-colors">{name}</h3>
+          <p className="text-sm text-themeTextGray mt-1">
             {description && truncateString(description)}
           </p>
         </div>

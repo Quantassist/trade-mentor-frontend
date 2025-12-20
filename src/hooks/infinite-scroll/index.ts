@@ -1,7 +1,7 @@
 import {
-  onGetExploreGroup,
-  onGetPaginatedPosts,
-  onSearchGroups,
+    onGetExploreGroup,
+    onGetPaginatedPosts,
+    onSearchGroups,
 } from "@/actions/groups"
 import { onInfiniteScroll } from "@/redux/slices/infinite-scroll-slice"
 import { AppDispatch, useAppSelector } from "@/redux/store"
@@ -65,8 +65,12 @@ export const useInfiniteScroll = (
     enabled: false,
   })
 
-  if (isFetched && paginatedData)
-    dispatch(onInfiniteScroll({ data: paginatedData }))
+  // Dispatch paginated data inside useEffect to avoid setState during render
+  useEffect(() => {
+    if (isFetched && paginatedData) {
+      dispatch(onInfiniteScroll({ data: paginatedData }))
+    }
+  }, [isFetched, paginatedData, dispatch])
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {

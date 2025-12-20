@@ -13,9 +13,10 @@ type Props = {
   groupid: string
   owner: boolean
   isMember: boolean
+  hideGoToFeed?: boolean
 }
 
-export const JoinButton = ({ groupid, owner, isMember }: Props) => {
+export const JoinButton = ({ groupid, owner, isMember, hideGoToFeed }: Props) => {
   const { data } = useActiveGroupSubscription(groupid)
   const { onJoinFreeGroup } = useJoinFree(groupid)
   const [loading, setLoading] = useState(false)
@@ -30,30 +31,35 @@ export const JoinButton = ({ groupid, owner, isMember }: Props) => {
     }
   }
 
-  // Owner view - show Owner badge + Go to Feed + Settings buttons
+  // Owner view - show Owner badge with settings icon inline
   if (owner) {
     return (
       <div className="p-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-sm text-themeTextGray font-medium px-3 py-1.5 bg-themeGray/50 rounded-full">
+        {/* Status row with badge and settings */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold uppercase tracking-wider px-2.5 py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/30 rounded-md">
             Owner
           </span>
-          <Link href={`/group/${groupid}/feed`} className="flex-1">
-            <Button className="w-full bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] rounded-xl flex gap-2 font-medium">
+          <Link 
+            href={`/group/${groupid}/settings/general`}
+            className="flex items-center gap-1.5 text-xs text-themeTextGray hover:text-white transition-colors"
+          >
+            <Settings className="h-3.5 w-3.5" />
+            <span>Settings</span>
+          </Link>
+        </div>
+        {/* Primary action button */}
+        {!hideGoToFeed && (
+          <Link href={`/group/${groupid}/feed`}>
+            <Button 
+              size="sm"
+              className="w-full bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] rounded-lg flex items-center justify-center gap-1.5 font-medium text-sm h-9"
+            >
               Go to Feed
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-        </div>
-        <Link href={`/group/${groupid}/settings/general`}>
-          <Button 
-            variant="outline" 
-            className="w-full bg-themeBlack border-themeGray hover:bg-themeGray/80 rounded-xl flex gap-2"
-          >
-            <Settings className="h-4 w-4" />
-            Group Settings
-          </Button>
-        </Link>
+        )}
       </div>
     )
   }
@@ -61,16 +67,23 @@ export const JoinButton = ({ groupid, owner, isMember }: Props) => {
   // Member view - show Member badge + Go to Feed button
   if (isMember) {
     return (
-      <div className="p-4 flex items-center justify-between gap-2">
-        <span className="text-sm text-themeTextGray font-medium px-3 py-1.5 bg-themeGray/50 rounded-full">
-          Member
-        </span>
-        <Link href={`/group/${groupid}/feed`} className="flex-1">
-          <Button className="w-full bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] rounded-xl flex gap-2 font-medium">
-            Go to Feed
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
+      <div className="p-4 flex flex-col gap-3">
+        <div className="flex items-center">
+          <span className="text-xs font-semibold uppercase tracking-wider px-2.5 py-1 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 border border-emerald-500/30 rounded-md">
+            Member
+          </span>
+        </div>
+        {!hideGoToFeed && (
+          <Link href={`/group/${groupid}/feed`}>
+            <Button 
+              size="sm"
+              className="w-full bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] rounded-lg flex items-center justify-center gap-1.5 font-medium text-sm h-9"
+            >
+              Go to Feed
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        )}
       </div>
     )
   }
