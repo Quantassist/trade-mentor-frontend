@@ -11,10 +11,12 @@ export const GroupSideWidget = ({
   userid,
   light,
   groupid,
+  hideGoToFeed,
 }: {
   userid?: string
   light?: boolean
   groupid?: string
+  hideGoToFeed?: boolean
 }) => {
   const locale = useLocale()
   const { group, role } = useGroupInfo(groupid as string, locale)
@@ -46,6 +48,7 @@ export const GroupSideWidget = ({
           groupid={groupid}
           owner={role === "OWNER" ? true : false}
           isMember={role === "MEMBER" ? true : false}
+          hideGoToFeed={hideGoToFeed}
         />
       )}
     </Card>

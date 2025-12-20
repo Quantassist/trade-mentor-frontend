@@ -43,27 +43,27 @@ export const ExploreSlider = ({ query, label, text }: ExploreSliderProps) => {
           onReachEnd={() => refetch()}
           breakpoints={{
             200: {
-              slidesPerView: 1.2,
+              slidesPerView: 1.1,
               slidesOffsetBefore: 40,
               slidesOffsetAfter: 40,
             },
             820: {
-              slidesPerView: 2.4,
+              slidesPerView: 2,
               slidesOffsetBefore: 40,
               slidesOffsetAfter: 40,
             },
             1024: {
-              slidesPerView: 3.2,
+              slidesPerView: 2.5,
               slidesOffsetBefore: 150,
               slidesOffsetAfter: 150,
             },
             1280: {
-              slidesPerView: 4.3,
+              slidesPerView: 3.2,
               slidesOffsetBefore: 150,
               slidesOffsetAfter: 150,
             },
             1540: {
-              slidesPerView: 5.6,
+              slidesPerView: 4,
               slidesOffsetBefore: 150,
               slidesOffsetAfter: 150,
             },

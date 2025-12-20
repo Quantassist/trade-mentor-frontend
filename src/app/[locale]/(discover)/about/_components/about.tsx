@@ -94,13 +94,15 @@ export const AboutGroup = ({ userid, groupid, locale }: AboutGroupProps) => {
           
           {/* Media Gallery */}
           {group.gallery.length > 1 && (
-            <MediaGallery
-              gallery={group.gallery}
-              groupid={groupid}
-              groupUserId={group.userId}
-              userid={userid}
-              onActive={onSetActiveMedia}
-            />
+            <div className="mt-6">
+              <MediaGallery
+                gallery={group.gallery}
+                groupid={groupid}
+                groupUserId={group.userId}
+                userid={userid}
+                onActive={onSetActiveMedia}
+              />
+            </div>
           )}
         </div>
 

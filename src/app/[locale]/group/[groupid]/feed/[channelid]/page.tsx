@@ -13,6 +13,7 @@ import {
 } from "@tanstack/react-query"
 import { headers } from "next/headers"
 import CreateNewPost from "./_components/create-post"
+import { FeedLayout } from "./_components/feed-layout"
 import { PostFeed } from "./_components/post-feed"
 
 type GroupChannelPageProps = {
@@ -54,26 +55,24 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <div className="grid lg:grid-cols-4 grid-cols-1 gap-x-5 w-full px-5 min-h-[calc(100dvh-var(--group-navbar-h,5rem))]">
-        <div className="col-span-1 lg:inline relative hidden py-5">
-          <LeaderBoardCard light />
-        </div>
-        <div className="lg:col-span-2 flex flex-col gap-y-5 py-5">
-          {/* <Menu orientation="desktop" /> */}
-          <CreateNewPost
-            userImage={session?.user?.image || ""}
-            channelid={channelid}
-            username={session?.user?.name?.split(" ")[0] || "User"}
-            locale={locale}
-            groupid={groupid}
-          />
-          <PostFeed channelid={channelid} userid={authUser?.id!} locale={locale} />
-        </div>
-        <div className="col-span-1 hidden lg:inline relative py-5">
-          <GroupSideWidget groupid={groupid} />
-          <OngoingCoursesWidget groupid={groupid} className="mt-6" />
-        </div>
-      </div>
+      <FeedLayout
+        sidebar={
+          <>
+            <GroupSideWidget groupid={groupid} hideGoToFeed />
+            <OngoingCoursesWidget groupid={groupid} />
+            <LeaderBoardCard light />
+          </>
+        }
+      >
+        <CreateNewPost
+          userImage={session?.user?.image || ""}
+          channelid={channelid}
+          username={session?.user?.name?.split(" ")[0] || "User"}
+          locale={locale}
+          groupid={groupid}
+        />
+        <PostFeed channelid={channelid} userid={authUser?.id!} locale={locale} />
+      </FeedLayout>
     </HydrationBoundary>
   )
 }

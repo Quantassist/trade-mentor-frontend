@@ -94,6 +94,21 @@ export const SIDEBAR_MENU: MenuProps[] = [
   },
 ]
 
+export const USER_SETTINGS_MENU: MenuProps[] = [
+  {
+    id: 0,
+    label: "Profile",
+    icon: <Home />,
+    path: "profile",
+  },
+  {
+    id: 1,
+    label: "Account",
+    icon: <CreditCard />,
+    path: "account",
+  },
+]
+
 export const SIDEBAR_SETTINGS_MENU: MenuProps[] = [
   {
     id: 0,
