@@ -108,10 +108,10 @@ export const SideBarMenu = ({
           item.integration ? (
             <Link
               className={cn(
-                "flex items-center gap-x-2 font-semibold rounded-xl text-themeTextGray p-2 hover:bg-themeGray",
-                currentPage === "settings"
-                  ? !item.path && "text-white"
-                  : item.path === currentSection && "text-white",
+                "flex items-center gap-x-2 font-semibold rounded-xl p-2 transition-colors",
+                item.path === currentSection
+                  ? "bg-[#2a2a2a] text-white"
+                  : "text-themeTextGray hover:bg-[#2a2a2a]/70 hover:text-white",
               )}
               key={item.id}
               href={`/${locale}/group/${groupid}/settings/${item.path}`}
@@ -126,8 +126,10 @@ export const SideBarMenu = ({
               key={item.id}
               href={`/${locale}/group/${groupid}/settings/${item.path}`}
               className={cn(
-                "flex items-center gap-x-2 p-2 hover:bg-themeGray rounded-lg",
-                item.path === currentSection && "text-white",
+                "flex items-center gap-x-2 p-2 rounded-lg transition-colors",
+                item.path === currentSection
+                  ? "bg-[#2a2a2a] text-white"
+                  : "text-themeTextGray hover:bg-[#2a2a2a]/70 hover:text-white",
               )}
             >
               {/* <IconRenderer icon={item.icon} mode="DARK" />
@@ -182,9 +184,9 @@ export const SideBarMenu = ({
                   <div
                     key={channel.id}
                     className={cn(
-                      "flex w-full hover:bg-themeGray p-2 group rounded-lg items-center",
+                      "flex w-full p-2 group rounded-lg items-center transition-colors hover:bg-[#2a2a2a]/70",
                       showLabels ? "justify-between" : "justify-center",
-                      (currentSection === channel.id || (channel.id === current && edit)) && "bg-themeGray",
+                      (currentSection === channel.id || (channel.id === current && edit)) && "bg-[#2a2a2a]",
                     )}
                   >
                     <Link

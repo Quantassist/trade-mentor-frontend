@@ -1,6 +1,5 @@
 import { onSignUpUser } from "@/actions/auth"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+import { getSession } from "@/lib/get-session"
 import { redirect } from "next/navigation"
 
 const CompleteOAuthAfterCallback = async ({
@@ -8,9 +7,7 @@ const CompleteOAuthAfterCallback = async ({
 }: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const session = await getSession()
   
   if (!session?.user) return redirect("/sign-in")
   

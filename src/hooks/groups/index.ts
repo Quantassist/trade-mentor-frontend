@@ -1,17 +1,17 @@
 "use client"
 import {
-  inGetChannelPosts,
-  onAddCustomDomain,
-  onCreateNewChannel,
-  onGetAllGroupMembers,
-  onGetDomainConfig,
-  onGetExploreGroup,
-  onGetGroupInfo,
-  onGetPostInfo,
-  onLikePress,
-  onSearchGroups,
-  onUpDateGroupSettings,
-  onUpdateGroupGallery,
+    inGetChannelPosts,
+    onAddCustomDomain,
+    onCreateNewChannel,
+    onGetAllGroupMembers,
+    onGetDomainConfig,
+    onGetExploreGroup,
+    onGetGroupInfo,
+    onGetPostInfo,
+    onLikePress,
+    onSearchGroups,
+    onUpDateGroupSettings,
+    onUpdateGroupGallery,
 } from "@/actions/groups"
 import { GroupStateProps } from "@/app/[locale]/(discover)/explore/_components/group-list"
 import { Post } from "@/app/[locale]/group/[groupid]/_components/post-card"
@@ -20,12 +20,12 @@ import { GroupSettingsSchema } from "@/components/form/groups-settings/schema"
 import { UpdateGallerySchema } from "@/components/form/media-gallery/schema"
 import { NewPostSchema } from "@/components/form/new-post-form/schema"
 import { IGroupInfo, IGroups } from "@/components/global/sidebar"
-import { usePathname, useRouter } from "@/i18n/navigation"
+import { usePathname } from "@/i18n/navigation"
 import { useSession } from "@/lib/auth-client"
 import { supabaseClient, validateURLString } from "@/lib/utils"
 import {
-  onClearList,
-  onInfiniteScroll,
+    onClearList,
+    onInfiniteScroll,
 } from "@/redux/slices/infinite-scroll-slice"
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
@@ -33,10 +33,10 @@ import { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { GroupRole } from "@prisma/client"
 import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
+    QueryClient,
+    useMutation,
+    useQuery,
+    useQueryClient,
 } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
 import { useLocale } from "next-intl"
@@ -333,11 +333,11 @@ export const useGroupSettings = (groupid: string) => {
     },
   })
 
-  const router = useRouter()
-
   const onUpdate = handleSubmit(async (values) => update(values))
 
-  if (data?.status !== 200) router.push(`/group/create`)
+  // Return error state instead of client-side redirect
+  // Server components/layouts should handle auth protection
+  const hasError = data?.status !== 200
 
   return {
     data,
@@ -351,30 +351,27 @@ export const useGroupSettings = (groupid: string) => {
     setJsonDescription,
     setOnDescription,
     onDescription,
+    hasError,
   }
 }
 
 export const useGroupInfo = (groupid: string, locale?: string) => {
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
     queryFn: () => onGetGroupInfo(groupid, locale),
   })
 
-  const router = useRouter()
-
-  if (!data) router.push("/explore")
-
-  const { group, status, role } = data as {
-    status: number
-    group: GroupStateProps
-    role: GroupRole
-  }
-
-  if (status !== 200) router.push("/explore")
+  // Return loading/error states instead of client-side redirect
+  // Server components/layouts should handle auth protection
+  const group = data?.group as GroupStateProps | undefined
+  const status = data?.status as number | undefined
+  const role = data?.role as GroupRole | undefined
 
   return {
     group,
     role,
+    isLoading,
+    hasError: !data || status !== 200,
   }
 }
 

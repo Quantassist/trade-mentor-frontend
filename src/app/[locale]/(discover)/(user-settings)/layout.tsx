@@ -1,6 +1,5 @@
-import { auth } from "@/lib/auth"
+import { getSession } from "@/lib/get-session"
 import { setRequestLocale } from "next-intl/server"
-import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { UserSettingsSidebar } from "./_components/sidebar"
 
@@ -13,18 +12,16 @@ const UserSettingsLayout = async ({ children, params }: UserSettingsLayoutProps)
   const { locale } = await params
   setRequestLocale(locale)
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const session = await getSession()
 
   if (!session) redirect(`/${locale}/sign-in`)
 
   return (
-    <div className="flex max-w-6xl mx-auto min-h-[calc(100vh-80px)]">
-      {/* Sidebar */}
+    <div className="flex min-h-[calc(100vh-80px)]">
+      {/* Sidebar - sticky */}
       <UserSettingsSidebar locale={locale} />
       {/* Main content */}
-      <div className="flex-1 py-8 px-6 lg:px-10">
+      <div className="flex-1 py-8 px-6 lg:px-10 max-w-4xl">
         {children}
       </div>
     </div>

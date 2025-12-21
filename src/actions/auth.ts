@@ -1,19 +1,10 @@
 "use server"
 
-import { auth } from "@/lib/auth"
+import { getSession } from "@/lib/get-session"
 import { client } from "@/lib/prisma"
 import type { GroupRole } from "@prisma/client"
 import { Prisma } from "@prisma/client"
-import { headers } from "next/headers"
 import { cache } from "react"
-
-// Get current Better Auth session
-const getSession = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-  return session
-}
 
 // Internal helpers (not exported) to centralize DB fetch logic
 const getCurrentUserBase = async () => {

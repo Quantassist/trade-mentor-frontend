@@ -7,8 +7,9 @@ function isProtectedRoute(pathname: string): boolean {
   return protectedRoutePatterns.some((pattern) => pattern.test(pathname))
 }
 
-export default async function middleware(request: NextRequest) {
-  const baseHost = `${process.env.NEXT_PUBLIC_BASE_URL}`
+export default async function proxy(request: NextRequest) {
+  const baseHostEnv = process.env.NEXT_PUBLIC_BASE_URL
+  const baseHost = typeof baseHostEnv === "string" ? baseHostEnv : ""
   const host = request.headers.get("host")
   const reqPath = request.nextUrl.pathname
   const origin = request.nextUrl.origin
@@ -41,18 +42,36 @@ export default async function middleware(request: NextRequest) {
   }
 
   // Handle custom domain routing
-  if (!baseHost.includes(host as string) && reqPath.startsWith("/group")) {
-    const response = await fetch(`${origin}/api/domain?host=${host}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    const data = await response.json()
-    if (data.status === 200 && data) {
-      return NextResponse.rewrite(
-        new URL(reqPath, `https://${data.domain}/${reqPath}`),
-      )
+  if (baseHost && host && !baseHost.includes(host) && reqPath.startsWith("/group")) {
+    try {
+      const response = await fetch(`${origin}/api/domain?host=${encodeURIComponent(host)}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (response.ok) {
+        const contentType = response.headers.get("content-type") || ""
+        let data: any = null
+
+        if (contentType.includes("application/json")) {
+          data = await response.json().catch(() => null)
+        } else {
+          const text = await response.text()
+          try {
+            data = JSON.parse(text)
+          } catch {
+            data = null
+          }
+        }
+
+        if (data?.status === 200 && data?.domain) {
+          return NextResponse.rewrite(new URL(reqPath, `https://${data.domain}/${reqPath}`))
+        }
+      }
+    } catch {
+      // Ignore domain lookup failures and continue with normal routing
     }
   }
 

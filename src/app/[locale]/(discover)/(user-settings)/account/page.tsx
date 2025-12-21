@@ -1,5 +1,6 @@
 import { SettingsForm } from "@/components/form/user-settings"
 import { auth } from "@/lib/auth"
+import { getSession } from "@/lib/get-session"
 import { setRequestLocale } from "next-intl/server"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -12,13 +13,11 @@ export default async function AccountPage({ params }: AccountPageProps) {
   const { locale } = await params
   setRequestLocale(locale)
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const session = await getSession()
 
   if (!session) redirect(`/${locale}/sign-in`)
 
-  // Get active sessions
+  // Get active sessions (different API call, not session fetch)
   const activeSessions = await auth.api.listSessions({
     headers: await headers(),
   })

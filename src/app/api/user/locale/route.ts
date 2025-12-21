@@ -1,6 +1,5 @@
-import { auth } from "@/lib/auth"
+import { getSession } from "@/lib/get-session"
 import { client } from "@/lib/prisma"
-import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
@@ -10,9 +9,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "locale required" }, { status: 400 })
     }
 
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    })
+    const session = await getSession()
     if (!session?.user) return NextResponse.json({ error: "unauthorized" }, { status: 401 })
 
     await client.appUser.update({ where: { betterAuthId: session.user.id }, data: { locale } })
