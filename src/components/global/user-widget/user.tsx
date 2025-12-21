@@ -29,21 +29,47 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false)
 
   const untrackPresence = async () => {
-    await supabaseClient.channel("tracking").untrack()
+    const trackingChannel = supabaseClient
+      .getChannels()
+      .find((channel) => channel.topic?.endsWith(":tracking"))
+
+    if (!trackingChannel) return
+
+    try {
+      await trackingChannel.unsubscribe()
+    } finally {
+      supabaseClient.removeChannel(trackingChannel)
+    }
   }
 
   const dispath: AppDispatch = useDispatch()
 
   const onLogout = async () => {
-    untrackPresence()
-    dispath(onOffline({ members: [{ id: userid! }] }))
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          window.location.href = "/"
+    try {
+      await untrackPresence()
+    } catch {
+      // ignore presence cleanup failures
+    }
+
+    if (userid) {
+      dispath(onOffline({ members: [{ id: userid }] }))
+    }
+
+    try {
+      const result = await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.href = "/"
+          },
         },
-      },
-    })
+      })
+
+      if (result && typeof result === "object" && "error" in result && result.error) {
+        window.location.href = "/"
+      }
+    } catch {
+      window.location.href = "/"
+    }
   }
 
   const switchLocale = (nextLocale: string) => {
