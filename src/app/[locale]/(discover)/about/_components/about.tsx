@@ -16,7 +16,8 @@ type AboutGroupProps = {
 }
 
 export const AboutGroup = ({ userid, groupid, locale }: AboutGroupProps) => {
-  const { group, role } = useGroupInfo(groupid, locale)
+  const { group, role, isLoading, hasError } = useGroupInfo(groupid, locale)
+
   const {
     setJsonDescription,
     setOnDescription,
@@ -31,20 +32,29 @@ export const AboutGroup = ({ userid, groupid, locale }: AboutGroupProps) => {
     isPending,
     setOnHtmlDescription,
   } = useGroupAbout(
-    group.description,
-    group.jsonDescription,
-    group.htmlDescription,
-    group.gallery[0],
+    group?.description ?? null,
+    group?.jsonDescription ?? null,
+    group?.htmlDescription ?? null,
+    group?.gallery?.[0] ?? "",
     groupid,
     locale,
   )
 
-  if (!group)
+  if (isLoading) {
+    return (
+      <Loader loading={true}>
+        <div />
+      </Loader>
+    )
+  }
+
+  if (hasError || !group) {
     return (
       <div>
         <NoResult />
       </div>
     )
+  }
 
   const isOwner = role === "OWNER"
 

@@ -19,10 +19,13 @@ export const GroupSideWidget = ({
   hideGoToFeed?: boolean
 }) => {
   const locale = useLocale()
-  const { group, role } = useGroupInfo(groupid as string, locale)
+  const { group, role, isLoading, hasError } = useGroupInfo(groupid, locale)
 
   const stripHtml = (html?: string | null) =>
     typeof html === "string" ? html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : undefined
+
+  if (isLoading) return null
+  if (hasError || !group) return null
 
   return (
     <Card

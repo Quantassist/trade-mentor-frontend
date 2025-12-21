@@ -1,17 +1,17 @@
 "use client"
 import {
-    inGetChannelPosts,
-    onAddCustomDomain,
-    onCreateNewChannel,
-    onGetAllGroupMembers,
-    onGetDomainConfig,
-    onGetExploreGroup,
-    onGetGroupInfo,
-    onGetPostInfo,
-    onLikePress,
-    onSearchGroups,
-    onUpDateGroupSettings,
-    onUpdateGroupGallery,
+  inGetChannelPosts,
+  onAddCustomDomain,
+  onCreateNewChannel,
+  onGetAllGroupMembers,
+  onGetDomainConfig,
+  onGetExploreGroup,
+  onGetGroupInfo,
+  onGetPostInfo,
+  onLikePress,
+  onSearchGroups,
+  onUpDateGroupSettings,
+  onUpdateGroupGallery,
 } from "@/actions/groups"
 import { GroupStateProps } from "@/app/[locale]/(discover)/explore/_components/group-list"
 import { Post } from "@/app/[locale]/group/[groupid]/_components/post-card"
@@ -24,8 +24,8 @@ import { usePathname } from "@/i18n/navigation"
 import { useSession } from "@/lib/auth-client"
 import { supabaseClient, validateURLString } from "@/lib/utils"
 import {
-    onClearList,
-    onInfiniteScroll,
+  onClearList,
+  onInfiniteScroll,
 } from "@/redux/slices/infinite-scroll-slice"
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
@@ -33,10 +33,10 @@ import { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { GroupRole } from "@prisma/client"
 import {
-    QueryClient,
-    useMutation,
-    useQuery,
-    useQueryClient,
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
 } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
 import { useLocale } from "next-intl"
@@ -355,10 +355,11 @@ export const useGroupSettings = (groupid: string) => {
   }
 }
 
-export const useGroupInfo = (groupid: string, locale?: string) => {
+export const useGroupInfo = (groupid?: string, locale?: string) => {
   const { data, isLoading } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
+    queryFn: () => onGetGroupInfo(groupid as string, locale),
+    enabled: !!groupid,
   })
 
   // Return loading/error states instead of client-side redirect
@@ -371,7 +372,7 @@ export const useGroupInfo = (groupid: string, locale?: string) => {
     group,
     role,
     isLoading,
-    hasError: !data || status !== 200,
+    hasError: !groupid || !data || status !== 200,
   }
 }
 
