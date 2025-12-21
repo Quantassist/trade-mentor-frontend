@@ -1,7 +1,6 @@
 import { ProfileForm } from "@/components/form/user-profile"
-import { auth } from "@/lib/auth"
+import { getSession } from "@/lib/get-session"
 import { setRequestLocale } from "next-intl/server"
-import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 type ProfilePageProps = {
@@ -12,9 +11,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const { locale } = await params
   setRequestLocale(locale)
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const session = await getSession()
 
   if (!session) redirect(`/${locale}/sign-in`)
 

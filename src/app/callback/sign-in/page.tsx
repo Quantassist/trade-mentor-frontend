@@ -1,7 +1,6 @@
 import { onSignInUser, onSignUpUser } from "@/actions/auth"
 import { redirect } from "@/i18n/navigation"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+import { getSession } from "@/lib/get-session"
 
 type Props = {
   searchParams: Promise<{ locale?: string }>
@@ -11,9 +10,7 @@ const CompleteSignIn = async ({ searchParams }: Props) => {
   const { locale: queryLocale } = await searchParams
   const defaultLocale = queryLocale || "en"
   
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const session = await getSession()
   
   if (!session?.user) return redirect({ href: "/sign-in", locale: defaultLocale })
 

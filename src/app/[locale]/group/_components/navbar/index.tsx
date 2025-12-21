@@ -3,9 +3,8 @@ import { LocaleSwitcher } from "@/components/global/locale-switcher"
 import { Search } from "@/components/global/search"
 import { SideBar } from "@/components/global/sidebar"
 import { UserWidget } from "@/components/global/user-widget"
-import { auth } from "@/lib/auth"
+import { getSession } from "@/lib/get-session"
 import { Menu as MenuIcon } from "lucide-react"
-import { headers } from "next/headers"
 import { Menu } from "../group-navbar"
 import { SidebarToggle } from "../sidebar-toggle"
 
@@ -14,9 +13,7 @@ type NavbarProps = {
   userid: string
 }
 export const Navbar = async ({ groupid, userid }: NavbarProps) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const session = await getSession()
   return (
     <div className="sticky top-0 z-40 bg-[#1A1A1D]/95 backdrop-blur supports-[backdrop-filter]:bg-[#1A1A1D]/80 py-2 px-4 sm:py-4 sm:px-6 flex items-center gap-3 justify-between">
       {/* Left cluster: group menu + sidebar trigger */}

@@ -1,8 +1,7 @@
 import { BackdropGradient } from "@/components/global/backdrop-gradient"
 import { Card, CardContent } from "@/components/ui/card"
-import { auth } from "@/lib/auth"
+import { getSession } from "@/lib/get-session"
 import { setRequestLocale } from "next-intl/server"
-import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { AuthHero } from "./_components/auth-hero"
 import { AuthLanguageSelector } from "./_components/auth-language-selector"
@@ -18,9 +17,7 @@ const AuthLayout = async ({ children, params }: AuthLayoutProps) => {
   setRequestLocale(locale)
   
   // Check if user is already authenticated using Better Auth
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const session = await getSession()
 
   if (session) redirect(`/callback/sign-in?locale=${locale}`)
 
