@@ -151,6 +151,11 @@ model AppUser {
   sectionProgress UserSectionProgress[]
   quizAttempts    UserSectionQuizAttempt[]
   reflections     UserSectionReflection[]
+  userPoints      UserPoints[]
+  pointActivities PointActivity[]
+  postUseful      PostUseful[]
+  eventsCreated   Event[]
+  eventAttendees  EventAttendee[]
 
   @@map("User")
   @@schema("public")
@@ -189,6 +194,9 @@ model Group {
   translations    GroupTranslation[]
   member          Members[]
   subscription    Subscription[]
+  userPoints      UserPoints[]
+  pointActivities PointActivity[]
+  events          Event[]
 
   @@schema("public")
 }
@@ -219,6 +227,7 @@ model Post {
   jsonContent  String
   comments     Comment[]
   likes        Like[]
+  usefulMarks  PostUseful[]
   author       AppUser           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   channel      Channel           @relation(fields: [channelId], references: [id], onDelete: Cascade)
   translations PostTranslation[]
@@ -572,6 +581,132 @@ enum journey_level {
   beginner
   intermediate
   advanced
+
+  @@schema("public")
+}
+
+// ============================================
+// Leaderboard & Gamification Models
+// ============================================
+
+model UserPoints {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  groupId   String   @db.Uuid
+  points    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@index([groupId, points(sort: Desc)])
+  @@schema("public")
+}
+
+model PointActivity {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String       @db.Uuid
+  groupId      String       @db.Uuid
+  activityType ActivityType
+  points       Int
+  referenceId  String?      @db.Uuid
+  description  String?
+  createdAt    DateTime     @default(now())
+  User         AppUser      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Group        Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([userId, groupId, createdAt])
+  @@index([groupId, createdAt])
+  @@schema("public")
+}
+
+model PostUseful {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId    String   @db.Uuid
+  userId    String   @db.Uuid
+  createdAt DateTime @default(now())
+  Post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  User      AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@schema("public")
+}
+
+enum ActivityType {
+  POST_CREATED
+  POST_USEFUL_RECEIVED
+  POST_USEFUL_GIVEN
+  COMMENT_CREATED
+  COURSE_COMPLETED
+  SECTION_COMPLETED
+  QUIZ_PASSED
+  EVENT_ATTENDED
+  DAILY_LOGIN
+
+  @@schema("public")
+}
+
+// ============================================
+// Events Models
+// ============================================
+
+model Event {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupId     String      @db.Uuid
+  createdById String      @db.Uuid
+  title       String
+  description String?
+  eventType   EventType
+  startTime   DateTime
+  endTime     DateTime?
+  timezone    String      @default("UTC")
+  location    String?
+  meetingUrl  String?
+  thumbnail   String?
+  isPublished Boolean     @default(false)
+  maxAttendees Int?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  Group       Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  CreatedBy   AppUser     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  attendees   EventAttendee[]
+
+  @@index([groupId, startTime])
+  @@index([groupId, isPublished, startTime])
+  @@schema("public")
+}
+
+model EventAttendee {
+  id        String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventId   String             @db.Uuid
+  userId    String             @db.Uuid
+  status    EventAttendeeStatus @default(REGISTERED)
+  createdAt DateTime           @default(now())
+  Event     Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  User      AppUser            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId, eventId])
+  @@schema("public")
+}
+
+enum EventType {
+  LIVE_CLASS
+  WEBINAR
+  WORKSHOP
+  QA_SESSION
+  MEETUP
+  OTHER
+
+  @@schema("public")
+}
+
+enum EventAttendeeStatus {
+  REGISTERED
+  ATTENDED
+  CANCELLED
 
   @@schema("public")
 }

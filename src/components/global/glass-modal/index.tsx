@@ -16,6 +16,8 @@ type GlassModalProps = {
   description: string
   type?: string
   logo?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 export const GlassModal = ({
@@ -25,6 +27,8 @@ export const GlassModal = ({
   description,
   type,
   logo,
+  open,
+  onOpenChange,
 }: GlassModalProps) => {
   switch (type) {
     case "Integration":
@@ -71,7 +75,7 @@ export const GlassModal = ({
       )
     default:
       return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogTrigger asChild>{trigger}</DialogTrigger>
           <DialogContent className="bg-[#0d0f12]/95 backdrop-filter backdrop-blur-xl border-themeGray/40 rounded-2xl max-w-md shadow-2xl">
             <DialogHeader className="space-y-2">
