@@ -5,6 +5,7 @@ import { authClient } from "./prisma"
 
 export const auth = betterAuth({
   appName: "TradeMentor",
+  baseURL: process.env.BETTER_AUTH_URL,
   database: prismaAdapter(authClient, {
     provider: "postgresql",
   }),
@@ -29,6 +30,8 @@ export const auth = betterAuth({
   plugins: [nextCookies()],
   trustedOrigins: [
     process.env.BETTER_AUTH_URL || "http://localhost:3000",
+    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
+    "https://trade-pulse-one.vercel.app",
   ],
 })
 

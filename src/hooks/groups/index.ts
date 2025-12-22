@@ -1,17 +1,17 @@
 "use client"
 import {
-  inGetChannelPosts,
-  onAddCustomDomain,
-  onCreateNewChannel,
-  onGetAllGroupMembers,
-  onGetDomainConfig,
-  onGetExploreGroup,
-  onGetGroupInfo,
-  onGetPostInfo,
-  onLikePress,
-  onSearchGroups,
-  onUpDateGroupSettings,
-  onUpdateGroupGallery,
+    inGetChannelPosts,
+    onAddCustomDomain,
+    onCreateNewChannel,
+    onGetAllGroupMembers,
+    onGetDomainConfig,
+    onGetExploreGroup,
+    onGetGroupInfo,
+    onGetPostInfo,
+    onLikePress,
+    onSearchGroups,
+    onUpDateGroupSettings,
+    onUpdateGroupGallery,
 } from "@/actions/groups"
 import { GroupStateProps } from "@/app/[locale]/(discover)/explore/_components/group-list"
 import { Post } from "@/app/[locale]/group/[groupid]/_components/post-card"
@@ -24,8 +24,8 @@ import { usePathname } from "@/i18n/navigation"
 import { useSession } from "@/lib/auth-client"
 import { supabaseClient, validateURLString } from "@/lib/utils"
 import {
-  onClearList,
-  onInfiniteScroll,
+    onClearList,
+    onInfiniteScroll,
 } from "@/redux/slices/infinite-scroll-slice"
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
@@ -33,10 +33,10 @@ import { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { GroupRole } from "@prisma/client"
 import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
+    QueryClient,
+    useMutation,
+    useQuery,
+    useQueryClient,
 } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
 import { useLocale } from "next-intl"
@@ -189,9 +189,15 @@ export const useGroupSettings = (groupid: string) => {
     queryFn: () => onGetGroupInfo(groupid, locale),
   })
 
-  const jsonContent = data?.group?.jsonDescription
-    ? JSON.parse(data?.group?.jsonDescription as string)
-    : undefined
+  const jsonContent = (() => {
+    const desc = data?.group?.jsonDescription
+    if (!desc || desc === "") return undefined
+    try {
+      return JSON.parse(desc as string)
+    } catch {
+      return undefined
+    }
+  })()
 
   const [onJsonDescription, setJsonDescription] = useState<
     JSONContent | undefined
@@ -403,8 +409,14 @@ export const useGroupAbout = (
       : { ...mediaType },
   )
 
-  const jsonContent =
-    jsonDescription !== null ? JSON.parse(jsonDescription as string) : undefined
+  const jsonContent = (() => {
+    if (jsonDescription === null || jsonDescription === "") return undefined
+    try {
+      return JSON.parse(jsonDescription as string)
+    } catch {
+      return undefined
+    }
+  })()
 
   const [onJsonDescription, setJsonDescription] = useState<
     JSONContent | undefined

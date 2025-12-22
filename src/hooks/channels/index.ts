@@ -1,31 +1,35 @@
 "use client"
 import {
-  onCreateChannelPost,
-  onCreateChannelPostMulti,
-  onCreateCommentReply,
-  onCreateNewComment,
-  onDeleteChannel,
-  onGetChannelInfo,
-  onLikeChannelPost,
-  onUpdateChannelInfo,
+    onCreateChannelPost,
+    onCreateChannelPostMulti,
+    onCreateCommentReply,
+    onCreateNewComment,
+    onDeleteChannel,
+    onGetChannelInfo,
+    onGetPostAllLocales,
+    onLikeChannelPost,
+    onUpdateChannelInfo,
+    onUpdateChannelPostMulti,
 } from "@/actions/channel"
 import {
-  onDeletePost,
-  onGetCommentReplies,
-  onGetPostComments,
-  onGetPostInfo,
-  onUpdatePost,
+    onDeletePost,
+    onGetCommentReplies,
+    onGetPostComments,
+    onGetPostInfo,
+    onUpdatePost,
 } from "@/actions/groups"
 import { CreateCommentSchema } from "@/components/form/post-comments/schema"
-import { CreateChannelPostSchema } from "@/components/global/post-content/schema"
+import type { LocalePayload } from "@/components/global/post-content/multi"
+import { CreateChannelPostSchema, MultiChannelPostSchema } from "@/components/global/post-content/schema"
+import { defaultLocale, locales } from "@/i18n/config"
 import { onRemoveItem } from "@/redux/slices/infinite-scroll-slice"
 import type { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
-  useMutation,
-  useMutationState,
-  useQuery,
-  useQueryClient,
+    useMutation,
+    useMutationState,
+    useQuery,
+    useQueryClient,
 } from "@tanstack/react-query"
 import { JSONContent } from "novel"
 import { useEffect, useRef, useState } from "react"
@@ -34,10 +38,6 @@ import { useDispatch } from "react-redux"
 import { toast } from "sonner"
 import { v4 } from "uuid"
 import z from "zod"
-import { defaultLocale, locales } from "@/i18n/config"
-import type { LocalePayload } from "@/components/global/post-content/multi"
-import { MultiChannelPostSchema } from "@/components/global/post-content/schema"
-import { onGetPostAllLocales, onUpdateChannelPostMulti } from "@/actions/channel"
 
 export const useChannelInfo = () => {
   const channelRef = useRef<HTMLAnchorElement | null>(null)
@@ -182,9 +182,14 @@ export const useCreateChannelPost = (
   const [onJsonDescription, setJsonDescription] = useState<
     JSONContent | undefined
   >(
-    initial?.jsoncontent
-      ? (JSON.parse(initial.jsoncontent) as JSONContent)
-      : undefined,
+    (() => {
+      if (!initial?.jsoncontent || initial.jsoncontent === "") return undefined
+      try {
+        return JSON.parse(initial.jsoncontent) as JSONContent
+      } catch {
+        return undefined
+      }
+    })(),
   )
   const [onHtmlDescription, setOnHtmlDescription] = useState<
     string | undefined
@@ -655,9 +660,14 @@ export const useEditPost = (
   const [onJsonDescription, setJsonDescription] = useState<
     JSONContent | undefined
   >(
-    initial.jsoncontent
-      ? (JSON.parse(initial.jsoncontent) as JSONContent)
-      : undefined,
+    (() => {
+      if (!initial.jsoncontent || initial.jsoncontent === "") return undefined
+      try {
+        return JSON.parse(initial.jsoncontent) as JSONContent
+      } catch {
+        return undefined
+      }
+    })(),
   )
   const [onHtmlDescription, setOnHtmlDescription] = useState<
     string | undefined
