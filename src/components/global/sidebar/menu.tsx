@@ -175,7 +175,7 @@ export const SideBarMenu = ({
           </span>
         )}
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-y-1">
         {channels && channels.length > 0 ? (
           <>
             {channels.map(

@@ -73,6 +73,18 @@
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /* Brand colors - Light theme */
+  --brand-black: #09090B;
+  --brand-gray: #27272A;
+  --brand-dark-gray: #27272A;
+  --brand-text-gray: #71717A;
+  --brand-text-white: #18181B;
+  --brand-primary: #10b981;
+  --brand-primary-hover: #059669;
+  --brand-card-bg: #ffffff;
+  --brand-card-elevated: #f4f4f5;
+  --brand-accent: #b9a9ff;
 }
 
 .dark {
@@ -112,6 +124,18 @@
   --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
   --sidebar-border: hsl(240 3.7% 15.9%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /* Brand colors - Dark theme */
+  --brand-black: #09090B;
+  --brand-gray: #27272A;
+  --brand-dark-gray: #27272A;
+  --brand-text-gray: #B4B0AE;
+  --brand-text-white: #F7ECE9;
+  --brand-primary: #10b981;
+  --brand-primary-hover: #34d399;
+  --brand-card-bg: #161a20;
+  --brand-card-elevated: #1f2329;
+  --brand-accent: #b9a9ff;
 }
 
 html {

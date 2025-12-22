@@ -3,12 +3,13 @@ import { redirect } from "@/i18n/navigation"
 import { getSession } from "@/lib/get-session"
 
 type Props = {
-  searchParams: Promise<{ locale?: string }>
+  searchParams: Promise<{ locale?: string; returnUrl?: string }>
 }
 
 const CompleteSignIn = async ({ searchParams }: Props) => {
-  const { locale: queryLocale } = await searchParams
+  const { locale: queryLocale, returnUrl } = await searchParams
   const defaultLocale = queryLocale || "en"
+  const decodedReturnUrl = returnUrl ? decodeURIComponent(returnUrl) : null
   
   const session = await getSession()
   
@@ -23,7 +24,7 @@ const CompleteSignIn = async ({ searchParams }: Props) => {
     const firstname = nameParts[0] || "User"
     const lastname = nameParts.slice(1).join(" ") || ""
     
-    await onSignUpUser({
+    const signUpResult = await onSignUpUser({
       firstname,
       lastname,
       betterAuthId: session.user.id,
@@ -33,15 +34,30 @@ const CompleteSignIn = async ({ searchParams }: Props) => {
     
     // Try sign in again after creating user
     const retryAuth = await onSignInUser(session.user.id)
-    const locale = (retryAuth as any).locale ?? "en"
+    const locale = (retryAuth as any).locale ?? defaultLocale
+    
+    // If returnUrl is provided, redirect there after successful auth
+    if (decodedReturnUrl && (retryAuth.status === 200 || retryAuth.status === 207)) {
+      return redirect({ href: decodedReturnUrl, locale })
+    }
     
     if (retryAuth.status === 200)
       return redirect({ href: "/explore", locale })
     if (retryAuth.status === 207)
       return redirect({ href: `/group/${retryAuth.groupId}/feed/${retryAuth.channelId}`, locale })
+    
+    // If still failing after signup attempt, redirect to explore anyway
+    // This prevents redirect loop when user has valid auth session but DB issues
+    console.error("Sign-in callback: DB sync failed after signup attempt", { signUpResult, retryAuth })
+    return redirect({ href: decodedReturnUrl || "/explore", locale })
   }
 
-  const locale = (authenticated as any).locale ?? "en"
+  const locale = (authenticated as any).locale ?? defaultLocale
+
+  // If returnUrl is provided, redirect there after successful auth
+  if (decodedReturnUrl && (authenticated.status === 200 || authenticated.status === 207)) {
+    return redirect({ href: decodedReturnUrl, locale })
+  }
 
   if (authenticated.status === 200)
     return redirect({ href: "/explore", locale })
@@ -49,9 +65,10 @@ const CompleteSignIn = async ({ searchParams }: Props) => {
   if (authenticated.status === 207)
     return redirect({ href: `/group/${authenticated.groupId}/feed/${authenticated.channelId}`, locale })
 
-  if (authenticated.status !== 200) {
-    redirect({ href: "/sign-in", locale })
-  }
+  // Fallback: redirect to explore instead of sign-in to prevent redirect loop
+  // User has valid Better Auth session, so don't send them back to sign-in
+  console.error("Sign-in callback: Unexpected auth status", authenticated)
+  return redirect({ href: decodedReturnUrl || "/explore", locale: defaultLocale })
 }
 
 export default CompleteSignIn

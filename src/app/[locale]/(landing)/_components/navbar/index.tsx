@@ -1,6 +1,7 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import { GlassSheet } from "@/components/global/glass-sheet"
 import { LocaleSwitcher } from "@/components/global/locale-switcher"
+import { ThemeSwitcher } from "@/components/global/theme-switcher"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
 import { Logout } from "@/icons"
@@ -15,6 +16,7 @@ export const LandingPageNavbar = async () => {
       <p className="font-bold text-2xl">TradeFlix</p>
       <Menu orientation="desktop" />
       <div className="flex gap-2 items-center">
+        <ThemeSwitcher />
         <LocaleSwitcher />
         {user.status === 200 ? (
           <Link href="/explore">

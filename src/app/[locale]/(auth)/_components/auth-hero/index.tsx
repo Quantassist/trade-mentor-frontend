@@ -5,12 +5,12 @@ import { useTranslations } from "next-intl"
 export function AuthHero() {
   const t = useTranslations("auth")
   return (
-    <div className="flex flex-col items-center text-center mt-5 gap-2">
-      <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white">
+    <div className="flex flex-col items-center text-center gap-2 max-w-sm">
+      <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-white">
         {t("hero.titleLine1")}
-        <span className="block mt-4 ">{t("hero.titleLine2")}</span>
+        <span className="block mt-1 md:mt-2">{t("hero.titleLine2")}</span>
       </h1>
-      <p className="mt-4 text-sm md:text-base text-themeTextGray max-w-xl">
+      <p className="mt-3 text-sm text-white/70">
         {t("hero.subtitle")}
       </p>
     </div>

@@ -21,8 +21,24 @@ export const GroupSideWidget = ({
   const locale = useLocale()
   const { group, role, isLoading, hasError } = useGroupInfo(groupid, locale)
 
-  const stripHtml = (html?: string | null) =>
-    typeof html === "string" ? html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : undefined
+  const stripHtmlAndEntities = (html?: string | null) => {
+    if (typeof html !== "string") return undefined
+    // First strip HTML tags
+    let text = html.replace(/<[^>]*>/g, " ")
+    // Decode common HTML entities
+    text = text
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&apos;/g, "'")
+      .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)))
+      .replace(/&#x([a-fA-F0-9]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    // Normalize whitespace
+    return text.replace(/\s+/g, " ").trim()
+  }
 
   if (isLoading) return null
   if (hasError || !group) return null
@@ -42,7 +58,7 @@ export const GroupSideWidget = ({
       <div className="flex flex-col p-5 gap-y-2">
         <h2 className="font-bold text-lg">{group.name}</h2>
         <p className="text-sm text-themeTextGray">
-          {truncateString(stripHtml(group.htmlDescription) || group.description || "")}
+          {truncateString(stripHtmlAndEntities(group.htmlDescription) || group.description || "")}
         </p>
       </div>
       <Separator orientation="horizontal" className="bg-themeGray/60" />

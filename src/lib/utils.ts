@@ -6,8 +6,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const truncateString = (string: string) => {
-  return string.slice(0, 60) + "..."
+export const truncateString = (string: string, maxLength: number = 200) => {
+  if (string.length <= maxLength) return string
+  return string.slice(0, maxLength) + "..."
 }
 
 export const supabaseClient = createClient(

@@ -32,6 +32,18 @@ const config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        brand: {
+          black: "var(--brand-black)",
+          gray: "var(--brand-gray)",
+          "dark-gray": "var(--brand-dark-gray)",
+          "text-gray": "var(--brand-text-gray)",
+          "text-white": "var(--brand-text-white)",
+          primary: "var(--brand-primary)",
+          "primary-hover": "var(--brand-primary-hover)",
+          "card-bg": "var(--brand-card-bg)",
+          "card-elevated": "var(--brand-card-elevated)",
+          accent: "var(--brand-accent)",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

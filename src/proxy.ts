@@ -1,3 +1,4 @@
+import { getSessionCookie } from "better-auth/cookies"
 import createIntlMiddleware from "next-intl/middleware"
 import { NextResponse, type NextRequest } from "next/server"
 
@@ -14,10 +15,8 @@ export default async function proxy(request: NextRequest) {
   const reqPath = request.nextUrl.pathname
   const origin = request.nextUrl.origin
 
-  // Redirect root to default locale landing page
-  if (reqPath === "/") {
-    return NextResponse.redirect(new URL("/en", request.url))
-  }
+  // Root path is handled by next-intl middleware with localePrefix: 'as-needed'
+  // No explicit redirect needed - the middleware will serve the default locale content
 
   // Do not apply locale redirection on callback routes
   if (reqPath.startsWith("/callback")) {
@@ -32,7 +31,7 @@ export default async function proxy(request: NextRequest) {
 
   // Check for protected routes - redirect to sign-in if not authenticated
   if (isProtectedRoute(reqPath)) {
-    const sessionCookie = request.cookies.get("better-auth.session_token")
+    const sessionCookie = getSessionCookie(request)
     if (!sessionCookie) {
       // Extract locale from path or default to 'en'
       const localeMatch = reqPath.match(/^\/([a-z]{2})\//)
@@ -79,6 +78,7 @@ export default async function proxy(request: NextRequest) {
   const intlMiddleware = createIntlMiddleware({
     locales: ["en", "hi"],
     defaultLocale: "en",
+    localePrefix: "as-needed",
   })
 
   // Apply locale middleware for all other routes

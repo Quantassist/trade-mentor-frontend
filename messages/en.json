@@ -134,8 +134,23 @@
       },
       "password": {
         "label": "Password",
-        "placeholder": "Create a strong password"
+        "placeholder": "Create a strong password",
+        "signInPlaceholder": "Enter your password"
       }
+    },
+    "forgotPassword": {
+      "link": "Forgot password?",
+      "title": "Forgot Password",
+      "description": "Enter your email and we'll send you a reset link",
+      "submit": "Send Reset Link",
+      "backToSignIn": "Back to Sign In"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Enter your new password below",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Reset Password"
     }
   },
   "explore": {

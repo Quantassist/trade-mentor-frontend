@@ -3,6 +3,7 @@ import {
     inGetChannelPosts,
     onAddCustomDomain,
     onCreateNewChannel,
+    onDeleteGroupGalleryItem,
     onGetAllGroupMembers,
     onGetDomainConfig,
     onGetExploreGroup,
@@ -401,13 +402,29 @@ export const useGroupAbout = (
       }
     | undefined
   >(
-    mediaType.type === "IMAGE"
-      ? {
-          url: currentMedia,
-          type: mediaType.type,
-        }
-      : { ...mediaType },
+    currentMedia
+      ? mediaType.type === "IMAGE"
+        ? {
+            url: currentMedia,
+            type: mediaType.type,
+          }
+        : { ...mediaType }
+      : undefined,
   )
+
+  // Update activeMedia when currentMedia changes (e.g., after gallery deletion)
+  useEffect(() => {
+    if (currentMedia) {
+      const newMediaType = validateURLString(currentMedia)
+      setActiveMedia(
+        newMediaType.type === "IMAGE"
+          ? { url: currentMedia, type: newMediaType.type }
+          : { ...newMediaType },
+      )
+    } else {
+      setActiveMedia(undefined)
+    }
+  }, [currentMedia])
 
   const jsonContent = (() => {
     if (jsonDescription === null || jsonDescription === "") return undefined
@@ -554,10 +571,13 @@ export const useGroupAbout = (
 }
 
 export const useMediaGallery = (groupid: string) => {
+  const queryClient = useQueryClient()
+  const locale = useLocale()
   const {
     register,
     formState: { errors },
     handleSubmit,
+    reset,
   } = useForm<z.infer<typeof UpdateGallerySchema>>({
     resolver: zodResolver(UpdateGallerySchema),
   })
@@ -600,6 +620,10 @@ export const useMediaGallery = (groupid: string) => {
         description: "Group gallery updated",
       })
     },
+    onSuccess: () => {
+      reset()
+      queryClient.invalidateQueries({ queryKey: ["about-group-info", groupid, locale] })
+    },
   })
 
   const onUpdateGallery = handleSubmit(async (values) => mutate(values))
@@ -609,6 +633,34 @@ export const useMediaGallery = (groupid: string) => {
     errors,
     onUpdateGallery,
     isPending,
+  }
+}
+
+export const useDeleteGalleryItem = (groupid: string) => {
+  const queryClient = useQueryClient()
+  const locale = useLocale()
+
+  const { mutate: deleteGalleryItem, isPending: isDeleting } = useMutation({
+    mutationKey: ["delete-gallery-item"],
+    mutationFn: async (mediaUrl: string) => {
+      const result = await onDeleteGroupGalleryItem(groupid, mediaUrl)
+      if (result.status !== 200) {
+        throw new Error(result.message)
+      }
+      return result
+    },
+    onSuccess: () => {
+      toast.success("Gallery item deleted")
+      queryClient.invalidateQueries({ queryKey: ["about-group-info", groupid, locale] })
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to delete gallery item")
+    },
+  })
+
+  return {
+    deleteGalleryItem,
+    isDeleting,
   }
 }
 

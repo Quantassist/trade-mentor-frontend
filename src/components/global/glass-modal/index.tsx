@@ -1,10 +1,10 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { JSX } from "react"
@@ -73,10 +73,10 @@ export const GlassModal = ({
       return (
         <Dialog>
           <DialogTrigger asChild>{trigger}</DialogTrigger>
-          <DialogContent className="bg-clip-padding backdrop-filter backdrop--blur__safari backdrop-blur-3xl bg-opacity-20 bg-themeGray border-themeGray ">
-          <DialogHeader>
-              <DialogTitle>{title}</DialogTitle>
-              <DialogDescription>{description}</DialogDescription>
+          <DialogContent className="bg-[#0d0f12]/95 backdrop-filter backdrop-blur-xl border-themeGray/40 rounded-2xl max-w-md shadow-2xl">
+            <DialogHeader className="space-y-2">
+              <DialogTitle className="text-xl font-semibold text-white">{title}</DialogTitle>
+              <DialogDescription className="text-themeTextGray text-sm">{description}</DialogDescription>
             </DialogHeader>
             {children}
           </DialogContent>

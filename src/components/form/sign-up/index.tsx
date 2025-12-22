@@ -14,8 +14,8 @@ export const SignUpForm = ({ selectedLocale }: Props) => {
   const {
     register,
     errors,
-    creating,
-    onInitiateUserRegistration,
+    isPending,
+    onSignUp,
   } = useAuthSignUp({ locale: selectedLocale })
   
   const localizedFields = GROUPLE_CONSTANTS.signUpForm.map((f) => {
@@ -29,7 +29,7 @@ export const SignUpForm = ({ selectedLocale }: Props) => {
   
   return (
     <form
-      onSubmit={onInitiateUserRegistration}
+      onSubmit={onSignUp}
       className="flex flex-col gap-3 mt-5"
     >
       {localizedFields.map((field) => (
@@ -42,7 +42,7 @@ export const SignUpForm = ({ selectedLocale }: Props) => {
         />
       ))}
       <Button type="submit" className="rounded-2xl">
-        <Loader loading={creating}>{t("buttons.signUpWithEmail")}</Loader>
+        <Loader loading={isPending}>{t("buttons.signUpWithEmail")}</Loader>
       </Button>
     </form>
   )

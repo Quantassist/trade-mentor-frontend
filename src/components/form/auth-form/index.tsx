@@ -1,112 +1,138 @@
 "use client"
 
-import { Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
-import { useRouter } from "next/navigation"
-import { useState, useTransition } from "react"
-import { toast } from "sonner"
+import { useSearchParams } from "next/navigation"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAuthSignIn, useAuthSignUp, useForgotPassword, useGoogleAuth } from "@/hooks/authentication"
 import { Google } from "@/icons"
-import { signIn, signUp } from "@/lib/auth-client"
 
 type AuthFormProps = {
   defaultTab?: "sign-in" | "sign-up"
 }
 
+// Fixed minimum height to accommodate the taller sign-up form
+const FORM_MIN_HEIGHT = "min-h-[520px]"
+
 export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
   const t = useTranslations("auth")
   const locale = useLocale()
-  const router = useRouter()
-  const [loading, startTransition] = useTransition()
+  const searchParams = useSearchParams()
+  const returnUrl = searchParams.get("returnUrl") || undefined
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [showSignInPassword, setShowSignInPassword] = useState(false)
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false)
 
-  // Sign In state
-  const [signInEmail, setSignInEmail] = useState("")
-  const [signInPassword, setSignInPassword] = useState("")
+  // Sign In hook
+  const {
+    register: registerSignIn,
+    errors: signInErrors,
+    onSignIn,
+    isPending: isSignInPending,
+  } = useAuthSignIn({ locale, returnUrl })
 
-  // Sign Up state
-  const [signUpFirstName, setSignUpFirstName] = useState("")
-  const [signUpLastName, setSignUpLastName] = useState("")
-  const [signUpEmail, setSignUpEmail] = useState("")
-  const [signUpPassword, setSignUpPassword] = useState("")
+  // Sign Up hook
+  const {
+    register: registerSignUp,
+    errors: signUpErrors,
+    onSignUp,
+    isPending: isSignUpPending,
+  } = useAuthSignUp({ locale, returnUrl })
 
-  const handleSignIn = async () => {
-    startTransition(async () => {
-      await signIn.email(
-        {
-          email: signInEmail,
-          password: signInPassword,
-        },
-        {
-          onSuccess: () => {
-            toast.success(t("messages.signInSuccess") || "Successfully signed in")
-            router.push(`/callback/sign-in?locale=${locale}`)
-          },
-          onError: (ctx) => {
-            toast.error(ctx.error.message || t("messages.signInError") || "Sign in failed")
-          },
-        }
-      )
-    })
-  }
+  // Google Auth hook
+  const { signInWithGoogle, isGooglePending } = useGoogleAuth({ locale, returnUrl })
 
-  const handleSignUp = async () => {
-    startTransition(async () => {
-      await signUp.email(
-        {
-          email: signUpEmail,
-          password: signUpPassword,
-          name: `${signUpFirstName} ${signUpLastName}`.trim(),
-        },
-        {
-          onSuccess: () => {
-            toast.success(t("messages.signUpSuccess") || "Account created successfully")
-            router.push(`/callback/sign-in?locale=${locale}`)
-          },
-          onError: (ctx) => {
-            toast.error(ctx.error.message || t("messages.signUpError") || "Sign up failed")
-          },
-        }
-      )
-    })
-  }
+  // Forgot Password hook
+  const {
+    register: registerForgot,
+    errors: forgotErrors,
+    onForgotPassword,
+    isPending: isForgotPending,
+  } = useForgotPassword({ onSuccess: () => setShowForgotPassword(false) })
 
-  const handleGoogleSignIn = async () => {
-    await signIn.social({
-      provider: "google",
-      callbackURL: `/callback/sign-in?locale=${locale}`,
-    })
+  if (showForgotPassword) {
+    return (
+      <div className={`w-full space-y-6 ${FORM_MIN_HEIGHT}`}>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold text-white">{t("forgotPassword.title") || "Forgot Password"}</h2>
+          <p className="text-sm text-themeTextGray">
+            {t("forgotPassword.description") || "Enter your email and we'll send you a reset link"}
+          </p>
+        </div>
+
+        <form onSubmit={onForgotPassword} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="forgot-email" className="text-themeTextWhite">
+              {t("form.email.label")}
+            </Label>
+            <Input
+              id="forgot-email"
+              type="email"
+              placeholder={t("form.email.placeholder")}
+              {...registerForgot("email")}
+              className="bg-themeBlack border-themeGray text-white placeholder:text-themeTextGray"
+            />
+            {forgotErrors.email && (
+              <p className="text-sm text-red-500">{forgotErrors.email.message}</p>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isForgotPending}
+            className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
+            {isForgotPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              t("forgotPassword.submit") || "Send Reset Link"
+            )}
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setShowForgotPassword(false)}
+            className="w-full text-themeTextGray hover:text-white"
+          >
+            {t("forgotPassword.backToSignIn") || "Back to Sign In"}
+          </Button>
+        </form>
+      </div>
+    )
   }
 
   return (
-    <Tabs defaultValue={defaultTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-2 bg-transparent border-b border-themeGray/60 rounded-none h-auto p-0">
+    <Tabs defaultValue={defaultTab} className={`w-full ${FORM_MIN_HEIGHT}`}>
+      <TabsList className="grid w-full grid-cols-2 bg-themeBlack rounded-lg h-auto p-1">
         <TabsTrigger
           value="sign-in"
-          className="rounded-none border-b-2 border-transparent data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-white text-themeTextGray py-3"
+          className="rounded-md data-[state=active]:bg-themeGray data-[state=active]:text-white text-themeTextGray py-2.5 transition-all"
         >
           {t("tabs.signIn")}
         </TabsTrigger>
         <TabsTrigger
           value="sign-up"
-          className="rounded-none border-b-2 border-transparent data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:text-white text-themeTextGray py-3"
+          className="rounded-md data-[state=active]:bg-themeGray data-[state=active]:text-white text-themeTextGray py-2.5 transition-all"
         >
           {t("tabs.signUp")}
         </TabsTrigger>
       </TabsList>
 
       {/* Sign In Tab */}
-      <TabsContent value="sign-in" className="mt-6 space-y-4">
-        <div className="space-y-2">
+      <TabsContent value="sign-in" className="mt-6 space-y-4 data-[state=inactive]:hidden" forceMount>
+        <div className="space-y-1">
           <h2 className="text-2xl font-bold text-white">{t("signin.title")}</h2>
           <p className="text-sm text-themeTextGray">{t("signin.description")}</p>
         </div>
 
-        <div className="space-y-4">
+        <form onSubmit={onSignIn} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="signin-email" className="text-themeTextWhite">
               {t("form.email.label")}
@@ -115,68 +141,97 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
               id="signin-email"
               type="email"
               placeholder={t("form.email.placeholder")}
-              value={signInEmail}
-              onChange={(e) => setSignInEmail(e.target.value)}
-              className="bg-themeBlack border-themeGray text-white"
+              {...registerSignIn("email")}
+              className="bg-themeBlack border-themeGray text-white placeholder:text-themeTextGray focus:border-emerald-500 focus:ring-emerald-500"
             />
+            {signInErrors.email && (
+              <p className="text-sm text-red-500">{signInErrors.email.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="signin-password" className="text-themeTextWhite">
-              {t("form.password.label")}
-            </Label>
-            <Input
-              id="signin-password"
-              type="password"
-              placeholder={t("form.password.placeholder")}
-              value={signInPassword}
-              onChange={(e) => setSignInPassword(e.target.value)}
-              className="bg-themeBlack border-themeGray text-white"
-            />
+            <div className="flex items-center justify-between">
+              <Label htmlFor="signin-password" className="text-themeTextWhite">
+                {t("form.password.label")}
+              </Label>
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors"
+              >
+                {t("forgotPassword.link") || "Forgot password?"}
+              </button>
+            </div>
+            <div className="relative">
+              <Input
+                id="signin-password"
+                type={showSignInPassword ? "text" : "password"}
+                placeholder={t("form.password.signInPlaceholder") || "Enter your password"}
+                {...registerSignIn("password")}
+                className="bg-themeBlack border-themeGray text-white placeholder:text-themeTextGray focus:border-emerald-500 focus:ring-emerald-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSignInPassword(!showSignInPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-themeTextGray hover:text-white transition-colors"
+              >
+                {showSignInPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            {signInErrors.password && (
+              <p className="text-sm text-red-500">{signInErrors.password.message}</p>
+            )}
           </div>
 
           <Button
-            onClick={handleSignIn}
-            disabled={loading}
-            className="w-full rounded-2xl"
+            type="submit"
+            disabled={isSignInPending}
+            className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
           >
-            {loading ? (
+            {isSignInPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               t("buttons.signInWithEmail")
             )}
           </Button>
-        </div>
+        </form>
 
-        <div className="relative my-6">
+        <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
             <Separator className="bg-themeGray" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[#1A1A1D] px-3 text-themeTextGray">
+            <span className="bg-themeGray/50 px-3 text-themeTextGray">
               {t("separator.orContinueWith")}
             </span>
           </div>
         </div>
 
         <Button
-          onClick={handleGoogleSignIn}
-          variant="outline"
-          className="w-full rounded-2xl flex gap-3 bg-themeBlack border-themeGray text-white hover:bg-themeGray/20"
+          type="button"
+          onClick={() => signInWithGoogle()}
+          disabled={isGooglePending}
+          className="w-full rounded-xl flex gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium border border-gray-300 shadow-sm transition-all hover:shadow-md"
         >
-          <Google />
+          {isGooglePending ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <div className="bg-white p-1 rounded-full">
+              <Google />
+            </div>
+          )}
           {t("google.signInButton")}
         </Button>
       </TabsContent>
 
       {/* Sign Up Tab */}
-      <TabsContent value="sign-up" className="mt-6 space-y-4">
-        <div className="space-y-2">
+      <TabsContent value="sign-up" className="mt-6 space-y-4 data-[state=inactive]:hidden" forceMount>
+        <div className="space-y-1">
           <h2 className="text-2xl font-bold text-white">{t("card.title")}</h2>
           <p className="text-sm text-themeTextGray">{t("card.description")}</p>
         </div>
 
-        <div className="space-y-4">
+        <form onSubmit={onSignUp} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="signup-firstname" className="text-themeTextWhite">
@@ -186,10 +241,12 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
                 id="signup-firstname"
                 type="text"
                 placeholder={t("form.firstname.placeholder")}
-                value={signUpFirstName}
-                onChange={(e) => setSignUpFirstName(e.target.value)}
-                className="bg-themeBlack border-themeGray text-white"
+                {...registerSignUp("firstname")}
+                className="bg-themeBlack border-themeGray text-white placeholder:text-themeTextGray focus:border-emerald-500 focus:ring-emerald-500"
               />
+              {signUpErrors.firstname && (
+                <p className="text-sm text-red-500">{signUpErrors.firstname.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="signup-lastname" className="text-themeTextWhite">
@@ -199,10 +256,12 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
                 id="signup-lastname"
                 type="text"
                 placeholder={t("form.lastname.placeholder")}
-                value={signUpLastName}
-                onChange={(e) => setSignUpLastName(e.target.value)}
-                className="bg-themeBlack border-themeGray text-white"
+                {...registerSignUp("lastname")}
+                className="bg-themeBlack border-themeGray text-white placeholder:text-themeTextGray focus:border-emerald-500 focus:ring-emerald-500"
               />
+              {signUpErrors.lastname && (
+                <p className="text-sm text-red-500">{signUpErrors.lastname.message}</p>
+              )}
             </div>
           </div>
 
@@ -214,56 +273,76 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
               id="signup-email"
               type="email"
               placeholder={t("form.email.placeholder")}
-              value={signUpEmail}
-              onChange={(e) => setSignUpEmail(e.target.value)}
-              className="bg-themeBlack border-themeGray text-white"
+              {...registerSignUp("email")}
+              className="bg-themeBlack border-themeGray text-white placeholder:text-themeTextGray focus:border-emerald-500 focus:ring-emerald-500"
             />
+            {signUpErrors.email && (
+              <p className="text-sm text-red-500">{signUpErrors.email.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="signup-password" className="text-themeTextWhite">
               {t("form.password.label")}
             </Label>
-            <Input
-              id="signup-password"
-              type="password"
-              placeholder={t("form.password.placeholder")}
-              value={signUpPassword}
-              onChange={(e) => setSignUpPassword(e.target.value)}
-              className="bg-themeBlack border-themeGray text-white"
-            />
+            <div className="relative">
+              <Input
+                id="signup-password"
+                type={showSignUpPassword ? "text" : "password"}
+                placeholder={t("form.password.placeholder")}
+                {...registerSignUp("password")}
+                className="bg-themeBlack border-themeGray text-white placeholder:text-themeTextGray focus:border-emerald-500 focus:ring-emerald-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-themeTextGray hover:text-white transition-colors"
+              >
+                {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            {signUpErrors.password && (
+              <p className="text-sm text-red-500">{signUpErrors.password.message}</p>
+            )}
           </div>
 
           <Button
-            onClick={handleSignUp}
-            disabled={loading}
-            className="w-full rounded-2xl"
+            type="submit"
+            disabled={isSignUpPending}
+            className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
           >
-            {loading ? (
+            {isSignUpPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               t("buttons.signUpWithEmail")
             )}
           </Button>
-        </div>
+        </form>
 
-        <div className="relative my-6">
+        <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
             <Separator className="bg-themeGray" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[#1A1A1D] px-3 text-themeTextGray">
+            <span className="bg-themeGray/50 px-3 text-themeTextGray">
               {t("separator.orContinueWith")}
             </span>
           </div>
         </div>
 
         <Button
-          onClick={handleGoogleSignIn}
-          variant="outline"
-          className="w-full rounded-2xl flex gap-3 bg-themeBlack border-themeGray text-white hover:bg-themeGray/20"
+          type="button"
+          onClick={() => signInWithGoogle()}
+          disabled={isGooglePending}
+          className="w-full rounded-xl flex gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium border border-gray-300 shadow-sm transition-all hover:shadow-md"
         >
-          <Google />
+          {isGooglePending ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <div className="bg-white p-1 rounded-full">
+              <Google />
+            </div>
+          )}
           {t("google.signUpButton")}
         </Button>
       </TabsContent>

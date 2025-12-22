@@ -20,6 +20,16 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
     maxPasswordLength: 128,
+    sendResetPassword: async ({ user, url }) => {
+      // TODO: Implement email sending with your preferred email service
+      // Example with Resend, SendGrid, or any email provider:
+      // await sendEmail({
+      //   to: user.email,
+      //   subject: "Reset your password",
+      //   text: `Click the link to reset your password: ${url}`,
+      // })
+      console.log(`Password reset requested for ${user.email}: ${url}`)
+    },
   },
   socialProviders: {
     google: {

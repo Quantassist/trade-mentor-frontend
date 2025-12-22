@@ -5,8 +5,10 @@ import { JoinGroupPaymentForm } from "@/components/global/join-group"
 import { StripeElements } from "@/components/global/stripe/elements"
 import { Button } from "@/components/ui/button"
 import { useActiveGroupSubscription, useJoinFree } from "@/hooks/payment"
-import { Link } from "@/i18n/navigation"
+import { Link, useRouter } from "@/i18n/navigation"
+import { useSession } from "@/lib/auth-client"
 import { ArrowRight, Loader2, Settings } from "lucide-react"
+import { usePathname } from "next/navigation"
 import { useState } from "react"
 
 type Props = {
@@ -20,9 +22,20 @@ export const JoinButton = ({ groupid, owner, isMember, hideGoToFeed }: Props) =>
   const { data } = useActiveGroupSubscription(groupid)
   const { onJoinFreeGroup } = useJoinFree(groupid)
   const [loading, setLoading] = useState(false)
+  const { data: session } = useSession()
+  const router = useRouter()
+  const pathname = usePathname()
 
   const handleJoin = async () => {
     if (loading) return
+    
+    // If user is not logged in, redirect to sign-in with return URL
+    if (!session?.user) {
+      const returnUrl = encodeURIComponent(pathname)
+      router.push(`/sign-in?returnUrl=${returnUrl}`)
+      return
+    }
+    
     try {
       setLoading(true)
       await onJoinFreeGroup()

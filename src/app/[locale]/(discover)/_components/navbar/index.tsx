@@ -2,6 +2,7 @@ import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetUserGroups } from "@/actions/groups"
 import { GlassSheet } from "@/components/global/glass-sheet"
 import { LocaleSwitcher } from "@/components/global/locale-switcher"
+import { ThemeSwitcher } from "@/components/global/theme-switcher"
 import { UserWidget } from "@/components/global/user-widget"
 import { Button } from "@/components/ui/button"
 import { CheckBadge, Logout } from "@/icons"
@@ -43,6 +44,7 @@ export const Navbar = async () => {
             Create Group
           </Button>
         </Link>
+        <ThemeSwitcher />
         <LocaleSwitcher />
         {user.status === 200 ? (
           <UserWidget image={user.image!} />

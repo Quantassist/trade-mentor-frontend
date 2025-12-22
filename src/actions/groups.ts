@@ -528,6 +528,42 @@ export const onUpdateGroupGallery = async (
   }
 }
 
+export const onDeleteGroupGalleryItem = async (
+  groupid: string,
+  mediaUrl: string,
+) => {
+  try {
+    const group = await client.group.findUnique({
+      where: {
+        id: groupid,
+      },
+      select: {
+        gallery: true,
+      },
+    })
+
+    if (!group) {
+      return { status: 404, message: "Group not found" }
+    }
+
+    const updatedGallery = group.gallery.filter((item) => item !== mediaUrl)
+
+    await client.group.update({
+      where: {
+        id: groupid,
+      },
+      data: {
+        gallery: updatedGallery,
+      },
+    })
+
+    revalidatePath(`/about/${groupid}`)
+    return { status: 200, message: "Gallery item deleted successfully" }
+  } catch (error) {
+    return { status: 400, message: "Failed to delete gallery item" }
+  }
+}
+
 export const onCreateNewChannel = async (
   groupid: string,
   data: {
