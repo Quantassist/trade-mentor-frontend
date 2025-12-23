@@ -2,66 +2,54 @@
 import { InfiniteScrollObserver } from "@/components/global/infinite-scroll"
 import { useChannelPage } from "@/hooks/channels"
 import { PaginatedPosts } from "../paginated-posts"
-import { PostCard } from "./post-card"
+import { PostCardWithClaps } from "./post-card-with-claps"
+
 type PostFeedProps = {
   channelid: string
   userid: string
   locale?: string
 }
 
+export type PostWithClaps = {
+  id: string
+  title: string
+  htmlContent: string | null
+  jsonContent: string | null
+  content: string
+  authorId: string
+  channelId: string
+  claps: {
+    id: string
+    userId: string
+    count: number
+  }[]
+  channel: {
+    name: string
+  }
+  _count: {
+    comments: number
+    claps: number
+  }
+  author: {
+    firstname: string
+    lastname: string
+    image: string | null
+  }
+}
+
 export const PostFeed = ({ channelid, userid, locale }: PostFeedProps) => {
   const { data } = useChannelPage(channelid, locale)
-  const { posts } = data as {
-    posts: ({
-      likes: {
-        id: string
-        userId: string
-      }[]
-      channel: {
-        name: string
-      }
-      _count: {
-        comments: number
-        likes: number
-      }
-      author: {
-        firstname: string
-        lastname: string
-        image: string | null
-      }
-    } & {
-      id: string
-      title: string
-      htmlContent: string | null
-      jsonContent: string | null
-      content: string
-      authorId: string
-      channelId: string
-    })[]
-  }
+  const { posts } = data as { posts: PostWithClaps[] }
+
   return posts && posts.length > 0 ? (
     <>
-      {posts.map((post) => {
-        const likedByMe = post.likes.length > 0
-        return (
-          <PostCard
-            key={post.id}
-            postid={post.id}
-            channelname={post.channel.name!}
-            title={post.title!}
-            html={post.htmlContent!}
-            username={post.author.firstname + post.author.lastname}
-            userimage={post.author.image!}
-            likes={post._count.likes}
-            comments={post._count.comments}
-            likedByMe={likedByMe}
-            isAuthor={post.authorId === userid}
-            initialHtml={post.htmlContent}
-            initialJson={post.jsonContent}
-            initialContent={post.content}
-          />
-        )
-      })}
+      {posts.map((post) => (
+        <PostCardWithClaps
+          key={post.id}
+          post={post}
+          userid={userid}
+        />
+      ))}
       <InfiniteScrollObserver
         action="POSTS"
         loading="POST"

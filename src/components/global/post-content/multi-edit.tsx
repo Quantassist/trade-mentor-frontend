@@ -1,11 +1,11 @@
 "use client"
+import BlockTextEditor from "@/components/global/rich-text-editor"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import BlockTextEditor from "@/components/global/rich-text-editor"
-import { locales, defaultLocale } from "@/i18n/config"
+import { useEditChannelPostMulti } from "@/hooks/channels"
+import { defaultLocale, locales } from "@/i18n/config"
 import { JSONContent } from "novel"
 import React, { useEffect, useState } from "react"
-import { useEditChannelPostMulti } from "@/hooks/channels"
 
 export type LocalePayload = {
   locale: string
@@ -67,6 +67,7 @@ export const MultiPostEditContent = ({ postid, formId }: MultiPostEditContentPro
               onChange={(e) => setTitles((prev) => ({ ...prev, [l]: e.target.value }))}
             />
             <BlockTextEditor
+              key={`editor-${l}-${isLoading}`}
               errors={errors as any}
               name={`jsoncontent-${l}`}
               min={0}

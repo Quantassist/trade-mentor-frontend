@@ -2,23 +2,24 @@ import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetPostComments, onGetPostInfo } from "@/actions/groups"
 import { PostCommentForm } from "@/components/form/post-comments"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
+import { getQueryClient } from "@/lib/get-query-client"
 import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
+    HydrationBoundary,
+    dehydrate,
 } from "@tanstack/react-query"
 import { PostComments } from "./_components/comments"
+import { PostHeader } from "./_components/post-header"
 import PostInfo from "./_components/post-info"
 
 const PostPage = async ({
   params,
 }: {
-  params: Promise<{ postid: string; groupid: string; locale: string }>
+  params: Promise<{ postid: string; groupid: string; channelid: string; locale: string }>
 }) => {
-  const { postid, groupid, locale } = await params
-  const client = new QueryClient()
+  const { postid, groupid, channelid, locale } = await params
+  const client = getQueryClient()
 
-  const userPromise = onAuthenticatedUser()
+  const user = await onAuthenticatedUser()
 
   await Promise.allSettled([
     client.prefetchQuery({
@@ -28,29 +29,36 @@ const PostPage = async ({
       gcTime: 300000,
     }),
     client.prefetchQuery({
-      queryKey: ["post-comments", postid],
-      queryFn: () => onGetPostComments(postid),
+      queryKey: ["post-comments", postid, user.id],
+      queryFn: () => onGetPostComments(postid, user.id),
       staleTime: 60000,
       gcTime: 300000,
     }),
   ])
 
-  const user = await userPromise
-
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <div className="grid grid-cols-4 px-5 py-5 gap-x-10">
-        <div className="col-span-4 lg:col-span-3">
-          <PostInfo id={postid} locale={locale} />
-          <PostCommentForm
-            username={user.username!}
-            postid={postid}
-            image={user.image!}
-          />
-          <PostComments postid={postid} />
+      <div className="flex justify-center w-full min-h-[calc(100dvh-var(--group-navbar-h,5rem))]">
+        {/* Main content area - fixed width to match feed */}
+        <div className="flex-1 max-w-[600px] border-x border-themeGray/30">
+          <PostHeader channelId={channelid} groupId={groupid} />
+          <div className="py-4 px-3">
+            <PostInfo id={postid} userid={user.id!} locale={locale} />
+            <div className="mt-4">
+              <PostCommentForm
+                username={user.username!}
+                postid={postid}
+                image={user.image!}
+              />
+            </div>
+            <PostComments postid={postid} userid={user.id!} />
+          </div>
         </div>
-        <div className="col-span-1 hidden lg:inline relative">
-          <GroupSideWidget groupid={groupid} light />
+        {/* Sidebar - consistent width */}
+        <div className="hidden lg:block w-[350px] flex-shrink-0 pt-4 pl-4 pr-2">
+          <div className="sticky top-4">
+            <GroupSideWidget groupid={groupid} light />
+          </div>
         </div>
       </div>
     </HydrationBoundary>

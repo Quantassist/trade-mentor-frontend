@@ -1,38 +1,34 @@
 "use client"
 import {
-    onCreateChannelPost,
-    onCreateChannelPostMulti,
-    onCreateCommentReply,
-    onCreateNewComment,
-    onDeleteChannel,
-    onGetChannelInfo,
-    onGetPostAllLocales,
-    onLikeChannelPost,
-    onUpdateChannelInfo,
-    onUpdateChannelPostMulti,
+  onClapComment,
+  onCreateChannelPost,
+  onCreateChannelPostMulti,
+  onCreateCommentReply,
+  onCreateNewComment,
+  onDeleteChannel,
+  onUpdateChannelInfo,
+  onUpdateChannelPostMulti
 } from "@/actions/channel"
 import {
-    onDeletePost,
-    onGetCommentReplies,
-    onGetPostComments,
-    onGetPostInfo,
-    onUpdatePost,
+  onDeletePost,
+  onUpdatePost,
 } from "@/actions/groups"
 import { CreateCommentSchema } from "@/components/form/post-comments/schema"
 import type { LocalePayload } from "@/components/global/post-content/multi"
 import { CreateChannelPostSchema, MultiChannelPostSchema } from "@/components/global/post-content/schema"
 import { defaultLocale, locales } from "@/i18n/config"
+import { api } from "@/lib/api"
 import { onRemoveItem } from "@/redux/slices/infinite-scroll-slice"
 import type { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
-    useMutation,
-    useMutationState,
-    useQuery,
-    useQueryClient,
+  useMutation,
+  useMutationState,
+  useQuery,
+  useQueryClient,
 } from "@tanstack/react-query"
 import { JSONContent } from "novel"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useDispatch } from "react-redux"
 import { toast } from "sonner"
@@ -137,7 +133,7 @@ export const useChannelInfo = () => {
 export const useChannelPage = (channelid: string, locale?: string) => {
   const { data } = useQuery({
     queryKey: ["channel-info", channelid, locale],
-    queryFn: () => onGetChannelInfo(channelid, locale),
+    queryFn: () => api.channels.getInfo(channelid, locale),
   })
 
   const mutation = useMutationState({
@@ -372,7 +368,7 @@ export const useCreateChannelPostMulti = (channelid: string) => {
 export const useGetPostAllLocales = (postid: string) => {
   const { data } = useQuery({
     queryKey: ["post-all-locales", postid],
-    queryFn: () => onGetPostAllLocales(postid),
+    queryFn: () => api.posts.getAllLocales(postid),
   })
   return { data }
 }
@@ -385,7 +381,7 @@ export const useEditChannelPostMulti = (postid: string) => {
 
   const { data } = useQuery({
     queryKey: ["post-all-locales", postid],
-    queryFn: () => onGetPostAllLocales(postid),
+    queryFn: () => api.posts.getAllLocales(postid),
   })
 
   useEffect(() => {
@@ -490,36 +486,11 @@ export const useEditChannelPostMulti = (postid: string) => {
   }
 }
 
-export const useLikeChannelPost = (postid: string) => {
-  const client = useQueryClient()
-  const { mutate, variables, isPending } = useMutation({
-    mutationFn: () => onLikeChannelPost(postid),
-    onSuccess: (data) => {
-      return toast(data.status !== 200 ? "Error" : "Success", {
-        description: data.message,
-      })
-    },
-    onSettled: async () => {
-      await client.invalidateQueries({
-        queryKey: ["unique-post"],
-      })
-
-      return await client.invalidateQueries({
-        queryKey: ["channel-info"],
-      })
-    },
-  })
-
-  return {
-    mutate,
-    isPending,
-  }
-}
 
 export const useGetPost = (postid: string, locale?: string) => {
   const { data } = useQuery({
     queryKey: ["unique-post", postid, locale],
-    queryFn: () => onGetPostInfo(postid, locale),
+    queryFn: () => api.posts.getInfo(postid, locale),
   })
 
   return { data }
@@ -571,13 +542,14 @@ export const usePostComment = (postid: string) => {
   }
 }
 
-export const useComments = (postid: string) => {
-  const { data } = useQuery({
+export const useComments = (postid: string, userId?: string, enabled: boolean = true) => {
+  const { data, isLoading } = useQuery({
     queryKey: ["post-comments", postid],
-    queryFn: () => onGetPostComments(postid),
+    queryFn: () => api.posts.getComments(postid, userId),
+    enabled,
   })
 
-  return { data }
+  return { data, isLoading }
 }
 
 export const useReply = () => {
@@ -606,14 +578,15 @@ export const useReply = () => {
 export const useGetReplies = (commentid: string) => {
   const { isFetching, data } = useQuery({
     queryKey: ["comment-replies", commentid],
-    queryFn: () => onGetCommentReplies(commentid),
+    queryFn: () => api.comments.getReplies(commentid),
     enabled: Boolean(commentid),
   })
 
   return { isFetching, data }
 }
 
-export const usePostReply = (postid: string, commentid: string) => {
+export const usePostReply = (postid: string, commentid: string, userid?: string) => {
+  const client = useQueryClient()
   const { register, handleSubmit, reset } = useForm<
     z.infer<typeof CreateCommentSchema>
   >({
@@ -630,6 +603,13 @@ export const usePostReply = (postid: string, commentid: string) => {
       return toast(data?.status !== 200 ? "Error" : "Success", {
         description: data?.message,
       })
+    },
+    onSettled: async () => {
+      // Invalidate both the replies for this comment and the post comments
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ["comment-replies", commentid] }),
+        client.invalidateQueries({ queryKey: ["post-comments", postid, userid] }),
+      ])
     },
   })
 
@@ -770,4 +750,114 @@ export const useDeletePost = (postid: string) => {
     },
   })
   return { mutate, isPending }
+}
+
+export const useCommentClaps = (commentId: string, initialClaps: number = 0, initialMyClaps: number = 0) => {
+  const [totalClaps, setTotalClaps] = useState<number>(initialClaps)
+  const [myClaps, setMyClaps] = useState<number>(initialMyClaps)
+  const [showConfetti, setShowConfetti] = useState<boolean>(false)
+  const [showMyClaps, setShowMyClaps] = useState<boolean>(false)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const pendingClapsRef = useRef<number>(0)
+  const myClapsHideTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const lastSyncedClapsRef = useRef<{ total: number; my: number }>({ total: initialClaps, my: initialMyClaps })
+
+  // Sync with initial values when they change (only if no pending claps)
+  useEffect(() => {
+    if (pendingClapsRef.current === 0) {
+      setTotalClaps(initialClaps)
+      setMyClaps(initialMyClaps)
+      lastSyncedClapsRef.current = { total: initialClaps, my: initialMyClaps }
+    }
+  }, [initialClaps, initialMyClaps])
+
+  const queryClient = useQueryClient()
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["clap-comment", commentId],
+    mutationFn: async (clapCount: number) => {
+      const response = await onClapComment(commentId, clapCount)
+      if (response.status !== 200) {
+        throw new Error(response.message)
+      }
+      return response
+    },
+    onSuccess: () => {
+      // After successful mutation, update the synced refs
+      lastSyncedClapsRef.current = { total: totalClaps, my: myClaps }
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["post-comments"],
+      })
+    },
+  })
+
+  const handleClap = useCallback(() => {
+    // Optimistic update
+    setTotalClaps((prev) => prev + 1)
+    setMyClaps((prev) => prev + 1)
+    pendingClapsRef.current += 1
+    setShowConfetti(true)
+    setShowMyClaps(true)
+
+    // Hide confetti after animation
+    setTimeout(() => setShowConfetti(false), 700)
+
+    // Reset the hide timer for myClaps badge
+    if (myClapsHideTimerRef.current) {
+      clearTimeout(myClapsHideTimerRef.current)
+    }
+    myClapsHideTimerRef.current = setTimeout(() => {
+      setShowMyClaps(false)
+    }, 2000)
+
+    // Debounce the actual API call
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      if (pendingClapsRef.current > 0) {
+        mutate(pendingClapsRef.current)
+        pendingClapsRef.current = 0
+      }
+    }, 500)
+  }, [mutate, totalClaps, myClaps])
+
+  // Flush pending claps before unmount or page unload
+  useEffect(() => {
+    const flushPendingClaps = () => {
+      if (pendingClapsRef.current > 0) {
+        // Use sendBeacon for reliable delivery on page unload
+        const data = JSON.stringify({ commentId, count: pendingClapsRef.current })
+        navigator.sendBeacon?.('/api/clap-comment', data)
+      }
+    }
+
+    window.addEventListener('beforeunload', flushPendingClaps)
+    
+    return () => {
+      window.removeEventListener('beforeunload', flushPendingClaps)
+      if (myClapsHideTimerRef.current) {
+        clearTimeout(myClapsHideTimerRef.current)
+      }
+      // Also flush on component unmount
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+      if (pendingClapsRef.current > 0) {
+        mutate(pendingClapsRef.current)
+        pendingClapsRef.current = 0
+      }
+    }
+  }, [commentId, mutate])
+
+  return {
+    totalClaps,
+    myClaps,
+    handleClap,
+    showConfetti,
+    showMyClaps,
+    isPending,
+  }
 }

@@ -1,9 +1,9 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetGroupInfo } from "@/actions/groups"
 import { onGetActiveSubscription } from "@/actions/payments"
+import { getQueryClient } from "@/lib/get-query-client"
 import {
     HydrationBoundary,
-    QueryClient,
     dehydrate,
 } from "@tanstack/react-query"
 import { MemberAboutGroup } from "./_components/member-about"
@@ -13,7 +13,7 @@ type AboutPageProps = {
 }
 
 const GroupAboutPage = async ({ params }: AboutPageProps) => {
-  const query = new QueryClient()
+  const query = getQueryClient()
   const { groupid, locale } = await params
 
   await query.prefetchQuery({

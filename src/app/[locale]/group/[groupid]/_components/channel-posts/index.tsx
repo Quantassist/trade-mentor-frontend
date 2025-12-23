@@ -1,8 +1,8 @@
 "use client"
 
 import { Skeleton } from "@/components/global/skeleton"
+import { useSessionContext } from "@/components/providers/session-provider"
 import { useChannelPosts } from "@/hooks/groups"
-import { useSession } from "@/lib/auth-client"
 import { FeedCard } from "../feed-card"
 
 const ChannelPosts = ({ slug }: { slug: string }) => {
@@ -22,7 +22,7 @@ const ChannelPosts = ({ slug }: { slug: string }) => {
     },
   }
 
-  const { data: session } = useSession()
+  const { session } = useSessionContext()
   const nameParts = session?.user?.name?.split(" ") || []
 
   return (

@@ -683,10 +683,11 @@ export const inGetChannelPosts = cache(async (channelId: string, locale?: string
             lastname: true,
           },
         },
-        likes: {
+        claps: {
           select: {
             id: true,
             userId: true,
+            count: true,
           },
         },
       },
@@ -757,17 +758,14 @@ export const onGetPostInfo = cache(async (postid: string, locale?: string) => {
         },
         _count: {
           select: {
-            likes: true,
             comments: true,
           },
         },
-        likes: {
-          where: {
-            userId: user.id!,
-          },
+        claps: {
           select: {
             userId: true,
             id: true,
+            count: true,
           },
         },
         comments: true,
@@ -802,7 +800,7 @@ export const onGetPostInfo = cache(async (postid: string, locale?: string) => {
   }
 })
 
-export const onGetPostComments = cache(async (postid: string) => {
+export const onGetPostComments = cache(async (postid: string, userId?: string) => {
   try {
     const comments = await client.comment.findMany({
       where: {
@@ -814,6 +812,9 @@ export const onGetPostComments = cache(async (postid: string) => {
       },
       include: {
         user: true,
+        claps: {
+          select: { id: true, count: true, userId: true },
+        },
         _count: {
           select: {
             reply: true,
@@ -886,33 +887,35 @@ export const onDeletePost = async (postid: string) => {
   }
 }
 
-export const onLikePress = async (postid: string, userid: string) => {
+export const onClapPress = async (postid: string, userid: string, clapCount: number) => {
   try {
-    const like = await client.like.findFirst({
+    const existing = await client.clap.findUnique({
       where: {
-        postId: postid,
-        userId: userid,
-      },
-    })
-
-    if (like) {
-      await client.like.delete({
-        where: {
-          id: like.id,
-        },
-      })
-      return { status: 200, message: "Like removed" }
-    } else {
-      await client.like.create({
-        data: {
+        postId_userId: {
           postId: postid,
           userId: userid,
         },
+      },
+    })
+
+    if (existing) {
+      await client.clap.update({
+        where: { id: existing.id },
+        data: { count: { increment: clapCount } },
       })
-      return { status: 200, message: "Like added" }
+    } else {
+      await client.clap.create({
+        data: {
+          postId: postid,
+          userId: userid,
+          count: clapCount,
+        },
+      })
     }
+
+    return { status: 200, message: "Clapped!", newClaps: clapCount }
   } catch (error) {
-    console.error("Error pressing like:", error)
+    console.error("Error clapping:", error)
     return { status: 500, message: "Internal server error" }
   }
 }
@@ -979,17 +982,18 @@ export const onGetPaginatedPosts = async (
           : false,
         _count: {
           select: {
-            likes: true,
+            claps: true,
             comments: true,
           },
         },
-        likes: {
+        claps: {
           where: {
             userId: user.id!,
           },
           select: {
             id: true,
             userId: true,
+            count: true,
           },
         },
       },

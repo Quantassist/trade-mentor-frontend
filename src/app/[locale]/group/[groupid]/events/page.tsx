@@ -1,7 +1,7 @@
 import { onAuthenticatedUser, onGetUserGroupRole } from "@/actions/auth"
+import { getQueryClient } from "@/lib/get-query-client"
 import {
     HydrationBoundary,
-    QueryClient,
     dehydrate,
 } from "@tanstack/react-query"
 import { EventsContent } from "./_components/events-content"
@@ -11,7 +11,7 @@ type EventsPageProps = {
 }
 
 const EventsPage = async ({ params }: EventsPageProps) => {
-  const query = new QueryClient()
+  const query = getQueryClient()
   const { groupid } = await params
   const user = await onAuthenticatedUser()
   const roleData = await onGetUserGroupRole(groupid)

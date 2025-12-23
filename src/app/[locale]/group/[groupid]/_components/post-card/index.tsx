@@ -2,9 +2,10 @@
 
 import { HtmlParser } from "@/components/global/html-parser"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { usePostCard } from "@/hooks/groups"
-import { Comment, LikeIcon } from "@/icons"
+import { usePostClaps } from "@/hooks/groups"
+import { Comment } from "@/icons"
 import { formatDistanceToNow } from "date-fns"
+import { ClapButton } from "../../feed/[channelid]/_components/post-feed/clap-button"
 
 type User = {
   id: string
@@ -18,9 +19,10 @@ type Channel = {
   name: string
 }
 
-type Like = {
+type Clap = {
   id: string
   userId: string
+  count: number
 }
 
 type Comment = {
@@ -37,7 +39,7 @@ export type Post = {
   content?: string
   htmlContent: string
   author: User
-  likes?: Like[]
+  claps?: Clap[]
   comments?: Comment[]
   channel: Channel
 }
@@ -49,7 +51,7 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post, feed, userId }: PostCardProps) => {
-  const { liked, handleLikePress, likes } = usePostCard(post, userId)
+  const { totalClaps, myClaps, handleClap, showConfetti } = usePostClaps(post, userId)
 
   return (
     <div className="text-left w-full max-w-xl pt-4 bg-[#1C1C1E] text-white rounded-xl border border-[#27272A]">
@@ -76,37 +78,20 @@ const PostCard = ({ post, feed, userId }: PostCardProps) => {
       >
         <HtmlParser html={post.htmlContent ?? ""} />
       </div>
-      <div className="flex items-center justify-between border-t border-[#27272A] px-5 py-1">
+      <div className="flex items-center justify-between border-t border-[#27272A] px-5 py-2">
         <div className="flex gap-5 text-[#757272] text-sm">
-          <span
-            className="flex gap-1 justify-center items-center hover:bg-themeBlack p-1 rounded-full px-3"
-            onClick={(e) => {
-              e.stopPropagation()
-              handleLikePress()
-            }}
-          >
-            <LikeIcon color={liked ? "" : "none"} />
-            {likes}
-          </span>
+          <ClapButton
+            totalClaps={totalClaps}
+            myClaps={myClaps}
+            onClap={handleClap}
+            showConfetti={showConfetti}
+          />
 
           <span className="flex gap-1 justify-center items-center p-1">
             <Comment />
-            {/* {post.comments.length} */}
-            21
+            {post.comments?.length ?? 0}
           </span>
           <div className="flex -space-x-2 p-1">
-            {/* {post.comments.slice(0, 4).map((comment, index) => (
-                            <Avatar
-                            key={index}
-                            className="w-5 h-5 border border-[#505050]"
-                            >
-                            <AvatarImage src={comment.user.avatar} />
-                            <AvatarFallback className="text-xs">
-                            {comment.user.firstname[0]}
-                            </AvatarFallback>
-                            </Avatar>
-                            ))} */}
-            {/* place holder code for now  */}
             {[1, 2, 3, 4].map((index) => (
               <Avatar key={index} className="w-5 h-5 border border-[#505050]">
                 <AvatarFallback className="text-xs">U</AvatarFallback>

@@ -1,8 +1,8 @@
 import { onGetExploreGroup } from "@/actions/groups"
+import { getQueryClient } from "@/lib/get-query-client"
 import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
+    dehydrate,
+    HydrationBoundary,
 } from "@tanstack/react-query"
 import { ExplorePageContent } from "../_components/explore-content"
 
@@ -11,7 +11,7 @@ const ExploreCategoryPage = async ({
 }: {
   params: Promise<{ category: string }>
 }) => {
-  const query = new QueryClient()
+  const query = getQueryClient()
   const { category } = await params
 
   await query.prefetchQuery({

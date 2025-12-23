@@ -15,6 +15,11 @@ const nextConfig = {
       },
     ],
   },
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
 };
 
 // Point to our request-scoped i18n config

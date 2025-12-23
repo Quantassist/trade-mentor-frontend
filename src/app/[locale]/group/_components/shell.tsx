@@ -33,7 +33,7 @@ export function GroupShell({
       >
         <ClientNavbarWrapper>{navbar}</ClientNavbarWrapper>
         {/* Mobile channels bar under navbar */}
-        <div className="overflow-x-hidden">
+        <div>
           {/* <MobileChannelBar groupid={groupid} userid={userid} /> */}
           {children}
         </div>

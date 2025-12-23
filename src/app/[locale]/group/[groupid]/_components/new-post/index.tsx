@@ -1,19 +1,19 @@
 "use client"
 
 import NewPostForm from "@/components/form/new-post-form"
+import { useSessionContext } from "@/components/providers/session-provider"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTrigger,
 } from "@/components/ui/dialog"
-import { useSession } from "@/lib/auth-client"
 import { useState } from "react"
 
 const NewPost = (groupid: string) => {
-  const { data: session } = useSession()
+  const { session } = useSessionContext()
   const userDetails = {
     name: session?.user?.name || "User",
     imageUrl: session?.user?.image || "",

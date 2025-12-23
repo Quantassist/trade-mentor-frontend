@@ -1,18 +1,11 @@
 "use client"
 import {
-    inGetChannelPosts,
-    onAddCustomDomain,
-    onCreateNewChannel,
-    onDeleteGroupGalleryItem,
-    onGetAllGroupMembers,
-    onGetDomainConfig,
-    onGetExploreGroup,
-    onGetGroupInfo,
-    onGetPostInfo,
-    onLikePress,
-    onSearchGroups,
-    onUpDateGroupSettings,
-    onUpdateGroupGallery,
+  onAddCustomDomain,
+  onClapPress,
+  onCreateNewChannel,
+  onDeleteGroupGalleryItem,
+  onUpDateGroupSettings,
+  onUpdateGroupGallery
 } from "@/actions/groups"
 import { GroupStateProps } from "@/app/[locale]/(discover)/explore/_components/group-list"
 import { Post } from "@/app/[locale]/group/[groupid]/_components/post-card"
@@ -22,11 +15,12 @@ import { UpdateGallerySchema } from "@/components/form/media-gallery/schema"
 import { NewPostSchema } from "@/components/form/new-post-form/schema"
 import { IGroupInfo, IGroups } from "@/components/global/sidebar"
 import { usePathname } from "@/i18n/navigation"
+import { api } from "@/lib/api"
 import { useSession } from "@/lib/auth-client"
 import { supabaseClient, validateURLString } from "@/lib/utils"
 import {
-    onClearList,
-    onInfiniteScroll,
+  onClearList,
+  onInfiniteScroll,
 } from "@/redux/slices/infinite-scroll-slice"
 import { onOnline } from "@/redux/slices/online-member-slice"
 import { onClearSearch, onSearch } from "@/redux/slices/search-slice"
@@ -34,23 +28,29 @@ import { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { GroupRole } from "@prisma/client"
 import {
-    QueryClient,
-    useMutation,
-    useQuery,
-    useQueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient
 } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
 import { useLocale } from "next-intl"
 import { JSONContent } from "novel"
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useDispatch } from "react-redux"
 import { toast } from "sonner"
 import { z } from "zod"
 
-const upload = new UploadClient({
-  publicKey: process.env.NEXT_PUBLIC_UPLOAD_CARE_PUBLIC_KEY as string,
-})
+// Lazy-initialized UploadClient to avoid module-level instantiation
+let _uploadClient: UploadClient | null = null
+const getUploadClient = () => {
+  if (!_uploadClient) {
+    _uploadClient = new UploadClient({
+      publicKey: process.env.NEXT_PUBLIC_UPLOAD_CARE_PUBLIC_KEY as string,
+    })
+  }
+  return _uploadClient
+}
 
 export const useGroupChatOnline = (userid: string) => {
   const dispatch: AppDispatch = useDispatch()
@@ -109,7 +109,7 @@ export const useExploreSlider = (query: string, paginate: number) => {
   const dispatch: AppDispatch = useDispatch()
   const { data, refetch, isFetching, isFetched } = useQuery({
     queryKey: ["fetch-group-slides"],
-    queryFn: () => onGetExploreGroup(query, paginate | 0),
+    queryFn: () => api.groups.explore(query, paginate | 0),
     enabled: false,
   })
 
@@ -147,7 +147,7 @@ export const useSearch = (search: "GROUPS" | "POSTS") => {
     queryKey: ["search-data", debounce],
     queryFn: async ({ queryKey }) => {
       if (search === "GROUPS") {
-        const groups = await onSearchGroups(search, queryKey[1])
+        const groups = await api.groups.search(search, queryKey[1])
         return groups
       }
     },
@@ -187,7 +187,7 @@ export const useGroupSettings = (groupid: string) => {
   const locale = useLocale()
   const { data } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
+    queryFn: () => api.groups.getInfo(groupid, locale),
   })
 
   const jsonContent = (() => {
@@ -256,7 +256,7 @@ export const useGroupSettings = (groupid: string) => {
     mutationFn: async (values: z.infer<typeof GroupSettingsSchema>) => {
       console.log(values)
       if (values.thumbnail && values.thumbnail.length > 0) {
-        const uploaded = await upload.uploadFile(values.thumbnail[0])
+        const uploaded = await getUploadClient().uploadFile(values.thumbnail[0])
         const updated = await onUpDateGroupSettings(
           groupid,
           "IMAGE",
@@ -271,7 +271,7 @@ export const useGroupSettings = (groupid: string) => {
       }
       if (values.icon && values.icon.length > 0) {
         console.log("icon")
-        const uploaded = await upload.uploadFile(values.icon[0])
+        const uploaded = await getUploadClient().uploadFile(values.icon[0])
         const updated = await onUpDateGroupSettings(
           groupid,
           "ICON",
@@ -365,7 +365,7 @@ export const useGroupSettings = (groupid: string) => {
 export const useGroupInfo = (groupid?: string, locale?: string) => {
   const { data, isLoading } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid as string, locale),
+    queryFn: () => api.groups.getInfo(groupid as string, locale),
     enabled: !!groupid,
   })
 
@@ -596,7 +596,7 @@ export const useMediaGallery = (groupid: string) => {
       if (values.image && values.image.length) {
         let count = 0
         while (count < values.image.length) {
-          const uploaded = await upload.uploadFile(values.image[count])
+          const uploaded = await getUploadClient().uploadFile(values.image[count])
           if (uploaded) {
             const update = await onUpdateGroupGallery(groupid, uploaded.uuid)
             if (update?.status !== 200) {
@@ -667,15 +667,17 @@ export const useDeleteGalleryItem = (groupid: string) => {
 export const useSideBar = (groupid: string) => {
   const { data: groups } = useQuery({
     queryKey: ["user-groups"],
+    queryFn: () => api.groups.getUserGroups(), // Fallback - actual data comes from prefetch in layout
+    staleTime: Infinity, // Rely on prefetched data
   }) as { data: IGroups }
 
   const locale = useLocale()
   const { data: groupInfo } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
+    queryFn: () => api.groups.getInfo(groupid, locale),
   }) as { data: IGroupInfo }
 
-  const client = new QueryClient()
+  const client = useQueryClient()
 
   const { isPending, variables, mutate, isError } = useMutation({
     mutationKey: ["create-channels"],
@@ -726,7 +728,7 @@ export const useNewPostForm = (groupid: string) => {
   const locale = useLocale()
   const { data: groupInfo } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale), // This will be overridden by prefetched data
+    queryFn: () => api.groups.getInfo(groupid, locale), // This will be overridden by prefetched data
   }) as { data: IGroupInfo }
 
   const [channel, setChannel] = useState<ChannelType>(
@@ -848,12 +850,12 @@ export const useChannelPosts = (slug: string) => {
   const locale = useLocale()
   const { data: groupInfo } = useQuery({
     queryKey: ["group-info"],
-    queryFn: () => onGetGroupInfo(""), // This will be overridden by prefetched data
+    queryFn: () => api.groups.getInfo(""), // This will be overridden by prefetched data
   }) as { data: IGroupInfo }
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["channel-posts", slug, locale],
-    queryFn: () => inGetChannelPosts(slug, locale),
+    queryFn: () => api.channels.getPosts(slug, locale),
   })
 
   if (isLoading) {
@@ -912,7 +914,7 @@ export const useSelectSubscription = () => {
 export const useFeedPost = (postid: string) => {
   const { data } = useQuery({
     queryKey: ["post-info"],
-    queryFn: () => onGetPostInfo(postid),
+    queryFn: () => api.posts.getInfo(postid),
   })
 
   const { post, status } = data as {
@@ -923,50 +925,121 @@ export const useFeedPost = (postid: string) => {
   return { post, status }
 }
 
-export const usePostCard = (post: Post, userId: string) => {
-  const [liked, setLiked] = useState<boolean>(
-    post.likes?.find((like) => like.userId == userId) ? true : false,
-  )
-  const [likes, setLikes] = useState<number>(post.likes?.length || 0)
+export const usePostClaps = (post: Post, userId: string) => {
+  // Calculate total claps from all users
+  const initialTotalClaps = post.claps?.reduce((sum, clap) => sum + (clap.count || 0), 0) || 0
+  // Get my claps count
+  const myInitialClaps = post.claps?.find((clap) => clap.userId === userId)?.count || 0
+
+  const [totalClaps, setTotalClaps] = useState<number>(initialTotalClaps)
+  const [myClaps, setMyClaps] = useState<number>(myInitialClaps)
+  const [showConfetti, setShowConfetti] = useState<boolean>(false)
+  const [showMyClaps, setShowMyClaps] = useState<boolean>(false)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const pendingClapsRef = useRef<number>(0)
+  const myClapsHideTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    setLiked(post.likes?.find((like) => like.userId == userId) ? true : false)
-    setLikes(post.likes?.length || 0)
+    // Only sync if no pending claps to avoid race conditions
+    if (pendingClapsRef.current === 0) {
+      const newTotalClaps = post.claps?.reduce((sum, clap) => sum + (clap.count || 0), 0) || 0
+      const newMyClaps = post.claps?.find((clap) => clap.userId === userId)?.count || 0
+      setTotalClaps(newTotalClaps)
+      setMyClaps(newMyClaps)
+    }
   }, [post, userId])
 
-  // invalidate channel-posts
-  const client = useQueryClient()
-  const { mutate } = useMutation({
-    mutationKey: ["like-post"],
-    mutationFn: async (data: { postid: string; userid: string }) => {
-      setLiked(!liked)
-      setLikes(liked ? likes - 1 : likes + 1)
-      const response = await onLikePress(data.postid, data.userid)
-
+  const queryClient = useQueryClient()
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["clap-post", post.id],
+    mutationFn: async (clapCount: number) => {
+      const response = await onClapPress(post.id!, userId, clapCount)
       if (response.status !== 200) {
         throw new Error(response.message)
       }
       return response
     },
     onSettled: async () => {
-      return await client.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: ["channel-posts"],
       })
     },
   })
 
+  const handleClap = useCallback(() => {
+    // Optimistic update
+    setTotalClaps((prev) => prev + 1)
+    setMyClaps((prev) => prev + 1)
+    pendingClapsRef.current += 1
+    setShowConfetti(true)
+    setShowMyClaps(true)
+
+    // Hide confetti after animation
+    setTimeout(() => setShowConfetti(false), 700)
+
+    // Reset the hide timer for myClaps badge
+    if (myClapsHideTimerRef.current) {
+      clearTimeout(myClapsHideTimerRef.current)
+    }
+    myClapsHideTimerRef.current = setTimeout(() => {
+      setShowMyClaps(false)
+    }, 2000)
+
+    // Debounce the actual API call
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      if (pendingClapsRef.current > 0) {
+        mutate(pendingClapsRef.current)
+        pendingClapsRef.current = 0
+      }
+    }, 500)
+  }, [mutate])
+
+  // Flush pending claps before unmount or page unload
+  useEffect(() => {
+    const flushPendingClaps = () => {
+      if (pendingClapsRef.current > 0) {
+        // Use sendBeacon for reliable delivery on page unload
+        const data = JSON.stringify({ postId: post.id, userId, count: pendingClapsRef.current })
+        navigator.sendBeacon?.('/api/clap-post', data)
+      }
+    }
+
+    window.addEventListener('beforeunload', flushPendingClaps)
+    
+    return () => {
+      window.removeEventListener('beforeunload', flushPendingClaps)
+      if (myClapsHideTimerRef.current) {
+        clearTimeout(myClapsHideTimerRef.current)
+      }
+      // Also flush on component unmount
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+      if (pendingClapsRef.current > 0) {
+        mutate(pendingClapsRef.current)
+        pendingClapsRef.current = 0
+      }
+    }
+  }, [post.id, userId, mutate])
+
   return {
-    liked,
-    handleLikePress: () =>
-      post.id && mutate({ postid: post.id, userid: userId }),
-    likes,
+    totalClaps,
+    myClaps,
+    handleClap,
+    showConfetti,
+    showMyClaps,
+    isPending,
   }
 }
 
 export const useGroupChat = (groupid: string) => {
   const { data } = useQuery({
     queryKey: ["member-chats"],
-    queryFn: () => onGetAllGroupMembers(groupid),
+    queryFn: () => api.groups.getMembers(groupid),
   })
 
   const pathname = usePathname()
@@ -988,7 +1061,7 @@ export const useCustomDomain = (groupid: string) => {
 
   const { data } = useQuery({
     queryKey: ["domain-config"],
-    queryFn: () => onGetDomainConfig(groupid),
+    queryFn: () => api.groups.getDomain(groupid),
   })
 
   const { mutate, isPending } = useMutation({

@@ -9,6 +9,7 @@ type PostReplyProps = {
   commentid: string
   username: string
   image: string
+  userid?: string
 }
 
 export const PostReply = ({
@@ -16,10 +17,12 @@ export const PostReply = ({
   commentid,
   username,
   image,
+  userid,
 }: PostReplyProps) => {
   const { register, onCreateReply, variables, isPending } = usePostReply(
     postid,
     commentid,
+    userid,
   )
   return (
     <div className="flex flex-col gap-y-5 w-full">

@@ -1,7 +1,7 @@
 import { onAuthenticatedUser } from "@/actions/auth"
+import { getQueryClient } from "@/lib/get-query-client"
 import {
     HydrationBoundary,
-    QueryClient,
     dehydrate,
 } from "@tanstack/react-query"
 import { LeaderboardContent } from "./_components/leaderboard-content"
@@ -11,7 +11,7 @@ type LeaderboardPageProps = {
 }
 
 const LeaderboardPage = async ({ params }: LeaderboardPageProps) => {
-  const query = new QueryClient()
+  const query = getQueryClient()
   const { groupid } = await params
   const user = await onAuthenticatedUser()
 

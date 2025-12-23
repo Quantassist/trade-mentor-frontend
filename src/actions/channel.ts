@@ -349,17 +349,18 @@ export const onGetChannelInfo = cache(async (channelid: string, locale?: string)
             },
             _count: {
               select: {
-                likes: true,
+                claps: true,
                 comments: true,
               },
             },
-            likes: {
+            claps: {
               where: {
                 userId: user.id,
               },
               select: {
                 id: true,
                 userId: true,
+                count: true,
               },
             },
           },
@@ -442,36 +443,67 @@ export const onCreateChannelPost = async (
   }
 }
 
-export const onLikeChannelPost = async (postid: string) => {
+export const onClapPost = async (postid: string, clapCount: number) => {
   try {
     const user = await onAuthenticatedUser()
 
-    // Toggle like based on current user and post
-    const existing = await client.like.findFirst({
+    // Upsert clap - add to existing count or create new
+    const existing = await client.clap.findUnique({
       where: {
-        postId: postid,
-        userId: user.id!,
+        postId_userId: {
+          postId: postid,
+          userId: user.id!,
+        },
       },
     })
 
     if (existing) {
-      await client.like.delete({
-        where: {
-          id: existing.id,
+      await client.clap.update({
+        where: { id: existing.id },
+        data: { count: { increment: clapCount } },
+      })
+    } else {
+      await client.clap.create({
+        data: {
+          postId: postid,
+          userId: user.id!,
+          count: clapCount,
         },
       })
-      return { status: 200, message: "You unliked this post" }
     }
 
-    await client.like.create({
-      data: {
-        postId: postid,
-        userId: user.id!,
-      },
-    })
-    return { status: 200, message: "You liked this post" }
+    return { status: 200, message: "Clapped!", newClaps: clapCount }
   } catch (error) {
+    console.error("Error clapping post:", error)
     return { status: 400, message: "Oops! something went wrong" }
+  }
+}
+
+export const onGetPostClaps = async (postid: string, userId?: string) => {
+  try {
+    const totalClaps = await client.clap.aggregate({
+      where: { postId: postid },
+      _sum: { count: true },
+    })
+
+    let myClaps = 0
+    if (userId) {
+      const myClap = await client.clap.findUnique({
+        where: {
+          postId_userId: { postId: postid, userId },
+        },
+        select: { count: true },
+      })
+      myClaps = myClap?.count ?? 0
+    }
+
+    return {
+      status: 200,
+      totalClaps: totalClaps._sum.count ?? 0,
+      myClaps,
+    }
+  } catch (error) {
+    return { status: 400, totalClaps: 0, myClaps: 0 }
   }
 }
 
@@ -539,5 +571,68 @@ export const onCreateCommentReply = async (
     return { status: 404, message: "Reply not found!" }
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
+  }
+}
+
+export const onClapComment = async (commentId: string, clapCount: number) => {
+  try {
+    const user = await onAuthenticatedUser()
+
+    const existing = await client.clap.findUnique({
+      where: {
+        commentId_userId: {
+          commentId,
+          userId: user.id!,
+        },
+      },
+    })
+
+    if (existing) {
+      await client.clap.update({
+        where: { id: existing.id },
+        data: { count: { increment: clapCount } },
+      })
+    } else {
+      await client.clap.create({
+        data: {
+          commentId,
+          userId: user.id!,
+          count: clapCount,
+        },
+      })
+    }
+
+    return { status: 200, message: "Clapped!", newClaps: clapCount }
+  } catch (error) {
+    console.error("Error clapping comment:", error)
+    return { status: 400, message: "Oops! something went wrong" }
+  }
+}
+
+export const onGetCommentClaps = async (commentId: string, userId?: string) => {
+  try {
+    const totalClaps = await client.clap.aggregate({
+      where: { commentId },
+      _sum: { count: true },
+    })
+
+    let myClaps = 0
+    if (userId) {
+      const myClap = await client.clap.findUnique({
+        where: {
+          commentId_userId: { commentId, userId },
+        },
+        select: { count: true },
+      })
+      myClaps = myClap?.count ?? 0
+    }
+
+    return {
+      status: 200,
+      totalClaps: totalClaps._sum.count ?? 0,
+      myClaps,
+    }
+  } catch (error) {
+    return { status: 400, totalClaps: 0, myClaps: 0 }
   }
 }

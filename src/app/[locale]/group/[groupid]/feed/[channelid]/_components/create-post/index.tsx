@@ -1,5 +1,5 @@
 "use client"
-import { PostCard } from "../post-feed/post-card"
+import { onGetGroupInfo } from "@/actions/groups"
 import { MultiPostContent } from "@/components/global/post-content/multi"
 import { SimpleModal } from "@/components/global/simple-modal"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription } from "@/components/ui/card"
 import { DialogClose } from "@/components/ui/dialog"
 import { useChannelPage } from "@/hooks/channels"
+import { useQuery } from "@tanstack/react-query"
 import { Upload } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
-import { useQuery } from "@tanstack/react-query"
-import { onGetGroupInfo } from "@/actions/groups"
+import { PostCard } from "../post-feed/post-card"
 
 type Props = {
   userImage: string
@@ -22,7 +22,7 @@ type Props = {
 
 const CreateNewPost = ({ userImage, channelid, username, locale, groupid }: Props) => {
   const { data, mutation } = useChannelPage(channelid, locale)
-  const { name } = data as { name: string }
+  const name = (data as any)?.channel?.name as string | undefined
   const formId = "create-post-form"
   const tr = useTranslations("channel")
   const currentLocale = useLocale()
@@ -114,15 +114,18 @@ const CreateNewPost = ({ userImage, channelid, username, locale, groupid }: Prop
         mutation[0].status === "pending" &&
         mutation[0].state && (
           <PostCard
-            channelname={name}
+            channelname={name || ""}
             userimage={userImage}
             username={username}
             html={mutation[0].state.htmlcontent || ""}
             title={mutation[0].state.title || ""}
-            likes={0}
+            totalClaps={0}
+            myClaps={0}
             comments={0}
             postid={mutation[0].state.postid}
             optimistic
+            onClap={() => {}}
+            showConfetti={false}
           />
         )}
     </>

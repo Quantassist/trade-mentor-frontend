@@ -1,12 +1,13 @@
 import { onGetCourseAbout, onGetCourseModules } from "@/actions/courses"
-import { AboutHeader } from "../../_components/about-header"
-import { AboutMetrics } from "../../_components/about-metrics"
-import { AboutLearn } from "../../_components/about-learn"
-import { AboutModules } from "../../_components/about-modules"
-import { AboutMentor } from "../../_components/about-mentor"
-import { AboutFaq } from "../../_components/about-faq"
+import { getQueryClient } from "@/lib/get-query-client"
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query"
 import { AboutAsideCard } from "../../_components/about-aside-card"
-import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query"
+import { AboutFaq } from "../../_components/about-faq"
+import { AboutHeader } from "../../_components/about-header"
+import { AboutLearn } from "../../_components/about-learn"
+import { AboutMentor } from "../../_components/about-mentor"
+import { AboutMetrics } from "../../_components/about-metrics"
+import { AboutModules } from "../../_components/about-modules"
 
 type PageProps = {
   params: Promise<{ locale: string; groupid: string; courseid: string }>
@@ -15,7 +16,7 @@ type PageProps = {
 export default async function AboutCoursePage({ params }: PageProps) {
   const { locale, groupid, courseid } = await params
 
-  const client = new QueryClient()
+  const client = getQueryClient()
 
   const [aboutSettle, modulesSettle] = await Promise.allSettled([
     client.prefetchQuery({

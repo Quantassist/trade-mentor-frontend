@@ -1,13 +1,13 @@
 import { onGetExploreGroup } from "@/actions/groups"
+import { getQueryClient } from "@/lib/get-query-client"
 import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
+    dehydrate,
+    HydrationBoundary,
 } from "@tanstack/react-query"
 import { ExplorePageContent } from "./_components/explore-content"
 
 const ExplorePage = async () => {
-  const query = new QueryClient()
+  const query = getQueryClient()
 
   await query.prefetchQuery({
     queryKey: ["technical-analysis"],

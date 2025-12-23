@@ -2,11 +2,11 @@ import { onGetUserGroupRole } from "@/actions/auth"
 import { onGetGroupCourses } from "@/actions/courses"
 import { CourseCreate } from "@/components/form/create-course"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getQueryClient } from "@/lib/get-query-client"
 import { canCreateCourse } from "@/lib/rbac"
 import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
+    dehydrate,
+    HydrationBoundary,
 } from "@tanstack/react-query"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 import { CourseList } from "./_components/course-list"
@@ -18,7 +18,7 @@ type CoursePageProps = {
 const CoursesPage = async ({ params }: CoursePageProps) => {
   const { locale, groupid } = await params
   setRequestLocale(locale)
-  const client = new QueryClient()
+  const client = getQueryClient()
 
   const tPromise = getTranslations({ locale, namespace: "courses" })
   const bucketsPromise = onGetGroupCourses(groupid, "buckets", locale)

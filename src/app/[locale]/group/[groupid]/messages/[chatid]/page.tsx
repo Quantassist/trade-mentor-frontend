@@ -1,10 +1,10 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetAllUserMessages, onGetUserFromMembership } from "@/actions/groups"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { getQueryClient } from "@/lib/get-query-client"
 import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
+    dehydrate,
+    HydrationBoundary,
 } from "@tanstack/react-query"
 import { User } from "lucide-react"
 
@@ -14,7 +14,7 @@ const MemberChatPage = async ({
   params: Promise<{ chatid: string }>
 }) => {
   const { chatid } = await params
-  const query = new QueryClient()
+  const query = getQueryClient()
   const member = await onGetUserFromMembership(chatid)
 
   await query.prefetchQuery({

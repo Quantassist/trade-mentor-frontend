@@ -1,5 +1,5 @@
 import { onCreateNewChannel, onGetGroupChannels } from "@/actions/channel"
-import { onGetGroupInfo } from "@/actions/groups"
+import { onGetGroupInfo, onGetUserGroups } from "@/actions/groups"
 
 import { IChannelInfo, IGroupInfo, IGroups } from "@/components/global/sidebar"
 import { usePathname, useRouter } from "@/i18n/navigation"
@@ -50,7 +50,8 @@ export const useSideBar = (groupid: string) => {
   const locale = useLocale()
   const { data: groups } = useQuery({
     queryKey: ["user-groups"],
-    // queryFn: () => onGetUserGroups(userFromClerkId?.id!), // This will be overridden by prefetched data
+    queryFn: () => onGetUserGroups(""), // Fallback - actual data comes from prefetch in layout
+    staleTime: Infinity, // Rely on prefetched data
   }) as { data: IGroups }
 
   const { data: groupInfo } = useQuery({

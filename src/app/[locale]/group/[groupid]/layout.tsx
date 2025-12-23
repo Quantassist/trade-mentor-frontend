@@ -7,9 +7,11 @@ import {
   onGetUserGroups,
 } from "@/actions/groups"
 import { SidebarProvider } from "@/components/global/sidebar/sidebar-context"
+import { SessionProvider } from "@/components/providers/session-provider"
+import { getQueryClient } from "@/lib/get-query-client"
+import { getSession } from "@/lib/get-session"
 import {
   HydrationBoundary,
-  QueryClient,
   dehydrate,
 } from "@tanstack/react-query"
 import { setRequestLocale } from "next-intl/server"
@@ -25,13 +27,16 @@ type GroupLayoutProps = {
 }
 
 const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
-  const query = new QueryClient()
+  const query = getQueryClient()
   const { groupid, locale } = await params
   // Ensure server-side translations use the current locale
   setRequestLocale(locale)
 
   //prefetch all our group data in the layout file
-  const user = await onAuthenticatedUser()
+  const [user, session] = await Promise.all([
+    onAuthenticatedUser(),
+    getSession(),
+  ])
 
   if (!user.id) redirect("/sign-in")
 
@@ -70,16 +75,18 @@ const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
 
   return (
     <HydrationBoundary state={dehydrate(query)}>
-      <SidebarProvider>
-        <GroupShell
-          groupid={groupid}
-          userid={user.id}
-          navbar={<Navbar groupid={groupid} userid={user.id} />}
-        >
-          {children}
-          <MobileBottomGroupNav />
-        </GroupShell>
-      </SidebarProvider>
+      <SessionProvider session={session}>
+        <SidebarProvider>
+          <GroupShell
+            groupid={groupid}
+            userid={user.id}
+            navbar={<Navbar groupid={groupid} userid={user.id} />}
+          >
+            {children}
+            <MobileBottomGroupNav />
+          </GroupShell>
+        </SidebarProvider>
+      </SessionProvider>
     </HydrationBoundary>
   )
 }

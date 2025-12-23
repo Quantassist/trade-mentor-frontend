@@ -1,37 +1,31 @@
 "use client"
-import { onGetUserGroupRole } from "@/actions/auth"
 import {
-  onCreateCourseModule,
-  onCreateGroupCourse,
-  onCreateModuleSection,
-  onDeleteModule,
-  onDeleteSection,
-  onGetCourseModules,
-  onGetGroupCourses,
-  onGetMentorProfiles,
-  onGetSectionInfo,
-  onGetModuleAnchors,
-  onReorderModules,
-  onReorderSections,
-  onSaveReflectionResponse,
-  onSubmitQuizAttempt,
-  onUpdateCourse,
-  onUpdateCourseSectionContent,
-  onUpdateModule,
-  onUpdateSection,
-  onUpdateSectionTypedPayload,
-  onUpdateInteractiveRunner,
+    onCreateCourseModule,
+    onCreateGroupCourse,
+    onCreateModuleSection,
+    onDeleteModule,
+    onDeleteSection,
+    onReorderModules,
+    onReorderSections,
+    onSaveReflectionResponse,
+    onSubmitQuizAttempt,
+    onUpdateCourse,
+    onUpdateCourseSectionContent,
+    onUpdateInteractiveRunner,
+    onUpdateModule,
+    onUpdateSection,
+    onUpdateSectionTypedPayload
 } from "@/actions/courses"
-import { onGetGroupInfo } from "@/actions/groups"
-import { CaseStudyFormSchema, type CaseStudyFormValues, type CaseStudyFormInput } from "@/components/form/case-study/schema"
+import { CaseStudyFormSchema, type CaseStudyFormInput } from "@/components/form/case-study/schema"
 import { CourseContentSchema } from "@/components/form/course-content/schema"
 import { CreateCourseSchema, UpdateCourseSchema } from "@/components/form/create-course/schema"
-import { ExampleFormSchema, type ExampleFormValues, type ExampleFormInput } from "@/components/form/example/schema"
-import { InteractiveFormSchema, InteractiveFormValues } from "@/components/form/interactive/schema"
+import { ExampleFormSchema, type ExampleFormInput } from "@/components/form/example/schema"
 import { InteractiveRunnerSchema, type InteractiveRunnerValues } from "@/components/form/interactive/runner-schema"
+import { InteractiveFormSchema, InteractiveFormValues } from "@/components/form/interactive/schema"
 import { QuizFormSchema, type QuizFormValues } from "@/components/form/quiz/schema"
 import { ReflectionFormSchema, type ReflectionFormValues } from "@/components/form/reflection/schema"
 import { SECTION_TYPES } from "@/constants/icons"
+import { api } from "@/lib/api"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
@@ -44,9 +38,16 @@ import { toast } from "sonner"
 import { v4 } from "uuid"
 import { z } from "zod"
 
-const upload = new UploadClient({
-  publicKey: process.env.NEXT_PUBLIC_UPLOAD_CARE_PUBLIC_KEY as string,
-})
+// Lazy-initialized UploadClient to avoid module-level instantiation
+let _uploadClient: UploadClient | null = null
+const getUploadClient = () => {
+  if (!_uploadClient) {
+    _uploadClient = new UploadClient({
+      publicKey: process.env.NEXT_PUBLIC_UPLOAD_CARE_PUBLIC_KEY as string,
+    })
+  }
+  return _uploadClient
+}
 
 export const useCreateCourse = (groupid: string, initial?: any) => {
   const locale = useLocale()
@@ -136,7 +137,7 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
 
   const { data } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
+    queryFn: () => api.groups.getInfo(groupid, locale),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
@@ -146,7 +147,7 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
 
   const { data: mentorsData } = useQuery({
     queryKey: ["mentor-profiles"],
-    queryFn: () => onGetMentorProfiles(),
+    queryFn: () => api.courses.getMentorProfiles(),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
@@ -161,7 +162,7 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
         // Update path
         let thumbnail: string | undefined
         if (data.image && data.image[0]) {
-          const uploaded = await upload.uploadFile(data.image[0])
+          const uploaded = await getUploadClient().uploadFile(data.image[0])
           thumbnail = uploaded.uuid
         }
         const mappedLevel = labelToEnum(data.level)
@@ -184,7 +185,7 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
         return res
       } else {
         // Create path
-        const uploaded = await upload.uploadFile(data.image[0])
+        const uploaded = await getUploadClient().uploadFile(data.image[0])
         const course = await onCreateGroupCourse(
           groupid,
           data.name,
@@ -255,7 +256,7 @@ export const useCourses = (
 ) => {
   const { data } = useQuery({
     queryKey: ["group-courses", groupid, filter, locale],
-    queryFn: () => onGetGroupCourses(groupid, filter, locale),
+    queryFn: () => api.groups.getCourses(groupid, filter, locale),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
@@ -270,7 +271,7 @@ export const useCreateModule = (courseid: string, groupid: string) => {
   const locale = useLocale()
   const { data } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
+    queryFn: () => api.groups.getInfo(groupid, locale),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
@@ -291,7 +292,7 @@ export const useCreateModule = (courseid: string, groupid: string) => {
     },
     onSettled: async () => {
       return await client.invalidateQueries({
-        queryKey: ["course-modules"],
+        queryKey: ["course-modules", courseid],
       })
     },
   })
@@ -325,18 +326,18 @@ export const useCourseModule = (courseId: string, groupid: string) => {
   const [moduleId, setModuleId] = useState<string | undefined>(undefined)
 
   const { data } = useQuery({
-    queryKey: ["course-modules"],
-    queryFn: () => onGetCourseModules(courseId),
+    queryKey: ["course-modules", courseId],
+    queryFn: () => api.courses.getModules(courseId),
     staleTime: 30_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
-    refetchOnMount: false,
+    refetchOnMount: true,
   })
 
   const { data: groupOwner } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
+    queryFn: () => api.groups.getInfo(groupid, locale),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
@@ -358,7 +359,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     },
     onSettled: async () => {
       return await client.invalidateQueries({
-        queryKey: ["course-modules"],
+        queryKey: ["course-modules", courseId],
       })
     },
   })
@@ -378,7 +379,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     },
     onSettled: async () => {
       return await client.invalidateQueries({
-        queryKey: ["course-modules"],
+        queryKey: ["course-modules", courseId],
       })
     },
   })
@@ -394,7 +395,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     },
     onSettled: async () => {
       return await client.invalidateQueries({
-        queryKey: ["course-modules"],
+        queryKey: ["course-modules", courseId],
       })
     },
   })
@@ -413,7 +414,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     },
     onSettled: async () => {
       return await client.invalidateQueries({
-        queryKey: ["course-modules"],
+        queryKey: ["course-modules", courseId],
       })
     },
   })
@@ -424,7 +425,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     onSuccess: (data) =>
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
     onSettled: async () =>
-      await client.invalidateQueries({ queryKey: ["course-modules"] }),
+      await client.invalidateQueries({ queryKey: ["course-modules", courseId] }),
   })
 
   // Delete a module (sections cascade by Prisma settings)
@@ -433,7 +434,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     onSuccess: (data) =>
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
     onSettled: async () =>
-      await client.invalidateQueries({ queryKey: ["course-modules"] }),
+      await client.invalidateQueries({ queryKey: ["course-modules", courseId] }),
   })
 
   // Reorder modules
@@ -442,7 +443,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     onSuccess: (data) =>
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
     onSettled: async () =>
-      await client.invalidateQueries({ queryKey: ["course-modules"] }),
+      await client.invalidateQueries({ queryKey: ["course-modules", courseId] }),
   })
 
   // Reorder sections in a module
@@ -452,7 +453,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     onSuccess: (data) =>
       toast(data?.status !== 200 ? "Error" : "Success", { description: data?.message }),
     onSettled: async () =>
-      await client.invalidateQueries({ queryKey: ["course-modules"] }),
+      await client.invalidateQueries({ queryKey: ["course-modules", courseId] }),
   })
 
   const onEditModuleName = (event: Event) => {
@@ -549,7 +550,7 @@ export const useCourseModule = (courseId: string, groupid: string) => {
 export const useSectionNavBar = (groupid: string, sectionid: string, locale: string) => {
   const { data } = useQuery({
     queryKey: ["section-info", sectionid, locale],
-    queryFn: () => onGetSectionInfo(sectionid, locale),
+    queryFn: () => api.sections.getInfo(sectionid, locale),
     staleTime: 30_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
@@ -583,7 +584,7 @@ export const useSectionNavBar = (groupid: string, sectionid: string, locale: str
 export const useCourseSectionInfo = (sectionid: string, locale?: string, initial?: any) => {
   const { data } = useQuery({
     queryKey: ["section-info", sectionid, locale],
-    queryFn: () => onGetSectionInfo(sectionid, locale),
+    queryFn: () => api.sections.getInfo(sectionid, locale),
     // allow hydrating with server-provided data when available
     initialData: initial,
     staleTime: initial ? 10_000 : 0,
@@ -596,7 +597,7 @@ export const useModuleAnchors = (moduleId: string | undefined, locale?: string) 
   const { data } = useQuery({
     enabled: !!moduleId,
     queryKey: ["module-anchors", moduleId, locale],
-    queryFn: () => onGetModuleAnchors(moduleId as string),
+    queryFn: () => api.sections.getAnchors(moduleId as string, locale),
     staleTime: 5 * 60_000,
     gcTime: 60 * 60_000,
     refetchOnWindowFocus: false,
@@ -975,7 +976,7 @@ export const useCaseStudyContent = (
 export const useGroupRole = (groupid: string) => {
   const { data } = useQuery({
     queryKey: ["group-role", groupid],
-    queryFn: () => onGetUserGroupRole(groupid),
+    queryFn: () => api.auth.getRole(groupid),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,

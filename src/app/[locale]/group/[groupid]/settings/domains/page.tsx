@@ -2,10 +2,10 @@ import { onGetDomainConfig } from "@/actions/groups"
 import { CustomDomainForm } from "@/components/form/domain"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { getQueryClient } from "@/lib/get-query-client"
 import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
+    dehydrate,
+    HydrationBoundary,
 } from "@tanstack/react-query"
 import { getTranslations } from "next-intl/server"
 
@@ -13,7 +13,7 @@ type Props = { params: Promise<{ groupid: string; locale: string }> }
 
 const DomainConfigPage = async (props: Props) => {
   const { groupid, locale } = await props.params
-  const client = new QueryClient()
+  const client = getQueryClient()
   const t = await getTranslations({ locale, namespace: "settings.domains" })
 
   await client.prefetchQuery({

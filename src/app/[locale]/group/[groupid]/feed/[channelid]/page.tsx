@@ -5,11 +5,11 @@ import { inGetChannelPosts } from "@/actions/groups"
 import { LeaderBoardCard } from "@/app/[locale]/group/_components/leaderboard"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
 import { OngoingCoursesWidget } from "@/components/global/ongoing-courses-widget"
+import { getQueryClient } from "@/lib/get-query-client"
 import { getSession } from "@/lib/get-session"
 import {
-    HydrationBoundary,
-    QueryClient,
-    dehydrate,
+  HydrationBoundary,
+  dehydrate,
 } from "@tanstack/react-query"
 import CreateNewPost from "./_components/create-post"
 import { FeedLayout } from "./_components/feed-layout"
@@ -20,7 +20,7 @@ type GroupChannelPageProps = {
 }
 
 const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
-  const client = new QueryClient()
+  const client = getQueryClient()
   const { groupid, channelid, locale } = await params
 
   // Both getSession() and onAuthenticatedUser() now share the same cached session

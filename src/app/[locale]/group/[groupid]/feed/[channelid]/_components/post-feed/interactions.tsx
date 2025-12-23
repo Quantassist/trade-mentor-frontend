@@ -1,57 +1,63 @@
-import { useLikeChannelPost } from "@/hooks/channels"
-import { LikeIcon, UnlikeIcon } from "@/icons"
+"use client"
+
 import { cn } from "@/lib/utils"
 import { MessageCircle } from "lucide-react"
+import { ClapButton } from "./clap-button"
 
 type InteractionsProps = {
   id: string
   optimistic?: boolean
-  likedByMe?: boolean
-  likes: number
+  totalClaps: number
+  myClaps: number
   comments: number
   page?: boolean
+  onClap: () => void
+  showConfetti: boolean
+  showMyClaps?: boolean
+  onCommentClick?: () => void
 }
 
 export const Interactions = ({
   id,
   optimistic,
-  likedByMe = false,
-  likes,
+  totalClaps,
+  myClaps,
   comments,
   page,
+  onClap,
+  showConfetti,
+  showMyClaps = false,
+  onCommentClick,
 }: InteractionsProps) => {
-  const { mutate, isPending } = useLikeChannelPost(id)
-
-  const displayLikes = Math.max(
-    0,
-    isPending ? (likedByMe ? likes - 1 : likes + 1) : likes,
-  )
-
-  const renderIcon = () => {
-    if (optimistic) return <UnlikeIcon />
-    if (isPending) return likedByMe ? <UnlikeIcon /> : <LikeIcon />
-    return likedByMe ? <LikeIcon /> : <UnlikeIcon />
-  }
-
   return (
     <div
       className={cn(
-        "flex items-center justify-between py-2",
+        "flex items-center justify-between py-3",
         page ? "" : "px-6",
       )}
     >
-      <div className="flex gap-5 text-[#757272] text-sm">
-        <span className="flex gap-1 justify-center items-center">
-          <span onClick={() => mutate()} className={cn("cursor-pointer")}>
-            {renderIcon()}
-          </span>
-          {displayLikes}
-        </span>
+      <div className="flex gap-6 items-center">
+        {/* Clap button - primary action, larger for engagement */}
+        <ClapButton
+          totalClaps={totalClaps}
+          myClaps={myClaps}
+          onClap={onClap}
+          showConfetti={showConfetti}
+          showMyClaps={showMyClaps}
+          disabled={optimistic}
+          size="md"
+        />
 
-        <span className="flex gap-1 justify-center items-center">
-          <MessageCircle size={16} />
-          {comments}
-        </span>
+        {/* Comments - secondary action */}
+        <div 
+          onClick={onCommentClick}
+          className="flex items-center gap-2 text-themeTextGray hover:text-white transition-colors cursor-pointer group"
+        >
+          <div className="p-2 rounded-full group-hover:bg-blue-500/15 transition-colors">
+            <MessageCircle size={22} className="group-hover:text-blue-400 transition-colors" />
+          </div>
+          <span className="text-base font-medium tabular-nums">{comments}</span>
+        </div>
       </div>
     </div>
   )
