@@ -4,13 +4,21 @@
  */
 
 import { defaultLocale } from "@/i18n/config"
+import { isUUID } from "@/lib/id-utils"
 import { client } from "@/lib/prisma"
 import { cache } from "react"
 
-export const getGroupInfo = cache(async (groupId: string, locale?: string, userId?: string) => {
+/**
+ * Get group info by ID or slug
+ * Supports both UUID lookup (legacy) and slug lookup (new)
+ */
+export const getGroupInfo = cache(async (groupIdOrSlug: string, locale?: string, userId?: string) => {
   try {
-    const group = await client.group.findUnique({
-      where: { id: groupId },
+    // Support both UUID and slug lookups
+    const group = await client.group.findFirst({
+      where: isUUID(groupIdOrSlug) 
+        ? { id: groupIdOrSlug } 
+        : { slug: groupIdOrSlug },
     })
 
     if (!group) {
@@ -21,6 +29,9 @@ export const getGroupInfo = cache(async (groupId: string, locale?: string, userI
     let role: string | undefined
     let isSuperAdmin = false
     let isOwner = false
+
+    // Use resolved group.id for all subsequent queries
+    const groupId = group.id
 
     if (userId) {
       const user = await client.appUser.findUnique({
@@ -138,11 +149,12 @@ export const getUserGroups = cache(async (userId: string) => {
         group: {
           select: {
             id: true,
+            slug: true,
             name: true,
             icon: true,
             channel: {
               where: { name: "general" },
-              select: { id: true },
+              select: { id: true, slug: true },
             },
           },
         },
@@ -151,11 +163,12 @@ export const getUserGroups = cache(async (userId: string) => {
             Group: {
               select: {
                 id: true,
+                slug: true,
                 icon: true,
                 name: true,
                 channel: {
                   where: { name: "general" },
-                  select: { id: true },
+                  select: { id: true, slug: true },
                 },
               },
             },
@@ -352,8 +365,36 @@ export const verifyAffiliateLink = cache(async (affiliateId: string) => {
   }
 })
 
-export const getChannelPosts = cache(async (channelId: string, locale?: string) => {
+export const getChannelPosts = cache(async (channelIdOrSlug: string, locale?: string, groupIdOrSlug?: string) => {
   try {
+    // Resolve groupId from slug if needed
+    let resolvedGroupId: string | undefined = groupIdOrSlug
+    if (groupIdOrSlug && !isUUID(groupIdOrSlug)) {
+      const group = await client.group.findFirst({
+        where: { slug: groupIdOrSlug },
+        select: { id: true },
+      })
+      resolvedGroupId = group?.id
+    }
+
+    // Resolve channel ID from slug if needed
+    let channelId = channelIdOrSlug
+    if (!isUUID(channelIdOrSlug)) {
+      const channel = resolvedGroupId
+        ? await client.channel.findFirst({
+            where: { slug: channelIdOrSlug, groupId: resolvedGroupId },
+            select: { id: true },
+          })
+        : await client.channel.findFirst({
+            where: { slug: channelIdOrSlug },
+            select: { id: true },
+          })
+      if (!channel) {
+        return { status: 404, message: "Channel not found", posts: [] }
+      }
+      channelId = channel.id
+    }
+
     const posts = await client.post.findMany({
       where: { channelId },
       select: {
@@ -408,41 +449,53 @@ export const getChannelPosts = cache(async (channelId: string, locale?: string) 
   }
 })
 
-export const getPostInfo = cache(async (postId: string, locale?: string) => {
+/**
+ * Get post info by ID or publicId (NanoID)
+ * Supports both UUID lookup (legacy) and publicId lookup (new)
+ */
+export const getPostInfo = cache(async (postIdOrPublicId: string, locale?: string) => {
   try {
-    const post = await client.post.findUnique({
-      where: { id: postId },
-      include: {
-        translations: locale
-          ? {
-              where: { locale },
-              select: {
-                locale: true,
-                title: true,
-                contentHtml: true,
-                contentJson: true,
-              },
-            }
-          : false,
-        channel: {
-          select: { name: true },
-        },
-        author: {
-          select: {
-            firstname: true,
-            lastname: true,
-            image: true,
-          },
-        },
-        _count: {
-          select: { comments: true },
-        },
-        claps: {
-          select: { userId: true, id: true, count: true },
-        },
-        comments: true,
+    const postInclude = {
+      translations: locale
+        ? {
+            where: { locale },
+            select: {
+              locale: true,
+              title: true,
+              contentHtml: true,
+              contentJson: true,
+            },
+          }
+        : false,
+      channel: {
+        select: { name: true },
       },
-    })
+      author: {
+        select: {
+          firstname: true,
+          lastname: true,
+          image: true,
+        },
+      },
+      _count: {
+        select: { comments: true },
+      },
+      claps: {
+        select: { userId: true, id: true, count: true },
+      },
+      comments: true,
+    }
+
+    // Support both UUID and publicId lookups
+    const post = isUUID(postIdOrPublicId)
+      ? await client.post.findUnique({
+          where: { id: postIdOrPublicId },
+          include: postInclude,
+        })
+      : await client.post.findFirst({
+          where: { publicId: postIdOrPublicId },
+          include: postInclude,
+        })
 
     if (!post) {
       return { status: 404, message: "Post not found" }
@@ -473,8 +526,25 @@ export const getPostInfo = cache(async (postId: string, locale?: string) => {
   }
 })
 
-export const getPostComments = cache(async (postId: string, userId?: string) => {
+/**
+ * Get post comments by post ID or publicId (NanoID)
+ * Supports both UUID lookup (legacy) and publicId lookup (new)
+ */
+export const getPostComments = cache(async (postIdOrPublicId: string, userId?: string) => {
   try {
+    // Resolve post ID from publicId if needed
+    let postId = postIdOrPublicId
+    if (!isUUID(postIdOrPublicId)) {
+      const post = await client.post.findFirst({
+        where: { publicId: postIdOrPublicId },
+        select: { id: true },
+      })
+      if (!post) {
+        return { status: 404, message: "Post not found", comments: [] }
+      }
+      postId = post.id
+    }
+
     const comments = await client.comment.findMany({
       where: {
         postId,
@@ -505,7 +575,12 @@ export const getCommentReplies = cache(async (commentId: string) => {
       where: { id: commentId },
       select: {
         reply: {
-          include: { user: true },
+          include: {
+            user: true,
+            claps: {
+              select: { id: true, count: true, userId: true },
+            },
+          },
         },
       },
     })

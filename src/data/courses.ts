@@ -4,21 +4,39 @@
  */
 
 import { defaultLocale } from "@/i18n/config"
+import { isUUID } from "@/lib/id-utils"
 import { client } from "@/lib/prisma"
 import { cache } from "react"
 
+/**
+ * Get group courses by group ID or slug
+ */
 export const getGroupCourses = cache(async (
-  groupId: string,
+  groupIdOrSlug: string,
   filter: "all" | "in_progress" | "completed" | "unpublished" | "buckets" = "all",
   locale?: string,
   userId?: string
 ) => {
   try {
+    // Resolve group ID from slug if needed
+    let groupId = groupIdOrSlug
+    if (!isUUID(groupIdOrSlug)) {
+      const group = await client.group.findFirst({
+        where: { slug: groupIdOrSlug },
+        select: { id: true },
+      })
+      if (!group) {
+        return { status: 404, message: "Group not found", courses: [] }
+      }
+      groupId = group.id
+    }
+
     const courses = await client.course.findMany({
       where: { groupId, isDeleted: false },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
+        slug: true,
         name: true,
         thumbnail: true,
         description: true,
@@ -160,8 +178,24 @@ export const getGroupCourses = cache(async (
   }
 })
 
-export const getCourseModules = cache(async (courseId: string, userId?: string) => {
+/**
+ * Get course modules by course ID or slug
+ */
+export const getCourseModules = cache(async (courseIdOrSlug: string, userId?: string) => {
   try {
+    // Resolve course ID from slug if needed
+    let courseId = courseIdOrSlug
+    if (!isUUID(courseIdOrSlug)) {
+      const course = await client.course.findFirst({
+        where: { slug: courseIdOrSlug },
+        select: { id: true },
+      })
+      if (!course) {
+        return { status: 404, message: "Course not found" }
+      }
+      courseId = course.id
+    }
+
     const modules = await client.module.findMany({
       where: { courseId },
       orderBy: [{ order: "asc" }],
@@ -174,6 +208,7 @@ export const getCourseModules = cache(async (courseId: string, userId?: string) 
           orderBy: [{ order: "asc" }],
           select: {
             id: true,
+            publicId: true,
             name: true,
             icon: true,
             type: true,
@@ -214,8 +249,24 @@ export const getCourseModules = cache(async (courseId: string, userId?: string) 
   }
 })
 
-export const getCourseAbout = cache(async (courseId: string, locale?: string) => {
+/**
+ * Get course about info by course ID or slug
+ */
+export const getCourseAbout = cache(async (courseIdOrSlug: string, locale?: string) => {
   try {
+    // Resolve course ID from slug if needed
+    let courseId = courseIdOrSlug
+    if (!isUUID(courseIdOrSlug)) {
+      const courseRef = await client.course.findFirst({
+        where: { slug: courseIdOrSlug },
+        select: { id: true },
+      })
+      if (!courseRef) {
+        return { status: 404, message: "Course not found" }
+      }
+      courseId = courseRef.id
+    }
+
     const course = await client.course.findUnique({
       where: { id: courseId },
       select: {
@@ -366,16 +417,29 @@ export const getModuleAnchors = cache(async (moduleId: string) => {
   }
 })
 
-export const getSectionInfo = cache(async (sectionId: string, locale?: string, userId?: string) => {
+/**
+ * Get section info by ID or publicId
+ * Supports both UUID lookup (legacy) and publicId lookup (new)
+ */
+export const getSectionInfo = cache(async (sectionIdOrPublicId: string, locale?: string, userId?: string) => {
   try {
-    const section = await client.section.findUnique({
-      where: { id: sectionId },
-      include: { Module: { select: { id: true, courseId: true } } },
-    })
+    // Support both UUID and publicId lookups
+    const section = isUUID(sectionIdOrPublicId)
+      ? await client.section.findUnique({
+          where: { id: sectionIdOrPublicId },
+          include: { Module: { select: { id: true, courseId: true } } },
+        })
+      : await client.section.findFirst({
+          where: { publicId: sectionIdOrPublicId },
+          include: { Module: { select: { id: true, courseId: true } } },
+        })
 
     if (!section) {
       return { status: 404, message: "Section not found" }
     }
+
+    // Use resolved section.id for all subsequent queries
+    const sectionId = section.id
 
     let completed = false
     if (userId && section.Module?.courseId) {
@@ -468,7 +532,7 @@ export const getSectionInfo = cache(async (sectionId: string, locale?: string, u
   }
 })
 
-export const getOngoingCourses = cache(async (userId: string, limit: number = 3) => {
+export const getOngoingCourses = cache(async (limit: number = 3, userId?: string) => {
   try {
     if (!userId) return { status: 200, courses: [] as any[] }
 
@@ -481,8 +545,7 @@ export const getOngoingCourses = cache(async (userId: string, limit: number = 3)
         courseId: true,
         progress: true,
         completedSections: true,
-        lastSectionId: true,
-        Course: { select: { id: true, name: true, thumbnail: true } },
+        Course: { select: { id: true, slug: true, name: true, thumbnail: true } },
       },
     })
 
@@ -499,11 +562,12 @@ export const getOngoingCourses = cache(async (userId: string, limit: number = 3)
       const completedCount = p.completedSections?.length ?? 0
       const totalCount = totals[idx] ?? 0
       const computedPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+      // Use slug for URL-friendly links
+      const courseUrlId = (p.Course as any)?.slug || p.courseId
       return {
-        courseId: p.courseId,
+        courseId: courseUrlId,
         name: p.Course?.name ?? "Untitled Course",
         thumbnail: p.Course?.thumbnail ?? null,
-        lastSectionId: p.lastSectionId ?? null,
         completedCount,
         totalCount,
         progress: computedPercent,

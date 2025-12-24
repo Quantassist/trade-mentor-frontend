@@ -3,6 +3,7 @@
  * Pure data fetching functions that can be used by API routes and Server Components
  */
 
+import { isUUID } from "@/lib/id-utils"
 import { client } from "@/lib/prisma"
 import { cache } from "react"
 
@@ -30,8 +31,25 @@ export const getUserById = cache(async (userId: string) => {
   }
 })
 
-export const getUserGroupRole = cache(async (groupId: string, userId: string) => {
+/**
+ * Get user's role in a group
+ * Supports both UUID and slug lookups for groupId
+ */
+export const getUserGroupRole = cache(async (groupIdOrSlug: string, userId: string) => {
   try {
+    // Resolve group ID from slug if needed
+    let groupId = groupIdOrSlug
+    if (!isUUID(groupIdOrSlug)) {
+      const groupRef = await client.group.findFirst({
+        where: { slug: groupIdOrSlug },
+        select: { id: true },
+      })
+      if (!groupRef) {
+        return { status: 404, message: "Group not found" }
+      }
+      groupId = groupRef.id
+    }
+
     const user = await client.appUser.findUnique({
       where: { id: userId },
       select: { isSuperAdmin: true },

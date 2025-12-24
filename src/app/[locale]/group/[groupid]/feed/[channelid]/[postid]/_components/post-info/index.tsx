@@ -14,12 +14,15 @@ type PostInfoProps = {
 
 const PostInfo = ({ id, userid, locale }: PostInfoProps) => {
   const { data } = useGetPost(id, locale)
+  
+  // Ensure post exists before using claps hook
+  const post = data?.status === 200 ? data.post : null
   const { totalClaps, myClaps, handleClap, showConfetti, showMyClaps } = usePostClaps(
-    data?.post as any,
+    (post as any) ?? { claps: [], id: "" },
     userid
   )
 
-  if (data?.status !== 200 || !data) {
+  if (!post) {
     return (
       <div>
         <NoResult />
@@ -30,20 +33,20 @@ const PostInfo = ({ id, userid, locale }: PostInfoProps) => {
     <div className="rounded-lg border border-themeGray/50 bg-brand-card-elevated p-4">
       <div className="flex flex-col gap-y-5">
         <PostAuthor
-          image={data.post?.author.image as string}
-          username={`${data.post?.author.firstname} ${data.post?.author.lastname}`}
-          channel={data.post?.channel.name as string}
+          image={post.author?.image as string}
+          username={`${post.author?.firstname} ${post.author?.lastname}`}
+          channel={post.channel?.name as string}
         />
         <div className="flex flex-col gap-y-3">
-          <h2 className="text-2xl font-bold">{data.post?.title}</h2>
-          <HtmlParser html={data.post?.htmlContent as string} />
+          <h2 className="text-2xl font-bold">{post.title}</h2>
+          <HtmlParser html={post.htmlContent as string} />
         </div>
         <Interactions
           id={id}
           page
           totalClaps={totalClaps}
           myClaps={myClaps}
-          comments={data.post?._count.comments!}
+          comments={post._count?.comments ?? 0}
           onClap={handleClap}
           showConfetti={showConfetti}
           showMyClaps={showMyClaps}

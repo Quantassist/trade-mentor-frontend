@@ -3,15 +3,15 @@
 import { onDeleteCourse } from "@/actions/courses"
 import { CourseCreate } from "@/components/form/create-course"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -59,8 +59,10 @@ export const CourseList = ({ groupid, filter = "all", canManage = false }: Cours
       {items.map((c: any, idx: number) => {
         const thumb = c.thumbnail ? `https://ucarecdn.com/${c.thumbnail}/-/scale_crop/160x100/center/-/format/auto/` : null
         const progress = Math.min(Math.max(Number(c.progress || 0), 0), 100)
-        const resumeHref = `/group/${groupid}/courses/${c.id}` // course page redirects to correct section
-        const overviewHref = `/group/${groupid}/courses/about/${c.id}`
+        // Use slug for URL-friendly links, fallback to id
+        const courseUrlId = c.slug || c.id
+        const resumeHref = `/group/${groupid}/courses/${courseUrlId}` // course page redirects to correct section
+        const overviewHref = `/group/${groupid}/courses/about/${courseUrlId}`
         return (
           <Card key={c.id} className="bg-[#111213] border-themeGray rounded-xl p-4">
             <div className="flex items-start gap-4">

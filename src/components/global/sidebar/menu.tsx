@@ -1,19 +1,19 @@
 "use client"
 
-import { onGetGroupInfo } from "@/actions/groups"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SIDEBAR_SETTINGS_MENU } from "@/constants/menus"
 import { useChannelInfo } from "@/hooks/channels"
+import { api } from "@/lib/api"
+import { generateId } from "@/lib/id-utils"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
-import { Plus, Trash } from "lucide-react"
+import { Pencil, Plus, Trash } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { v4 as uuidv4 } from "uuid"
 import { IChannels } from "."
 import { IconRenderer } from "../icon-renderer"
 import { IconDropDown } from "./icon-dropdown"
@@ -57,10 +57,42 @@ export const SideBarMenu = ({
   const showLabels = Boolean(mobile || !collapsed)
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null)
 
+  // Per-channel edit state with prepopulated name
+  const [editingChannelId, setEditingChannelId] = React.useState<string | null>(null)
+  const [editingChannelName, setEditingChannelName] = React.useState<string>("")
+  const channelInputRef = React.useRef<HTMLInputElement | null>(null)
+
+  // Focus input when editing starts
+  React.useEffect(() => {
+    if (editingChannelId && channelInputRef.current) {
+      channelInputRef.current.focus()
+      channelInputRef.current.select()
+    }
+  }, [editingChannelId])
+
+  const startEditingChannel = (channelId: string, currentName: string) => {
+    setEditingChannelId(channelId)
+    setEditingChannelName(currentName)
+  }
+
+  const cancelEditingChannel = () => {
+    setEditingChannelId(null)
+    setEditingChannelName("")
+  }
+
+  const saveChannelName = (channelId: string) => {
+    if (editingChannelName.trim()) {
+      onEditChannel(channelId)
+      if (inputRef.current) inputRef.current.value = editingChannelName
+      setTimeout(() => document.dispatchEvent(new MouseEvent('click', { bubbles: true })), 0)
+    }
+    cancelEditingChannel()
+  }
+
   // Fetch group role info (SSR-prefetched in layout with the same key)
   const { data: groupInfo } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
+    queryFn: () => api.groups.getInfo(groupid, locale),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
@@ -70,6 +102,8 @@ export const SideBarMenu = ({
   const canManage = Boolean(
     (groupInfo as any)?.isSuperAdmin || (groupInfo as any)?.groupOwner || (groupInfo as any)?.role === "ADMIN",
   )
+  // Use group slug for URL-friendly links (fallback to groupid for backward compatibility)
+  const groupSlug = (groupInfo as any)?.group?.slug || groupid
 
   const settingsPathToKey = (path?: string) => {
     switch (path) {
@@ -100,6 +134,7 @@ export const SideBarMenu = ({
     icon,
     onChannelDetele,
     deleteVariables,
+    updateChannelById,
   } = useChannelInfo()
   if (currentPage === "settings") {
     return (
@@ -114,7 +149,7 @@ export const SideBarMenu = ({
                   : "text-themeTextGray hover:bg-[#2a2a2a]/70 hover:text-white",
               )}
               key={item.id}
-              href={`/${locale}/group/${groupid}/settings/${item.path}`}
+              href={`/${locale}/group/${groupSlug}/settings/${item.path}`}
             >
               {item.icon}
               <span className={cn("hidden md:inline", !showLabels && "md:hidden")}> 
@@ -124,7 +159,7 @@ export const SideBarMenu = ({
           ) : (
             <Link
               key={item.id}
-              href={`/${locale}/group/${groupid}/settings/${item.path}`}
+              href={`/${locale}/group/${groupSlug}/settings/${item.path}`}
               className={cn(
                 "flex items-center gap-x-2 p-2 rounded-lg transition-colors",
                 item.path === currentSection
@@ -164,7 +199,7 @@ export const SideBarMenu = ({
               {...(!isPending && {
                 onClick: () =>
                   mutate({
-                    id: uuidv4(),
+                    id: generateId(),
                     icon: "general",
                     name: "unnamed",
                     createdAt: new Date(),
@@ -189,78 +224,101 @@ export const SideBarMenu = ({
                       (currentSection === channel.id || (channel.id === current && edit)) && "bg-[#2a2a2a]",
                     )}
                   >
-                    <Link
-                      id="channel-link"
-                      title={channel.name}
-                      className={cn("flex-1 min-w-0", !showLabels && "flex items-center justify-center w-full")}
-                      href={`/${locale}/group/${channel.groupId}/feed/${channel.id}`}
-                      {...(canManage &&
-                        channel.name !== "general" &&
-                        channel.name !== "announcements" && {
-                          onDoubleClick: () => onEditChannel(channel.id),
-                          ref: channelRef,
-                        })}
-                    >
-                      <div className={cn("flex items-center min-w-0", !showLabels ? "justify-center" : "gap-x-2")}> 
-                        {channel.id === current && edit ? (
-                          <IconDropDown
-                            ref={triggerRef as any}
-                            page={currentPage}
-                            onSetIcon={onSetIcon}
-                            channelid={channel.id}
-                            icon={channel.icon}
-                            currentIcon={icon}
-                          />
-                        ) : (
-                          <IconRenderer
-                            icon={channel.icon}
-                            mode={
-                              currentSection === channel.id ? "LIGHT" : "DARK"
+                    {editingChannelId === channel.id ? (
+                      <div className="flex items-center gap-x-2 flex-1 min-w-0">
+                        <IconRenderer
+                          icon={channel.icon}
+                          mode={currentSection === channel.id ? "LIGHT" : "DARK"}
+                        />
+                        <Input
+                          ref={channelInputRef}
+                          type="text"
+                          value={editingChannelName}
+                          onChange={(e) => setEditingChannelName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              if (editingChannelName.trim()) {
+                                updateChannelById({ channelId: channel.id, name: editingChannelName })
+                              }
+                              cancelEditingChannel()
+                            } else if (e.key === "Escape") {
+                              cancelEditingChannel()
                             }
-                          />
-                        )}
-                        {showLabels && channel.id === current && edit ? (
-                          <Input
-                            type="text"
-                            ref={inputRef}
-                            className="bg-transparent p-0 text-lg m-0 h-full"
-                          />
-                        ) : showLabels ? (
-                          <p
-                            className={cn(
-                              "text-lg capitalize truncate",
-                              currentSection === channel.id
-                                ? "text-white"
-                                : "text-themeTextGray",
-                            )}
-                          >
-                            {isPending &&
-                            variables &&
-                            currentSection === channel.id
-                              ? variables.name
-                              : channel.name}
-                          </p>
-                        ) : null}
-                      </div>
-                    </Link>
-                    {showLabels && canManage && channel.name !== "general" &&
-                      channel.name !== "announcements" && (
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setConfirmDeleteId(channel.id)
                           }}
-                          className={cn(
-                            "ml-2 content-end text-themeTextGray hover:text-gray-400",
-                            mobile ? "inline" : "group-hover:inline hidden",
-                          )}
-                          aria-label="Delete channel"
-                          title="Delete channel"
+                          onBlur={() => {
+                            if (editingChannelName.trim() && editingChannelName !== channel.name) {
+                              updateChannelById({ channelId: channel.id, name: editingChannelName })
+                            }
+                            cancelEditingChannel()
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="bg-[#1e2329] border-themeGray text-white text-base h-7 flex-1"
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <Link
+                          id="channel-link"
+                          title={channel.name}
+                          className={cn("flex-1 min-w-0", !showLabels && "flex items-center justify-center w-full")}
+                          href={`/${locale}/group/${groupSlug}/feed/${channel.slug}`}
                         >
-                          <Trash size={16} />
-                        </button>
-                      )}
+                          <div className={cn("flex items-center min-w-0", !showLabels ? "justify-center" : "gap-x-2")}> 
+                            <IconRenderer
+                              icon={channel.icon}
+                              mode={currentSection === channel.id ? "LIGHT" : "DARK"}
+                            />
+                            {showLabels && (
+                              <p
+                                className={cn(
+                                  "text-lg capitalize truncate",
+                                  currentSection === channel.id
+                                    ? "text-white"
+                                    : "text-themeTextGray",
+                                )}
+                              >
+                                {isPending && variables && currentSection === channel.id
+                                  ? variables.name
+                                  : channel.name}
+                              </p>
+                            )}
+                          </div>
+                        </Link>
+                        {showLabels && canManage && channel.name !== "general" &&
+                          channel.name !== "announcements" && (
+                            <div className={cn(
+                              "flex items-center gap-1",
+                              mobile ? "" : "opacity-0 group-hover:opacity-100 transition-opacity",
+                            )}>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  startEditingChannel(channel.id, channel.name)
+                                }}
+                                className="text-themeTextGray hover:text-white"
+                                aria-label="Edit channel name"
+                                title="Edit channel name"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  setConfirmDeleteId(channel.id)
+                                }}
+                                className="text-themeTextGray hover:text-red-400"
+                                aria-label="Delete channel"
+                                title="Delete channel"
+                              >
+                                <Trash size={14} />
+                              </button>
+                            </div>
+                          )}
+                      </>
+                    )}
                   </div>
                 ),
             )}

@@ -44,6 +44,7 @@ export interface IChannels {
   id: string
   name: string
   icon: string
+  slug: string
   createdAt: Date
   groupId: string | null
 }
@@ -59,6 +60,7 @@ export interface IGroups {
     | {
         icon: string | null
         id: string
+        slug?: string
         name: string
       }[]
     | undefined
@@ -146,7 +148,7 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
           {groups &&
             groups.groups.length > 0 &&
             groups.groups.map((item) => (
-              <Link key={item.id} href={`/group/${item.id}`}>
+              <Link key={item.id} href={`/group/${item.slug || item.id}`}>
                 <Button
                   variant="ghost"
                   className="flex gap-2 w-full justify-start hover:bg-themeGray items-center"

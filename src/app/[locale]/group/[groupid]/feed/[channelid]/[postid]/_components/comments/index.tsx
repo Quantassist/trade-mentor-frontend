@@ -24,7 +24,7 @@ export const PostComments = ({ postid, userid }: PostCommentsProps) => {
   return (
     <div className="mt-5">
       {data?.comments && data?.status === 200 ? (
-        data.comments.map((comment) => {
+        data.comments.map((comment: any) => {
           const { totalClaps, myClaps } = getCommentClaps(comment)
           return (
             <UserComment

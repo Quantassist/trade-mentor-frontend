@@ -1,7 +1,7 @@
 import { onAuthenticatedUser } from "@/actions/auth"
-import { onGetPostComments, onGetPostInfo } from "@/actions/groups"
 import { PostCommentForm } from "@/components/form/post-comments"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
+import { getPostComments, getPostInfo } from "@/data/groups"
 import { getQueryClient } from "@/lib/get-query-client"
 import {
     HydrationBoundary,
@@ -24,13 +24,13 @@ const PostPage = async ({
   await Promise.allSettled([
     client.prefetchQuery({
       queryKey: ["unique-post", postid, locale],
-      queryFn: () => onGetPostInfo(postid, locale),
+      queryFn: () => getPostInfo(postid, locale),
       staleTime: 60000,
       gcTime: 300000,
     }),
     client.prefetchQuery({
-      queryKey: ["post-comments", postid, user.id],
-      queryFn: () => onGetPostComments(postid, user.id),
+      queryKey: ["post-comments", postid],
+      queryFn: () => getPostComments(postid, user.id),
       staleTime: 60000,
       gcTime: 300000,
     }),

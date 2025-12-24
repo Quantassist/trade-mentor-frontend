@@ -100,20 +100,27 @@ export const UserComment = ({
               {data?.replies &&
                 data.replies?.length > 0 &&
                 data.replies.map(
-                  (rep) =>
-                    rep.commentId === id && (
+                  (rep: any) => {
+                    // Calculate claps for this reply
+                    const replyTotalClaps = rep.claps?.reduce((sum: number, clap: any) => sum + (clap.count || 0), 0) || 0
+                    const replyMyClaps = rep.claps?.find((clap: any) => clap.userId === userid)?.count || 0
+                    return rep.commentId === id && (
                       <UserComment
                         key={rep.id}
                         content={rep.content}
                         id={rep.id}
                         postid={postid}
+                        userid={userid}
                         username={`${rep.user.firstname} ${rep.user.lastname}`}
                         image={rep.user.image!}
                         reply={reply}
                         onReply={onReply}
                         noReply
+                        initialClaps={replyTotalClaps}
+                        initialMyClaps={replyMyClaps}
                       />
-                    ),
+                    )
+                  },
                 )}
             </Loader>
             <span

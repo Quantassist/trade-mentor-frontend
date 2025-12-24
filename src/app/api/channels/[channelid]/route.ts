@@ -10,9 +10,10 @@ export async function GET(
     const { channelid } = await params
     const { searchParams } = new URL(request.url)
     const locale = searchParams.get("locale") || undefined
+    const groupId = searchParams.get("groupId") || undefined
     const userId = await getAppUserId()
 
-    const result = await getChannelInfo(channelid, locale, userId)
+    const result = await getChannelInfo(channelid, locale, userId, groupId)
     return NextResponse.json(result)
   } catch (error) {
     console.error("Error in channel info API:", error)

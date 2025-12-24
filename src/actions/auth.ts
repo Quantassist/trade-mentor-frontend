@@ -1,6 +1,7 @@
 "use server"
 
 import { getSession } from "@/lib/get-session"
+import { isUUID } from "@/lib/id-utils"
 import { client } from "@/lib/prisma"
 import type { GroupRole } from "@prisma/client"
 import { Prisma } from "@prisma/client"
@@ -23,9 +24,20 @@ const getCurrentUserBase = async () => {
   })
 }
 
-const getCurrentUserWithGroup = async (groupId: string) => {
+const getCurrentUserWithGroup = async (groupIdOrSlug: string) => {
   const session = await getSession()
   if (!session?.user) return null
+
+  // Resolve group ID from slug if needed
+  let groupId = groupIdOrSlug
+  if (!isUUID(groupIdOrSlug)) {
+    const group = await client.group.findFirst({
+      where: { slug: groupIdOrSlug },
+      select: { id: true },
+    })
+    if (!group) return null
+    groupId = group.id
+  }
 
   return client.appUser.findUnique({
     where: { betterAuthId: session.user.id },

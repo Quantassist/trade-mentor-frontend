@@ -18,6 +18,7 @@ export const PostCardWithClaps = ({ post, userid }: PostCardWithClapsProps) => {
   return (
     <PostCard
       postid={post.id}
+      publicId={post.publicId}
       channelname={post.channel.name!}
       title={post.title!}
       html={post.htmlContent!}

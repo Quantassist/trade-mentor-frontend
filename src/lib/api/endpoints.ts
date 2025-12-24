@@ -27,6 +27,7 @@ export const API_ENDPOINTS = {
     modules: (courseId: string) => `/api/courses/${courseId}/modules`,
     about: (courseId: string) => `/api/courses/${courseId}/about`,
     mentors: () => `/api/courses/mentors`,
+    ongoing: () => `/api/courses/ongoing`,
   },
 
   // Sections

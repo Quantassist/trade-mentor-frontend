@@ -13,12 +13,15 @@ import { useState } from "react"
 
 type Props = {
   groupid: string
+  groupSlug?: string
   owner: boolean
   isMember: boolean
   hideGoToFeed?: boolean
 }
 
-export const JoinButton = ({ groupid, owner, isMember, hideGoToFeed }: Props) => {
+export const JoinButton = ({ groupid, groupSlug, owner, isMember, hideGoToFeed }: Props) => {
+  // Use slug for URL-friendly links, fallback to groupid
+  const groupUrlId = groupSlug || groupid
   const { data } = useActiveGroupSubscription(groupid)
   const { onJoinFreeGroup } = useJoinFree(groupid)
   const [loading, setLoading] = useState(false)
@@ -54,7 +57,7 @@ export const JoinButton = ({ groupid, owner, isMember, hideGoToFeed }: Props) =>
             Owner
           </span>
           <Link 
-            href={`/group/${groupid}/settings/general`}
+            href={`/group/${groupUrlId}/settings/general`}
             className="flex items-center gap-1.5 text-xs text-themeTextGray hover:text-white transition-colors"
           >
             <Settings className="h-3.5 w-3.5" />
@@ -63,7 +66,7 @@ export const JoinButton = ({ groupid, owner, isMember, hideGoToFeed }: Props) =>
         </div>
         {/* Primary action button */}
         {!hideGoToFeed && (
-          <Link href={`/group/${groupid}/feed`}>
+          <Link href={`/group/${groupUrlId}/feed`}>
             <Button 
               size="sm"
               className="w-full bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] rounded-lg flex items-center justify-center gap-1.5 font-medium text-sm h-9"
@@ -87,7 +90,7 @@ export const JoinButton = ({ groupid, owner, isMember, hideGoToFeed }: Props) =>
           </span>
         </div>
         {!hideGoToFeed && (
-          <Link href={`/group/${groupid}/feed`}>
+          <Link href={`/group/${groupUrlId}/feed`}>
             <Button 
               size="sm"
               className="w-full bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] rounded-lg flex items-center justify-center gap-1.5 font-medium text-sm h-9"

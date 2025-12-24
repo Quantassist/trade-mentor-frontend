@@ -9,8 +9,9 @@ export async function GET(
     const { channelid } = await params
     const { searchParams } = new URL(request.url)
     const locale = searchParams.get("locale") || undefined
+    const groupId = searchParams.get("groupId") || undefined
 
-    const result = await getChannelPosts(channelid, locale)
+    const result = await getChannelPosts(channelid, locale, groupId)
     return NextResponse.json(result)
   } catch (error) {
     console.error("Error in channel posts API:", error)

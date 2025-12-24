@@ -89,6 +89,12 @@ export type ChannelPostsResponse = {
   message?: string
 }
 
+export type OngoingCoursesResponse = {
+  status: number
+  courses?: any[]
+  message?: string
+}
+
 export type PostCommentsResponse = {
   status: number
   comments?: any[]
@@ -269,6 +275,9 @@ export const api = {
 
     getMentorProfiles: () =>
       apiClient.get<MentorProfilesResponse>(API_ENDPOINTS.courses.mentors()),
+
+    getOngoing: (limit?: number) =>
+      apiClient.get<OngoingCoursesResponse>(API_ENDPOINTS.courses.ongoing(), { limit }),
   },
 
   // Sections
@@ -282,11 +291,11 @@ export const api = {
 
   // Channels
   channels: {
-    getInfo: (channelId: string, locale?: string) =>
-      apiClient.get<ChannelInfoResponse>(API_ENDPOINTS.channels.info(channelId), { locale }),
+    getInfo: (channelId: string, locale?: string, groupId?: string) =>
+      apiClient.get<ChannelInfoResponse>(API_ENDPOINTS.channels.info(channelId), { locale, groupId }),
 
-    getPosts: (channelId: string, locale?: string) =>
-      apiClient.get<ChannelPostsResponse>(API_ENDPOINTS.channels.posts(channelId), { locale }),
+    getPosts: (channelId: string, locale?: string, groupId?: string) =>
+      apiClient.get<ChannelPostsResponse>(API_ENDPOINTS.channels.posts(channelId), { locale, groupId }),
   },
 
   // Posts

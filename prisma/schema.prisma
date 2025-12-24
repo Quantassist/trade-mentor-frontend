@@ -178,6 +178,7 @@ model Group {
   createdAt       DateTime           @default(now())
   userId          String             @db.Uuid
   domain          String?
+  slug            String             @unique
   affiliate       Affiliate?
   channel         Channel[]
   courses         Course[]
@@ -216,6 +217,7 @@ model Post {
   channelId    String            @db.Uuid
   title        String
   jsonContent  String
+  publicId     String            @unique
   claps        Clap[]
   comments     Comment[]
   author       AppUser           @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -236,8 +238,8 @@ model Clap {
   post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade, map: "Like_postId_fkey")
   user      AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Like_userId_fkey")
 
-  @@unique([postId, userId], map: "Clap_postId_userId_key")
-  @@unique([commentId, userId], map: "Clap_commentId_userId_key")
+  @@unique([postId, userId], name: "postId_userId")
+  @@unique([commentId, userId], name: "commentId_userId")
   @@schema("public")
 }
 
@@ -264,9 +266,11 @@ model Channel {
   icon      String
   createdAt DateTime @default(now())
   groupId   String?  @db.Uuid
+  slug      String
   Group     Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   posts     Post[]
 
+  @@unique([groupId, slug])
   @@schema("public")
 }
 
@@ -331,6 +335,7 @@ model Section {
   type         content_block_type?
   anchorIds    String[]                 @default([])
   blockPayload Json?
+  publicId     String                   @unique
   Module       Module?                  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   translations SectionTranslation[]
   userProgress UserSectionProgress[]

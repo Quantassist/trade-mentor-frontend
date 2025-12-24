@@ -1,9 +1,9 @@
 "use client"
 
-import { onGetOngoingCourses } from "@/actions/courses"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Link } from "@/i18n/navigation"
+import { api } from "@/lib/api"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
 import { ChevronRight, LineChart } from "lucide-react"
@@ -21,17 +21,14 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
 
   const { data } = useQuery({
     queryKey: ["ongoing-courses", locale, limit],
-    queryFn: () => onGetOngoingCourses(limit),
+    queryFn: () => api.courses.getOngoing(limit),
   })
 
   const courses = data?.status === 200 ? data.courses ?? [] : []
 
   if (!courses.length) return null
 
-  const toCourseHref = (courseId: string, lastSectionId?: string | null) =>
-    lastSectionId
-      ? `/group/${groupid}/courses/${courseId}/${lastSectionId}`
-      : `/group/${groupid}/courses/${courseId}`
+  const toCourseHref = (courseId: string) => `/group/${groupid}/courses/${courseId}`
 
   return (
     <div className={cn("space-y-5")}> 
@@ -52,7 +49,7 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
               key={c.courseId}
               className="group border border-[#2a2a2e] bg-[#141417] hover:bg-[#17181b] transition-colors rounded-2xl shadow-sm ring-1 ring-white/5 hover:shadow-md"
             >
-              <Link href={toCourseHref(c.courseId, c.lastSectionId)} className="block p-4">
+              <Link href={toCourseHref(c.courseId)} className="block p-4">
                 <div className="flex items-center gap-3">
                   {thumb ? (
                     <div className="relative h-16 w-16 shrink-0 rounded-xl ring-1 ring-white/5 overflow-hidden">
