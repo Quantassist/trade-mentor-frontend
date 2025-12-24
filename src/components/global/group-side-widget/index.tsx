@@ -46,7 +46,7 @@ export const GroupSideWidget = ({
   return (
     <Card
       className={cn(
-        "border-themeGray/60 lg:sticky lg:top-0 mt-10 lg:mt-0 bg-[#161a20] rounded-xl overflow-hidden",
+        "border-themeGray/60 bg-[#161a20] rounded-xl overflow-hidden",
         light ? "bg-themeGray" : "",
       )}
     >
