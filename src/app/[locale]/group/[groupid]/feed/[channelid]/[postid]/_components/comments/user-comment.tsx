@@ -99,22 +99,27 @@ export const UserComment = ({
             <Loader loading={isFetching && activeComment === id}>
               {data?.replies &&
                 data.replies?.length > 0 &&
-                data.replies.map(
-                  (rep) =>
-                    rep.commentId === id && (
-                      <UserComment
-                        key={rep.id}
-                        content={rep.content}
-                        id={rep.id}
-                        postid={postid}
-                        username={`${rep.user.firstname} ${rep.user.lastname}`}
-                        image={rep.user.image!}
-                        reply={reply}
-                        onReply={onReply}
-                        noReply
-                      />
-                    ),
-                )}
+                data.replies.map((rep: any) => {
+                  if (rep.commentId !== id) return null
+                  const replyTotalClaps = rep.claps?.reduce((sum: number, c: any) => sum + (c.count || 0), 0) || 0
+                  const replyMyClaps = rep.claps?.find((c: any) => c.userId === userid)?.count || 0
+                  return (
+                    <UserComment
+                      key={rep.id}
+                      content={rep.content}
+                      id={rep.id}
+                      postid={postid}
+                      userid={userid}
+                      username={`${rep.user.firstname} ${rep.user.lastname}`}
+                      image={rep.user.image!}
+                      reply={reply}
+                      onReply={onReply}
+                      noReply
+                      initialClaps={replyTotalClaps}
+                      initialMyClaps={replyMyClaps}
+                    />
+                  )
+                })}
             </Loader>
             <span
               onClick={onActiveComment}

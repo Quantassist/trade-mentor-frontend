@@ -499,13 +499,18 @@ export const getPostComments = cache(async (postId: string, userId?: string) => 
   }
 })
 
-export const getCommentReplies = cache(async (commentId: string) => {
+export const getCommentReplies = cache(async (commentId: string, userId?: string) => {
   try {
     const replies = await client.comment.findUnique({
       where: { id: commentId },
       select: {
         reply: {
-          include: { user: true },
+          include: {
+            user: true,
+            claps: {
+              select: { id: true, userId: true, count: true },
+            },
+          },
         },
       },
     })
