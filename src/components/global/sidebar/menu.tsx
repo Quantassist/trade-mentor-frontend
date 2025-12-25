@@ -9,15 +9,23 @@ import { api } from "@/lib/api"
 import { generateId } from "@/lib/id-utils"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
-import { Pencil, Plus, Trash } from "lucide-react"
+import { Check, ChevronDown, Globe, Monitor, Moon, Pencil, Plus, Sun, Trash } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { IChannels } from "."
 import { IconRenderer } from "../icon-renderer"
 import { IconDropDown } from "./icon-dropdown"
 import { useSidebar } from "./sidebar-context"
+import { useTheme } from "next-themes"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useRouter as useIntlRouter, usePathname as useIntlPathname } from "@/i18n/navigation"
 
 type SideBarMenuProps = {
   channels: IChannels[]
@@ -352,6 +360,110 @@ export const SideBarMenu = ({
             </Alert>
           </div>
         )}
+      </div>
+      {/* Bottom section: Theme & Locale switchers */}
+      <SidebarFooter showLabels={showLabels} collapsed={collapsed} />
+    </div>
+  )
+}
+
+// Sidebar footer with theme and locale switchers - pushed to bottom, each in own row
+function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collapsed: boolean }) {
+  const { setTheme, theme } = useTheme()
+  const locale = useLocale()
+  const intlPathname = useIntlPathname()
+  const intlRouter = useIntlRouter()
+
+  const switchLocale = (nextLocale: string) => {
+    if (!intlPathname || nextLocale === locale) return
+    intlRouter.push({ pathname: intlPathname }, { locale: nextLocale })
+    fetch(`${window.location.origin}/api/user/locale`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locale: nextLocale }),
+    }).catch(() => {})
+  }
+
+  const labelFor = (l: string) => (l === "hi" ? "हिन्दी" : "English")
+  const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "System"
+  const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor
+
+  return (
+    <div className={cn(
+      "mt-auto pt-4 pb-4 border-t border-themeGray/30",
+      collapsed ? "px-1" : "px-0",
+    )}>
+      <div className="flex flex-col gap-1">
+        {/* Theme Switcher Row */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={cn(
+                "w-full flex items-center gap-3 rounded-lg py-2.5 cursor-pointer transition-colors",
+                "text-themeTextGray hover:text-white hover:bg-[#1e2329]",
+                collapsed ? "px-2 justify-center" : "px-3",
+              )}
+            >
+              <ThemeIcon className="h-4 w-4 shrink-0" />
+              {showLabels && <span className="text-sm">{themeLabel}</span>}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" side="top" className="bg-[#1a1a1d] border-themeGray shadow-xl">
+            <DropdownMenuItem 
+              onClick={() => setTheme("light")}
+              className="text-themeTextGray hover:text-white hover:bg-themeGray cursor-pointer"
+            >
+              <Sun className="mr-2 h-4 w-4" />
+              Light
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setTheme("dark")}
+              className="text-themeTextGray hover:text-white hover:bg-themeGray cursor-pointer"
+            >
+              <Moon className="mr-2 h-4 w-4" />
+              Dark
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setTheme("system")}
+              className="text-themeTextGray hover:text-white hover:bg-themeGray cursor-pointer"
+            >
+              <Monitor className="mr-2 h-4 w-4" />
+              System
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Locale Switcher Row */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={cn(
+                "w-full flex items-center gap-3 rounded-lg py-2.5 cursor-pointer transition-colors",
+                "text-themeTextGray hover:text-white hover:bg-[#1e2329]",
+                collapsed ? "px-2 justify-center" : "px-3",
+              )}
+            >
+              <Globe className="h-4 w-4 shrink-0" />
+              {showLabels && <span className="text-sm">{labelFor(locale)}</span>}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" side="top" className="w-36 border-themeGray bg-[#1a1a1d] text-white shadow-xl">
+            <DropdownMenuItem
+              className="cursor-pointer hover:bg-themeGray hover:text-white"
+              onClick={() => switchLocale("en")}
+            >
+              <span className="flex-1">English</span>
+              {locale === "en" && <Check className="h-4 w-4" />}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer hover:bg-themeGray hover:text-white"
+              onClick={() => switchLocale("hi")}
+            >
+              <span className="flex-1">हिन्दी</span>
+              {locale === "hi" && <Check className="h-4 w-4" />}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   )

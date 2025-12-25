@@ -87,7 +87,7 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
               "h-screen fixed overflow-hidden hidden bg-black md:flex md:shrink-0",
               effectiveCollapsed
                 ? "md:w-[70px] md:min-w-[70px] md:max-w-[70px] md:px-2"
-                : "md:w-[300px] md:min-w-[300px] md:max-w-[300px] sm:px-5 md:px-5",
+                : "md:w-[280px] md:min-w-[280px] md:max-w-[280px] sm:px-5 md:px-5",
             )
           : "w-full flex",
       )}
@@ -100,7 +100,8 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
             <div
               title={groupInfo.group?.name}
               className={cn(
-                "w-full flex items-center text-themeTextGray rounded-xl",
+                "w-full flex items-center text-themeTextGray rounded-xl cursor-pointer transition-colors",
+                "hover:bg-[#1e2329] hover:text-white",
                 isSheet
                   ? "justify-between p-3"
                   : effectiveCollapsed
@@ -148,7 +149,7 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
           {groups &&
             groups.groups.length > 0 &&
             groups.groups.map((item) => (
-              <Link key={item.id} href={`/group/${item.slug || item.id}`}>
+              <Link key={item.id} href={`/group/${item.slug || item.id}/about`}>
                 <Button
                   variant="ghost"
                   className="flex gap-2 w-full justify-start hover:bg-themeGray items-center"
