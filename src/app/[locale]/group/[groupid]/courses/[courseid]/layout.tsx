@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query"
 import { CreateCourseModule } from "../_components/create-course-module"
 import { CourseModuleList } from "../_components/module-list"
+import { AutoCollapseSidebar } from "./_components/auto-collapse-sidebar"
 
 type CourseLayoutProps = {
   params: Promise<{
@@ -19,6 +20,7 @@ const CourseLayout = async ({ params, children }: CourseLayoutProps) => {
   const client = getQueryClient()
   return (
     <HydrationBoundary state={dehydrate(client)}>
+      <AutoCollapseSidebar />
       <div className="min-h-[100svh] md:flex">
         <div
           className="bg-themeBlack p-5 md:fixed md:z-10 md:overflow-y-auto md:w-96"

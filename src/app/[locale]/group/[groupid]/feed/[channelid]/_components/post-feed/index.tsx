@@ -8,10 +8,12 @@ type PostFeedProps = {
   channelid: string
   userid: string
   locale?: string
+  groupid?: string
 }
 
 export type PostWithClaps = {
   id: string
+  publicId?: string
   title: string
   htmlContent: string | null
   jsonContent: string | null
@@ -25,6 +27,7 @@ export type PostWithClaps = {
   }[]
   channel: {
     name: string
+    slug?: string
   }
   _count: {
     comments: number
@@ -37,11 +40,17 @@ export type PostWithClaps = {
   }
 }
 
-export const PostFeed = ({ channelid, userid, locale }: PostFeedProps) => {
-  const { data } = useChannelPage(channelid, locale)
-  const { posts } = data as { posts: PostWithClaps[] }
+export const PostFeed = ({ channelid, userid, locale, groupid }: PostFeedProps) => {
+  const { data } = useChannelPage(channelid, locale, groupid)
+  
+  // Handle null/undefined data safely
+  if (!data) {
+    return <></>
+  }
+  
+  const posts = (data as { posts?: PostWithClaps[] }).posts ?? []
 
-  return posts && posts.length > 0 ? (
+  return posts.length > 0 ? (
     <>
       {posts.map((post) => (
         <PostCardWithClaps

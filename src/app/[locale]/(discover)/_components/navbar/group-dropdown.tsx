@@ -13,8 +13,10 @@ type GroupDropDownProps = {
         groups: {
           channel: {
             id: string
+            slug?: string
           }[]
           id: string
+          slug?: string
           name: string
           icon: string | null
         }[]
@@ -45,7 +47,7 @@ export const GroupDropDown = ({ groups }: GroupDropDownProps) => {
         userGroups.map((item) => (
           <Link
             key={item.id}
-            href={`/group/${item.id}/feed/${item.channel[0].id}`}
+            href={`/group/${item.slug || item.id}/feed/${item.channel[0]?.slug || item.channel[0]?.id}`}
           >
             <Button
               variant="ghost"

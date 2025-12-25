@@ -64,7 +64,8 @@ export const GroupSideWidget = ({
       <Separator orientation="horizontal" className="bg-themeGray/60" />
       {groupid && (
         <JoinButton
-          groupid={groupid}
+          groupid={group.id}
+          groupSlug={group.slug}
           owner={role === "OWNER" ? true : false}
           isMember={role === "MEMBER" ? true : false}
           hideGoToFeed={hideGoToFeed}

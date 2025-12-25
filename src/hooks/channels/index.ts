@@ -1,38 +1,38 @@
 "use client"
 import {
-  onClapComment,
-  onCreateChannelPost,
-  onCreateChannelPostMulti,
-  onCreateCommentReply,
-  onCreateNewComment,
-  onDeleteChannel,
-  onUpdateChannelInfo,
-  onUpdateChannelPostMulti
+    onClapComment,
+    onCreateChannelPost,
+    onCreateChannelPostMulti,
+    onCreateCommentReply,
+    onCreateNewComment,
+    onDeleteChannel,
+    onUpdateChannelInfo,
+    onUpdateChannelPostMulti
 } from "@/actions/channel"
 import {
-  onDeletePost,
-  onUpdatePost,
+    onDeletePost,
+    onUpdatePost
 } from "@/actions/groups"
 import { CreateCommentSchema } from "@/components/form/post-comments/schema"
 import type { LocalePayload } from "@/components/global/post-content/multi"
 import { CreateChannelPostSchema, MultiChannelPostSchema } from "@/components/global/post-content/schema"
 import { defaultLocale, locales } from "@/i18n/config"
 import { api } from "@/lib/api"
+import { generateId } from "@/lib/id-utils"
 import { onRemoveItem } from "@/redux/slices/infinite-scroll-slice"
 import type { AppDispatch } from "@/redux/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
-  useMutation,
-  useMutationState,
-  useQuery,
-  useQueryClient,
+    useMutation,
+    useMutationState,
+    useQuery,
+    useQueryClient,
 } from "@tanstack/react-query"
 import { JSONContent } from "novel"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useDispatch } from "react-redux"
 import { toast } from "sonner"
-import { v4 } from "uuid"
 import z from "zod"
 
 export const useChannelInfo = () => {
@@ -114,6 +114,22 @@ export const useChannelInfo = () => {
 
   const onChannelDetele = (id: string) => deleteMutation({ id })
 
+  // Direct mutation for updating channel by ID (used by inline edit)
+  const { mutate: updateChannelById, isPending: updateChannelByIdPending } = useMutation({
+    mutationFn: (data: { channelId: string; name?: string; icon?: string }) =>
+      onUpdateChannelInfo(data.channelId, data.name, data.icon),
+    onSuccess: (data) => {
+      return toast(data.status !== 200 ? "Error" : "Success", {
+        description: data.message,
+      })
+    },
+    onSettled: async () => {
+      return await client.invalidateQueries({
+        queryKey: ["group-channels"],
+      })
+    },
+  })
+
   return {
     channel,
     onEditChannel,
@@ -125,15 +141,17 @@ export const useChannelInfo = () => {
     triggerRef,
     onSetIcon,
     icon,
+    updateChannelById,
+    updateChannelByIdPending,
     onChannelDetele,
     deleteVariables,
   }
 }
 
-export const useChannelPage = (channelid: string, locale?: string) => {
+export const useChannelPage = (channelid: string, locale?: string, groupid?: string) => {
   const { data } = useQuery({
     queryKey: ["channel-info", channelid, locale],
-    queryFn: () => api.channels.getInfo(channelid, locale),
+    queryFn: () => api.channels.getInfo(channelid, locale, groupid),
   })
 
   const mutation = useMutationState({
@@ -272,7 +290,7 @@ export const useCreateChannelPost = (
       content: values.content,
       htmlcontent: values.htmlcontent,
       jsoncontent: values.jsoncontent,
-      postid: mode === "create" ? v4() : undefined,
+      postid: mode === "create" ? generateId() : undefined,
     }),
   )
 
@@ -292,7 +310,7 @@ export const useCreateChannelPost = (
 }
 
 // Multi-locale create hook. Keeps mutationKey ["create-post"] to preserve optimistic preview behavior.
-export const useCreateChannelPostMulti = (channelid: string) => {
+export const useCreateChannelPostMulti = (channelid: string, onSuccessCallback?: () => void) => {
   // Per-locale editor states managed here and synced into RHF values like in course hooks
   const [titles, setTitles] = useState<Record<string, string>>({})
   const [jsonByLocale, setJsonByLocale] = useState<Record<string, JSONContent | undefined>>({})
@@ -303,6 +321,7 @@ export const useCreateChannelPostMulti = (channelid: string) => {
     handleSubmit,
     formState: { errors },
     setValue,
+    trigger,
   } = useForm<z.infer<typeof MultiChannelPostSchema>>({
     resolver: zodResolver(MultiChannelPostSchema),
     defaultValues: { payloads: [] },
@@ -312,9 +331,9 @@ export const useCreateChannelPostMulti = (channelid: string) => {
     return (locales as readonly string[]).map((l) => ({
       locale: l,
       title: titles[l] ?? "",
-      htmlcontent: htmlByLocale[l] ?? null,
-      jsoncontent: jsonByLocale[l] ? JSON.stringify(jsonByLocale[l]) : null,
-      content: textByLocale[l] ?? null,
+      htmlcontent: htmlByLocale[l] ?? "",
+      jsoncontent: jsonByLocale[l] ? JSON.stringify(jsonByLocale[l]) : "",
+      content: textByLocale[l] ?? "",
     }))
   }
 
@@ -335,23 +354,35 @@ export const useCreateChannelPostMulti = (channelid: string) => {
       onCreateChannelPostMulti(channelid, data.postid, data.payloads),
     onSuccess: (data) => {
       toast(data.status !== 200 ? "Error" : "Success", { description: data.message })
+      if (data.status === 200 && onSuccessCallback) {
+        onSuccessCallback()
+      }
     },
     onSettled: async () => {
       await client.invalidateQueries({ queryKey: ["channel-info", channelid] })
+      await client.invalidateQueries({ queryKey: ["channel-posts", channelid] })
     },
   })
 
-  const onSubmitMulti = handleSubmit(async (values) => {
-    const payloads = values.payloads as LocalePayload[]
-    const postid = v4()
-    const base = payloads.find((p) => p.locale === defaultLocale) ?? payloads[0]
-    ;(mutate as any)({ postid, payloads, title: base?.title ?? "", htmlcontent: base?.htmlcontent ?? "" })
-  })
+  const onSubmitMulti = handleSubmit(
+    async (values) => {
+      const payloads = values.payloads as LocalePayload[]
+      const postid = generateId()
+      const base = payloads.find((p) => p.locale === defaultLocale) ?? payloads[0]
+      ;(mutate as any)({ postid, payloads, title: base?.title ?? "", htmlcontent: base?.htmlcontent ?? "" })
+    },
+    (formErrors) => {
+      // Show validation error toast
+      const errorMessage = formErrors.payloads?.message || formErrors.payloads?.root?.message || "Please fill in title and content"
+      toast("Validation Error", { description: errorMessage })
+    }
+  )
 
   return {
     // RHF
     errors,
     onSubmitMulti,
+    trigger,
     // per-locale state and setters (consumed by the component)
     titles,
     setTitles,
@@ -529,7 +560,7 @@ export const usePostComment = (postid: string) => {
   const onCreateComment = handleSubmit(async (values) =>
     mutate({
       content: values.comment,
-      commentid: v4(),
+      commentid: generateId(),
     }),
   )
 
@@ -616,7 +647,7 @@ export const usePostReply = (postid: string, commentid: string, userid?: string)
   const onCreateReply = handleSubmit(async (values) =>
     mutate({
       comment: values.comment,
-      replyid: v4(),
+      replyid: generateId(),
     }),
   )
 

@@ -33,8 +33,8 @@ const CourseModuleSection = async (props: Props) => {
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <div className="container mx-auto max-w-8xl py-6 px-5">
-        <div className="rounded-xl overflow-hidden border border-themeGray/60 bg-[#161a20]">
+      <div className="container mx-auto max-w-8xl py-6 px-5 overflow-x-hidden">
+        <div className="rounded-xl overflow-hidden border border-themeGray/60 bg-[#161a20] max-w-full">
           {section?.type === "concept" ? (
             <CourseContentForm
               groupid={groupid}

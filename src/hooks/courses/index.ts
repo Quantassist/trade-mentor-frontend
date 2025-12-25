@@ -1,20 +1,20 @@
 "use client"
 import {
-    onCreateCourseModule,
-    onCreateGroupCourse,
-    onCreateModuleSection,
-    onDeleteModule,
-    onDeleteSection,
-    onReorderModules,
-    onReorderSections,
-    onSaveReflectionResponse,
-    onSubmitQuizAttempt,
-    onUpdateCourse,
-    onUpdateCourseSectionContent,
-    onUpdateInteractiveRunner,
-    onUpdateModule,
-    onUpdateSection,
-    onUpdateSectionTypedPayload
+  onCreateCourseModule,
+  onCreateGroupCourse,
+  onCreateModuleSection,
+  onDeleteModule,
+  onDeleteSection,
+  onReorderModules,
+  onReorderSections,
+  onSaveReflectionResponse,
+  onSubmitQuizAttempt,
+  onUpdateCourse,
+  onUpdateCourseSectionContent,
+  onUpdateInteractiveRunner,
+  onUpdateModule,
+  onUpdateSection,
+  onUpdateSectionTypedPayload
 } from "@/actions/courses"
 import { CaseStudyFormSchema, type CaseStudyFormInput } from "@/components/form/case-study/schema"
 import { CourseContentSchema } from "@/components/form/course-content/schema"
@@ -26,6 +26,7 @@ import { QuizFormSchema, type QuizFormValues } from "@/components/form/quiz/sche
 import { ReflectionFormSchema, type ReflectionFormValues } from "@/components/form/reflection/schema"
 import { SECTION_TYPES } from "@/constants/icons"
 import { api } from "@/lib/api"
+import { generateId } from "@/lib/id-utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { UploadClient } from "@uploadcare/upload-client"
@@ -35,7 +36,6 @@ import { JSONContent } from "novel"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { v4 } from "uuid"
 import { z } from "zod"
 
 // Lazy-initialized UploadClient to avoid module-level instantiation
@@ -225,7 +225,7 @@ export const useCreateCourse = (groupid: string, initial?: any) => {
       initial
         ? { ...values }
         : {
-            id: v4(),
+            id: generateId(),
             createdAt: new Date(),
             ...values,
             image: values.image,
@@ -301,7 +301,7 @@ export const useCreateModule = (courseid: string, groupid: string) => {
     mutate({
       courseId: courseid,
       title: "Module",
-      moduleId: v4(),
+      moduleId: generateId(),
     })
 
   return {
@@ -513,6 +513,22 @@ export const useCourseModule = (courseId: string, groupid: string) => {
 
   const onEditSection = () => setEditSection(true)
 
+  // Direct mutation for updating module name by ID (used by inline edit)
+  const { mutate: updateModuleById, isPending: updateModuleByIdPending } = useMutation({
+    mutationFn: (data: { moduleId: string; type: "NAME" | "DATA"; content: string }) =>
+      onUpdateModule(groupid, data.moduleId, data.type, data.content),
+    onSuccess: (data) => {
+      return toast(data?.status !== 200 ? "Error" : "Success", {
+        description: data?.message,
+      })
+    },
+    onSettled: async () => {
+      return await client.invalidateQueries({
+        queryKey: ["course-modules", courseId],
+      })
+    },
+  })
+
   return {
     data,
     onEditModule,
@@ -544,6 +560,8 @@ export const useCourseModule = (courseId: string, groupid: string) => {
     reorderModulesPending,
     reorderSections,
     reorderSectionsPending,
+    updateModuleById,
+    updateModuleByIdPending,
   }
 }
 
@@ -675,20 +693,8 @@ export const useCourseContent = (
     }
   }, [onJsonDescription, onDescription, onHtmlDescription])
 
-  const onEditTextEditor = (event: Event) => {
-    if (editor.current) {
-      !editor.current.contains(event.target as Node | null)
-        ? setOnEditDescription(false)
-        : setOnEditDescription(true)
-    }
-  }
-
-  useEffect(() => {
-    document.addEventListener("click", onEditTextEditor, false)
-    return () => {
-      document.removeEventListener("click", onEditTextEditor, false)
-    }
-  }, [])
+  // Note: We no longer auto-toggle edit mode based on clicks.
+  // Edit mode is now explicitly controlled via setOnEditDescription.
 
   const client = useQueryClient()
 
@@ -719,6 +725,7 @@ export const useCourseContent = (
     errors,
     onUpdateContent,
     onEditDescription,
+    setOnEditDescription,
     onJsonDescription,
     setJsonDescription,
     onDescription,
@@ -753,7 +760,7 @@ export const useCreateSectionForm = (moduleid: string, groupid: string) => {
       onCreateModuleSection(
         groupid,
         moduleid,
-        v4(),
+        generateId(),
         data.name || "New Section",
         data.icon,
         { type: data.type as any, initialPayload: data.initialPayload }

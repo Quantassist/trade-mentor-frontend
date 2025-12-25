@@ -1,10 +1,11 @@
 import { onAuthenticatedUser } from "@/actions/auth"
-import { onGetChannelInfo } from "@/actions/channel"
 import { onGetOngoingCourses } from "@/actions/courses"
-import { inGetChannelPosts } from "@/actions/groups"
 import { LeaderBoardCard } from "@/app/[locale]/group/_components/leaderboard"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
 import { OngoingCoursesWidget } from "@/components/global/ongoing-courses-widget"
+import { getChannelPosts } from "@/data"
+import { getChannelInfo } from "@/data/channels"
+import { getAppUserId } from "@/lib/get-app-user"
 import { getQueryClient } from "@/lib/get-query-client"
 import { getSession } from "@/lib/get-session"
 import {
@@ -27,16 +28,18 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
   const sessionPromise = getSession()
   const authUserPromise = onAuthenticatedUser()
 
+  const userId = await getAppUserId()
+
   await Promise.allSettled([
     client.prefetchQuery({
       queryKey: ["channel-info", channelid, locale],
-      queryFn: () => onGetChannelInfo(channelid, locale),
+      queryFn: () => getChannelInfo(channelid, locale, userId, groupid),
       staleTime: 60000,
       gcTime: 300000,
     }),
     client.prefetchQuery({
       queryKey: ["channel-posts", channelid, locale],
-      queryFn: () => inGetChannelPosts(channelid, locale),
+      queryFn: () => getChannelPosts(channelid, locale, groupid),
       staleTime: 60000,
       gcTime: 300000,
     }),
@@ -69,7 +72,7 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
           locale={locale}
           groupid={groupid}
         />
-        <PostFeed channelid={channelid} userid={authUser?.id!} locale={locale} />
+        <PostFeed channelid={channelid} userid={authUser?.id!} locale={locale} groupid={groupid} />
       </FeedLayout>
     </HydrationBoundary>
   )

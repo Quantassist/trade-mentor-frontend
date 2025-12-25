@@ -846,7 +846,7 @@ export const useNewPostForm = (groupid: string) => {
   }
 }
 
-export const useChannelPosts = (slug: string) => {
+export const useChannelPosts = (slug: string, groupId?: string) => {
   const locale = useLocale()
   const { data: groupInfo } = useQuery({
     queryKey: ["group-info"],
@@ -855,7 +855,7 @@ export const useChannelPosts = (slug: string) => {
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["channel-posts", slug, locale],
-    queryFn: () => api.channels.getPosts(slug, locale),
+    queryFn: () => api.channels.getPosts(slug, locale, groupId),
   })
 
   if (isLoading) {

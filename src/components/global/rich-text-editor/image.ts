@@ -67,7 +67,8 @@ export const Image = Node.create({
       wrapper.style.position = "relative"
       wrapper.style.maxWidth = "100%"
       if (node.attrs.width) {
-        wrapper.style.width = `${node.attrs.width}px`
+        // Use min of explicit width and 100% to prevent overflow
+        wrapper.style.width = `min(${node.attrs.width}px, 100%)`
       }
 
       const img = document.createElement("img")
@@ -250,7 +251,7 @@ export const Image = Node.create({
           if (updatedNode.attrs.alt) img.alt = updatedNode.attrs.alt
           if (updatedNode.attrs.title) img.title = updatedNode.attrs.title
           if (updatedNode.attrs.width) {
-            wrapper.style.width = `${updatedNode.attrs.width}px`
+            wrapper.style.width = `min(${updatedNode.attrs.width}px, 100%)`
           }
           // Merge provided classes without overwriting (preserve plugin/decorations classes)
           if (updatedNode.attrs.class) {

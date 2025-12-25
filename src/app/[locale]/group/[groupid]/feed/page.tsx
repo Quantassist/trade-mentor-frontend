@@ -20,16 +20,23 @@ export default async function FeedRedirectPage({
   const data = await onGetUserGroups(user.id as string)
 
   let channelId: string | undefined
+  let channelSlug: string | undefined
 
   if (data?.status === 200) {
-    // Owner groups list
-    const ownerMatch = data.groups?.find((g: any) => g.id === groupid)
+    // Owner groups list - check by id or slug
+    const ownerMatch = data.groups?.find((g: any) => 
+      g.id === groupid || g.slug === groupid
+    )
     channelId = ownerMatch?.channel?.[0]?.id
+    channelSlug = ownerMatch?.channel?.[0]?.slug
 
     // Membership list (if not owner)
     if (!channelId && Array.isArray(data.members)) {
-      const memberMatch = data.members.find((m: any) => m?.Group?.id === groupid)
+      const memberMatch = data.members.find((m: any) => 
+        m?.Group?.id === groupid || m?.Group?.slug === groupid
+      )
       channelId = memberMatch?.Group?.channel?.[0]?.id
+      channelSlug = memberMatch?.Group?.channel?.[0]?.slug
     }
   }
 
@@ -37,6 +44,7 @@ export default async function FeedRedirectPage({
   if (!channelId) {
     const channels = await onGetGroupChannels(groupid)
     channelId = channels?.channels?.[0]?.id
+    channelSlug = channels?.channels?.[0]?.slug
   }
 
   if (!channelId) {
@@ -44,5 +52,7 @@ export default async function FeedRedirectPage({
     return redirect({ href: `/group/${groupid}`, locale })
   }
 
-  return redirect({ href: `/group/${groupid}/feed/${channelId}`, locale })
+  // Use slug for URL-friendly redirect, fallback to id
+  const channelUrlId = channelSlug || channelId
+  return redirect({ href: `/group/${groupid}/feed/${channelUrlId}`, locale })
 }

@@ -2,12 +2,13 @@
 
 import { CreateGroupSchema } from "@/components/form/create-group/schema"
 import { defaultLocale } from "@/i18n/config"
+import { generateId, isUUID } from "@/lib/id-utils"
+import { generateUniqueGroupSlug } from "@/lib/id-utils.server"
 import { client } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import axios from "axios"
 import { revalidatePath } from "next/cache"
 import { cache } from "react"
-import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
 import { onAuthenticatedUser, onGetUserGroupRole } from "./auth"
 
@@ -145,6 +146,11 @@ export const onCreateNewGroup = async (
   data: z.infer<typeof CreateGroupSchema>,
 ) => {
   try {
+    // Generate slug from group name
+    const groupSlug = await generateUniqueGroupSlug(data.name)
+    // Generate a temporary group ID to create channel slugs
+    const tempGroupId = generateId()
+    
     const created = await client.appUser.update({
       where: {
         id: userId,
@@ -153,9 +159,10 @@ export const onCreateNewGroup = async (
         group: {
           create: {
             ...data,
+            slug: groupSlug,
             affiliate: {
               create: {
-                id: uuidv4(),
+                id: generateId(),
               },
             },
             member: {
@@ -166,14 +173,16 @@ export const onCreateNewGroup = async (
             channel: {
               create: [
                 {
-                  id: uuidv4(),
+                  id: generateId(),
                   name: "general",
                   icon: "general",
+                  slug: "general",
                 },
                 {
-                  id: uuidv4(),
+                  id: generateId(),
                   name: "announcements",
                   icon: "announcement",
+                  slug: "announcements",
                 },
               ],
             },
@@ -185,9 +194,11 @@ export const onCreateNewGroup = async (
         group: {
           select: {
             id: true,
+            slug: true,
             channel: {
               select: {
                 id: true,
+                slug: true,
               },
               take: 1,
               orderBy: {
@@ -260,6 +271,7 @@ export const onGetUserGroups = cache(async (id: string) => {
         group: {
           select: {
             id: true,
+            slug: true,
             name: true,
             icon: true,
             channel: {
@@ -268,6 +280,7 @@ export const onGetUserGroups = cache(async (id: string) => {
               },
               select: {
                 id: true,
+                slug: true,
               },
             },
           },
@@ -277,6 +290,7 @@ export const onGetUserGroups = cache(async (id: string) => {
             Group: {
               select: {
                 id: true,
+                slug: true,
                 icon: true,
                 name: true,
                 channel: {
@@ -285,6 +299,7 @@ export const onGetUserGroups = cache(async (id: string) => {
                   },
                   select: {
                     id: true,
+                    slug: true,
                   },
                 },
               },
@@ -437,54 +452,56 @@ export const onUpDateGroupSettings = async (
   }
 }
 
-export const onGetGroupInfo = cache(async (groupid: string, locale?: string) => {
-  // console.log(groupid)
+export const onGetGroupInfo = cache(async (groupIdOrSlug: string, locale?: string) => {
+  // console.log(groupIdOrSlug)
   try {
     const user = await onAuthenticatedUser()
-    const roleInfo = await onGetUserGroupRole(groupid)
-    const group = await client.group.findUnique({
-      where: {
-        id: groupid,
-      },
-      // include: {
-      //     channel: true,
-      // },
+    
+    // Support both UUID and slug lookups
+    const group = await client.group.findFirst({
+      where: isUUID(groupIdOrSlug)
+        ? { id: groupIdOrSlug }
+        : { slug: groupIdOrSlug },
     })
+    
+    if (!group) {
+      return { status: 404 }
+    }
+    
+    // Use resolved group.id for role lookup
+    const roleInfo = await onGetUserGroupRole(group.id)
 
-    if (group) {
-      if (locale && locale !== defaultLocale) {
-        const translation = await client.groupTranslation.findUnique({
-          where: { groupId_locale: { groupId: groupid, locale } },
-        })
-        const effective = {
-          ...group,
-          name: translation?.name ?? group.name,
-          htmlDescription: translation?.descriptionHtml ?? group.htmlDescription ?? undefined,
-          jsonDescription:
-            translation?.descriptionJson !== undefined && translation?.descriptionJson !== null
-              ? JSON.stringify(translation.descriptionJson)
-              : group.jsonDescription ?? undefined,
-        }
-        return {
-          status: 200,
-          group: effective,
-          groupOwner: user.id === group.userId ? true : false,
-          // RBAC context for UI gating
-          isSuperAdmin: roleInfo.isSuperAdmin ?? false,
-          role: roleInfo.role,
-        }
+    if (locale && locale !== defaultLocale) {
+      const translation = await client.groupTranslation.findUnique({
+        where: { groupId_locale: { groupId: group.id, locale } },
+      })
+      const effective = {
+        ...group,
+        name: translation?.name ?? group.name,
+        htmlDescription: translation?.descriptionHtml ?? group.htmlDescription ?? undefined,
+        jsonDescription:
+          translation?.descriptionJson !== undefined && translation?.descriptionJson !== null
+            ? JSON.stringify(translation.descriptionJson)
+            : group.jsonDescription ?? undefined,
       }
       return {
         status: 200,
-        group,
+        group: effective,
         groupOwner: user.id === group.userId ? true : false,
         // RBAC context for UI gating
         isSuperAdmin: roleInfo.isSuperAdmin ?? false,
         role: roleInfo.role,
       }
     }
-
-    return { status: 404 }
+    
+    return {
+      status: 200,
+      group,
+      groupOwner: user.id === group.userId ? true : false,
+      // RBAC context for UI gating
+      isSuperAdmin: roleInfo.isSuperAdmin ?? false,
+      role: roleInfo.role,
+    }
   } catch (error) {
     return { status: 400 }
   }
@@ -573,6 +590,9 @@ export const onCreateNewChannel = async (
   },
 ) => {
   try {
+    // Generate slug from channel name
+    const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'channel'
+    
     const channel = await client.group.update({
       where: {
         id: groupid,
@@ -581,6 +601,7 @@ export const onCreateNewChannel = async (
         channel: {
           create: {
             ...data,
+            slug,
           },
         },
       },
@@ -650,14 +671,49 @@ export const onCreateNewChannel = async (
 //     }
 // }
 
-export const inGetChannelPosts = cache(async (channelId: string, locale?: string) => {
+/**
+ * Get channel posts by channel ID or slug
+ * For slug lookup, groupId is required to scope the search
+ */
+export const inGetChannelPosts = cache(async (channelIdOrSlug: string, locale?: string, groupIdOrSlug?: string) => {
   try {
+    // Resolve group ID from slug if needed
+    let resolvedGroupId: string | undefined = groupIdOrSlug
+    if (groupIdOrSlug && !isUUID(groupIdOrSlug)) {
+      const group = await client.group.findFirst({
+        where: { slug: groupIdOrSlug },
+        select: { id: true },
+      })
+      resolvedGroupId = group?.id
+    }
+
+    // Resolve channel ID from slug if needed
+    let channelId = channelIdOrSlug
+    if (!isUUID(channelIdOrSlug)) {
+      // Slug lookup - need groupId to scope
+      const channel = resolvedGroupId
+        ? await client.channel.findFirst({
+            where: { slug: channelIdOrSlug, groupId: resolvedGroupId },
+            select: { id: true },
+          })
+        : await client.channel.findFirst({
+            where: { slug: channelIdOrSlug },
+            select: { id: true },
+          })
+      if (!channel) {
+        return { status: 404, message: "Channel not found" }
+      }
+      channelId = channel.id
+    }
+
     const posts = await client.post.findMany({
       where: {
         channelId,
       },
       select: {
         id: true,
+        publicId: true,
+        authorId: true,
         title: true,
         htmlContent: true,
         jsonContent: true,
@@ -674,6 +730,7 @@ export const inGetChannelPosts = cache(async (channelId: string, locale?: string
           select: {
             id: true,
             name: true,
+            slug: true,
           },
         },
         author: {
@@ -681,6 +738,7 @@ export const inGetChannelPosts = cache(async (channelId: string, locale?: string
             id: true,
             firstname: true,
             lastname: true,
+            image: true,
           },
         },
         claps: {
@@ -689,6 +747,9 @@ export const inGetChannelPosts = cache(async (channelId: string, locale?: string
             userId: true,
             count: true,
           },
+        },
+        _count: {
+          select: { comments: true },
         },
       },
       orderBy: {
@@ -725,52 +786,63 @@ export const inGetChannelPosts = cache(async (channelId: string, locale?: string
   }
 })
 
-export const onGetPostInfo = cache(async (postid: string, locale?: string) => {
+/**
+ * Get post info by ID or publicId (NanoID)
+ * Supports both UUID lookup (legacy) and publicId lookup (new)
+ */
+export const onGetPostInfo = cache(async (postIdOrPublicId: string, locale?: string) => {
   try {
     const user = await onAuthenticatedUser()
-    const post = await client.post.findUnique({
-      where: {
-        id: postid,
+    
+    const postInclude = {
+      translations: locale
+        ? {
+            where: { locale },
+            select: {
+              locale: true,
+              title: true,
+              contentHtml: true,
+              contentJson: true,
+            },
+          }
+        : false,
+      channel: {
+        select: {
+          name: true,
+        },
       },
-      include: {
-        translations: locale
-          ? {
-              where: { locale },
-              select: {
-                locale: true,
-                title: true,
-                contentHtml: true,
-                contentJson: true,
-              },
-            }
-          : false,
-        channel: {
-          select: {
-            name: true,
-          },
+      author: {
+        select: {
+          firstname: true,
+          lastname: true,
+          image: true,
         },
-        author: {
-          select: {
-            firstname: true,
-            lastname: true,
-            image: true,
-          },
-        },
-        _count: {
-          select: {
-            comments: true,
-          },
-        },
-        claps: {
-          select: {
-            userId: true,
-            id: true,
-            count: true,
-          },
-        },
-        comments: true,
       },
-    })
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+      claps: {
+        select: {
+          userId: true,
+          id: true,
+          count: true,
+        },
+      },
+      comments: true,
+    }
+
+    // Support both UUID and publicId lookups
+    const post = isUUID(postIdOrPublicId)
+      ? await client.post.findUnique({
+          where: { id: postIdOrPublicId },
+          include: postInclude,
+        })
+      : await client.post.findFirst({
+          where: { publicId: postIdOrPublicId },
+          include: postInclude,
+        })
 
     if (post) {
       if (locale && locale !== defaultLocale) {
@@ -800,11 +872,27 @@ export const onGetPostInfo = cache(async (postid: string, locale?: string) => {
   }
 })
 
-export const onGetPostComments = cache(async (postid: string, userId?: string) => {
+/**
+ * Get post comments by post ID or publicId (NanoID)
+ */
+export const onGetPostComments = cache(async (postIdOrPublicId: string, userId?: string) => {
   try {
+    // Resolve post ID from publicId if needed
+    let postId = postIdOrPublicId
+    if (!isUUID(postIdOrPublicId)) {
+      const post = await client.post.findFirst({
+        where: { publicId: postIdOrPublicId },
+        select: { id: true },
+      })
+      if (!post) {
+        return { status: 404, message: "Post not found", comments: [] }
+      }
+      postId = post.id
+    }
+
     const comments = await client.comment.findMany({
       where: {
-        postId: postid,
+        postId,
         replied: false,
       },
       orderBy: {

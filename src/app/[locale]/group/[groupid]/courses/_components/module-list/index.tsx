@@ -8,8 +8,8 @@ import { ReorderableList } from "@/components/global/reorderable-list"
 import { AccordionContent } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Separator } from "@/components/ui/separator"
 import { SECTION_TYPES } from "@/constants/icons"
 import { useCourseModule } from "@/hooks/courses"
 import { Link } from "@/i18n/navigation"
@@ -17,7 +17,7 @@ import { Check } from "@/icons"
 import { cn } from "@/lib/utils"
 import { Circle, GripVertical, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 type ModuleListProps = {
   courseId: string
@@ -27,10 +27,6 @@ type ModuleListProps = {
 export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
   const {
     data,
-    onEditModule,
-    edit,
-    triggerRef,
-    inputRef,
     variables,
     pathname,
     isPending,
@@ -52,6 +48,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
     deleteModule,
     reorderModules,
     reorderSections,
+    updateModuleById,
   } = useCourseModule(courseId, groupid)
 
   const tr = useTranslations("sectionTypes")
@@ -67,6 +64,50 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
   }, [data])
 
   const canManage = Boolean(groupOwner?.isSuperAdmin || groupOwner?.groupOwner || groupOwner?.role === "ADMIN")
+
+  // Per-module edit state: tracks which module is being edited and its current input value
+  const [editingModuleId, setEditingModuleId] = useState<string | null>(null)
+  const [editingModuleName, setEditingModuleName] = useState<string>("")
+  const moduleInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (editingModuleId && moduleInputRef.current) {
+      moduleInputRef.current.focus()
+      moduleInputRef.current.select()
+    }
+  }, [editingModuleId])
+
+  const startEditingModule = (moduleId: string, currentName: string) => {
+    setEditingModuleId(moduleId)
+    setEditingModuleName(currentName)
+  }
+
+  const cancelEditingModule = () => {
+    setEditingModuleId(null)
+    setEditingModuleName("")
+  }
+
+  const saveModuleName = (moduleId: string) => {
+    if (editingModuleName.trim()) {
+      updateModuleById({ moduleId, type: "NAME", content: editingModuleName })
+    }
+    cancelEditingModule()
+  }
+
+  // Ref to track selected section element for auto-scroll
+  const selectedSectionRef = useRef<HTMLDivElement | null>(null)
+
+  // Auto-scroll to selected section when modules load or pathname changes
+  useEffect(() => {
+    if (selectedSectionRef.current && selectedSectionId) {
+      // Small delay to ensure accordion is expanded
+      const timer = setTimeout(() => {
+        selectedSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+      }, 150)
+      return () => clearTimeout(timer)
+    }
+  }, [selectedSectionId, modulesLocal])
 
   return (
     <div className="flex flex-col">
@@ -87,46 +128,97 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
             return (
               <div key={module.id}>
                 <GlobalAccordion
-                  edit={edit}
-                  ref={triggerRef}
-                  editable={<Input ref={inputRef} className="bg-themeBlack border-themeGray" />}
-                  onEdit={canManage ? () => onEditModule(module.id) : undefined}
                   id={module.id}
-                  defaultOpen={Array.isArray(module.section) && module.section.some((s: any) => s.id === selectedSectionId)}
+                  defaultOpen={Array.isArray(module.section) && module.section.some((s: any) => s.id === selectedSectionId || s.publicId === selectedSectionId)}
                   title={
-                    <div className="flex w-full items-center gap-3">
+                    <div className="group/module flex w-full items-center gap-3">
                       {handleProps && (
                         <span {...handleProps} className="cursor-grab text-themeTextGray hover:text-white">
                           <GripVertical className="h-4 w-4" />
                         </span>
                       )}
                       {moduleDone ? <Check /> : <Circle />}
-                      <span className="text-[15px] md:text-base font-semibold">
-                        {isPending ? variables?.content! : module.title}
-                      </span>
+                      {editingModuleId === module.id ? (
+                        <Input
+                          ref={moduleInputRef}
+                          value={editingModuleName}
+                          onChange={(e) => setEditingModuleName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              saveModuleName(module.id)
+                            } else if (e.key === "Escape") {
+                              cancelEditingModule()
+                            }
+                          }}
+                          onBlur={() => {
+                            if (editingModuleName.trim() && editingModuleName !== module.title) {
+                              saveModuleName(module.id)
+                            } else {
+                              cancelEditingModule()
+                            }
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 bg-[#1e2329] border-themeGray text-white text-[15px] md:text-base font-semibold h-8"
+                        />
+                      ) : (
+                        <>
+                          <span className="text-[15px] md:text-base font-semibold">
+                            {isPending && variables?.content ? variables.content : module.title}
+                          </span>
+                          {canManage && (
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              aria-label="Edit module name"
+                              className="opacity-0 group-hover/module:opacity-100 text-themeTextGray hover:text-white h-6 w-6 transition-opacity inline-flex items-center justify-center cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                e.preventDefault()
+                                startEditingModule(module.id, module.title)
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  startEditingModule(module.id, module.title)
+                                }
+                              }}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </span>
+                          )}
+                        </>
+                      )}
                       <div className="ml-auto flex items-center gap-2">
                         <span className="text-xs md:text-sm text-themeTextGray">
                           {completed}/{total}
                         </span>
                         {canManage && (
-                          <Button
-                            asChild
-                            type="button"
+                          <span
+                            role="button"
+                            tabIndex={0}
                             aria-label="Delete module"
-                            variant="ghost"
-                            size="icon"
-                            className="text-themeTextGray hover:text-red-400"
+                            className="text-themeTextGray hover:text-red-400 h-6 w-6 inline-flex items-center justify-center cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation()
+                              e.preventDefault()
                               if (confirm("Delete this module and all its sections?")) {
                                 deleteModule(module.id)
                               }
                             }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.stopPropagation()
+                                e.preventDefault()
+                                if (confirm("Delete this module and all its sections?")) {
+                                  deleteModule(module.id)
+                                }
+                              }
+                            }}
                           >
-                            <span role="button">
-                              <Trash2 className="h-4 w-4" />
-                            </span>
-                          </Button>
+                            <Trash2 className="h-4 w-4" />
+                          </span>
                         )}
                       </div>
                     </div>
@@ -150,14 +242,15 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                               reorderSections({ moduleId: module.id, orderedIds })
                             }}
                             renderItem={(section: any, _sIdx: number, handleProps) => {
-                              const isSelected = selectedSectionId === section.id
+                              const isSelected = selectedSectionId === section.id || selectedSectionId === section.publicId
                               return (
                                 <div
                                   key={section.id}
+                                  ref={isSelected ? selectedSectionRef : undefined}
                                   className={cn(
                                     "group relative flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border text-[15px] md:text-base",
                                     isSelected
-                                      ? "bg-[#0B0B10] text-white border-[#3A3A41] ring-1 ring-[#4F46E5]/30"
+                                      ? "bg-[#1a1a24] text-white border-[#3A3A41] ring-1 ring-[#4F46E5]/40"
                                       : "text-themeTextGray hover:bg-white/5 border-transparent",
                                   )}
                                 >
@@ -168,7 +261,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                   )}
                                   <Link
                                     ref={contentRef}
-                                    href={`/group/${groupid}/courses/${courseId}/${section.id}`}
+                                    href={`/group/${groupid}/courses/${courseId}/${section.publicId || section.id}`}
                                     className="min-w-0 flex flex-1 items-start gap-3"
                                     onClick={() => setActiveSection(section.id)}
                                     onDoubleClick={canManage ? onEditSection : undefined}

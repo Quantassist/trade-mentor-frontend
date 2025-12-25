@@ -1,8 +1,6 @@
 import { GlassSheet } from "@/components/global/glass-sheet"
-import { LocaleSwitcher } from "@/components/global/locale-switcher"
 import { Search } from "@/components/global/search"
 import { SideBar } from "@/components/global/sidebar"
-import { ThemeSwitcher } from "@/components/global/theme-switcher"
 import { UserWidget } from "@/components/global/user-widget"
 import { getSession } from "@/lib/get-session"
 import { Menu as MenuIcon } from "lucide-react"
@@ -28,15 +26,13 @@ export const Navbar = async ({ groupid, userid }: NavbarProps) => {
         </GlassSheet>
       </div>
 
-      {/* Right cluster: search + theme switcher + locale switcher + user widget */}
+      {/* Right cluster: search + user widget */}
       <div className="flex items-center gap-3 flex-1 min-w-0 justify-end">
         <Search
           searchType="POSTS"
           className="rounded-full border-themeGray bg-black !opacity-100 px-3 flex-1 min-w-[100px] max-w-[140px]"
           placeholder="Search..."
         />
-        <ThemeSwitcher />
-        <LocaleSwitcher />
         <UserWidget userid={userid} groupid={groupid} image={session?.user?.image || ""} />
       </div>
     </div>

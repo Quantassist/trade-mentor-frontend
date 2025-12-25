@@ -1,6 +1,8 @@
 "use server"
 
 import { defaultLocale } from "@/i18n/config"
+import { generatePublicId, isUUID } from "@/lib/id-utils"
+import { generateUniqueChannelSlug } from "@/lib/id-utils.server"
 import { client } from "@/lib/prisma"
 import { cache } from "react"
 import { onAuthenticatedUser } from "./auth"
@@ -14,6 +16,9 @@ export const onCreateNewChannel = async (
   },
 ) => {
   try {
+    // Generate slug from channel name
+    const slug = await generateUniqueChannelSlug(data.name, groupid)
+    
     const channel = await client.group.update({
       where: {
         id: groupid,
@@ -22,6 +27,7 @@ export const onCreateNewChannel = async (
         channel: {
           create: {
             ...data,
+            slug,
           },
         },
       },
@@ -153,7 +159,7 @@ export const onGetPostAllLocales = async (postid: string) => {
 // The default locale content is stored on the base Post row.
 // All non-default locales are saved in PostTranslation with upsert semantics.
 export const onCreateChannelPostMulti = async (
-  channelid: string,
+  channelIdOrSlug: string,
   postid: string,
   payloads: Array<{
     locale: string
@@ -165,6 +171,22 @@ export const onCreateChannelPostMulti = async (
 ) => {
   try {
     const user = await onAuthenticatedUser()
+    
+    // Resolve channel ID from slug if needed
+    let channelId = channelIdOrSlug
+    if (!isUUID(channelIdOrSlug)) {
+      const channel = await client.channel.findFirst({
+        where: { slug: channelIdOrSlug },
+        select: { id: true },
+      })
+      if (!channel) {
+        return { status: 404, message: "Channel not found" }
+      }
+      channelId = channel.id
+    }
+    
+    // Generate publicId for URL-friendly short ID
+    const publicId = generatePublicId()
 
     const basePayload =
       payloads.find((p) => p.locale === defaultLocale) ?? payloads[0]
@@ -172,8 +194,9 @@ export const onCreateChannelPostMulti = async (
     const post = await client.post.create({
       data: {
         id: postid,
+        publicId,
         authorId: user.id!,
-        channelId: channelid,
+        channelId: channelId,
         title: basePayload?.title ?? "",
         content: (basePayload?.content ?? "") as unknown as any,
         htmlContent: basePayload?.htmlcontent ?? "",
@@ -219,11 +242,27 @@ export const onCreateChannelPostMulti = async (
   }
 }
 
-export const onGetGroupChannels = cache(async (groupid: string) => {
+/**
+ * Get group channels by group ID or slug
+ */
+export const onGetGroupChannels = cache(async (groupIdOrSlug: string) => {
   try {
+    // Resolve group ID from slug if needed
+    let groupId = groupIdOrSlug
+    if (!isUUID(groupIdOrSlug)) {
+      const group = await client.group.findFirst({
+        where: { slug: groupIdOrSlug },
+        select: { id: true },
+      })
+      if (!group) {
+        return { status: 404, message: "Group not found", channels: [] }
+      }
+      groupId = group.id
+    }
+
     const channels = await client.channel.findMany({
       where: {
-        groupId: groupid,
+        groupId,
       },
       orderBy: {
         createdAt: "asc",
@@ -310,20 +349,46 @@ export const onUpdateChannelInfo = async (
   }
 }
 
-export const onGetChannelInfo = cache(async (channelid: string, locale?: string) => {
+export const onGetChannelInfo = cache(async (
+  channelIdOrSlug: string, 
+  locale?: string,
+  groupId?: string
+) => {
   try {
     const user = await onAuthenticatedUser()
-    const channel = await client.channel.findUnique({
-      where: {
-        id: channelid,
-      },
+    
+    // Support both UUID and slug lookups
+    // For slug lookup, groupId is required to scope the search
+    const channel = isUUID(channelIdOrSlug)
+      ? await client.channel.findUnique({
+          where: { id: channelIdOrSlug },
+        })
+      : groupId
+        ? await client.channel.findFirst({
+            where: { slug: channelIdOrSlug, groupId },
+          })
+        : null
+    
+    if (!channel) return null
+    
+    // Fetch full channel with posts using resolved channel.id
+    const fullChannel = await client.channel.findUnique({
+      where: { id: channel.id },
       include: {
         posts: {
-          take: 3,
           orderBy: {
             createdAt: "desc",
           },
-          include: {
+          select: {
+            id: true,
+            publicId: true,
+            authorId: true,
+            title: true,
+            htmlContent: true,
+            jsonContent: true,
+            content: true,
+            createdAt: true,
+            updatedAt: true,
             translations: locale
               ? {
                   where: { locale },
@@ -337,11 +402,14 @@ export const onGetChannelInfo = cache(async (channelid: string, locale?: string)
               : false,
             channel: {
               select: {
+                id: true,
                 name: true,
+                slug: true,
               },
             },
             author: {
               select: {
+                id: true,
                 firstname: true,
                 lastname: true,
                 image: true,
@@ -354,9 +422,6 @@ export const onGetChannelInfo = cache(async (channelid: string, locale?: string)
               },
             },
             claps: {
-              where: {
-                userId: user.id,
-              },
               select: {
                 id: true,
                 userId: true,
@@ -367,10 +432,10 @@ export const onGetChannelInfo = cache(async (channelid: string, locale?: string)
         },
       },
     })
-    if (!channel) return channel
+    if (!fullChannel) return null
 
     if (locale && locale !== defaultLocale) {
-      const mapped = channel.posts.map((p: any) => {
+      const mapped = fullChannel.posts.map((p: any) => {
         const t = Array.isArray(p.translations) ? p.translations[0] : undefined
         if (t) {
           return {
@@ -385,9 +450,9 @@ export const onGetChannelInfo = cache(async (channelid: string, locale?: string)
         }
         return p
       })
-      return { ...channel, posts: mapped }
+      return { ...fullChannel, posts: mapped }
     }
-    return channel
+    return fullChannel
   } catch (error) {
     return { status: 400, message: "Oops! something went wrong" }
   }
@@ -421,9 +486,13 @@ export const onCreateChannelPost = async (
 ) => {
   try {
     const user = await onAuthenticatedUser()
+    // Generate publicId for URL-friendly short ID
+    const publicId = generatePublicId()
+    
     const post = await client.post.create({
       data: {
         id: postid,
+        publicId,
         authorId: user.id!,
         channelId: channelid,
         title,
@@ -434,7 +503,7 @@ export const onCreateChannelPost = async (
     })
 
     if (post) {
-      return { status: 200, message: "Post created successfully" }
+      return { status: 200, message: "Post created successfully", publicId }
     }
 
     return { status: 404, message: "Post not found!" }

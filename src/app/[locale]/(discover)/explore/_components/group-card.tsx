@@ -4,6 +4,7 @@ import Link from "next/link"
 
 type GroupStateProps = {
   id: string
+  slug?: string
   name: string
   category: string
   createdAt: Date
@@ -16,6 +17,7 @@ type GroupStateProps = {
 
 export const GroupCard = ({
   id,
+  slug,
   userId,
   thumbnail,
   name,
@@ -27,7 +29,7 @@ export const GroupCard = ({
   //using image tag because image component from next has a bug with cdn images
 
   return (
-    <Link href={`/about/${id}`}>
+    <Link href={`/about/${slug || id}`}>
       <Card className="bg-themeBlack border-themeGray rounded-xl overflow-hidden group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-black/20 hover:border-themeGray/80">
         <div className="overflow-hidden">
           <img

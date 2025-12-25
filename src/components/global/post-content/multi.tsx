@@ -1,11 +1,11 @@
 "use client"
+import BlockTextEditor from "@/components/global/rich-text-editor"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import BlockTextEditor from "@/components/global/rich-text-editor"
-import { locales, defaultLocale } from "@/i18n/config"
+import { useCreateChannelPostMulti } from "@/hooks/channels"
+import { defaultLocale, locales } from "@/i18n/config"
 import { JSONContent } from "novel"
 import React, { useState } from "react"
-import { useCreateChannelPostMulti } from "@/hooks/channels"
 
 export type LocalePayload = {
   locale: string
@@ -20,9 +20,10 @@ type MultiPostContentProps = {
   formId?: string
   hideTabs?: boolean
   forceLocale?: string
+  onSuccess?: () => void
 }
 
-export const MultiPostContent = ({ channelid, formId, hideTabs, forceLocale }: MultiPostContentProps) => {
+export const MultiPostContent = ({ channelid, formId, hideTabs, forceLocale, onSuccess }: MultiPostContentProps) => {
   const initial = forceLocale ?? defaultLocale
   const [active, setActive] = useState<string>(initial)
   const {
@@ -39,7 +40,7 @@ export const MultiPostContent = ({ channelid, formId, hideTabs, forceLocale }: M
     textByLocale,
     setTextByLocale,
     isPending,
-  } = useCreateChannelPostMulti(channelid)
+  } = useCreateChannelPostMulti(channelid, onSuccess)
 
   const localesToRender = forceLocale ? [forceLocale] : (locales as readonly string[])
 
@@ -59,39 +60,41 @@ export const MultiPostContent = ({ channelid, formId, hideTabs, forceLocale }: M
           <TabsContent key={l} value={l} className="flex flex-col gap-y-3">
             <Input
               placeholder={`Title (${l})`}
-              className="bg-transparent outline-none border-none text-2xl p-0"
+              className="bg-brand-card-elevated border border-themeGray/60 rounded-lg px-3 py-2 text-xl text-white placeholder:text-themeTextGray focus:ring-1 focus:ring-primary/30"
               value={titles[l] ?? ""}
               onChange={(e) => setTitles((prev) => ({ ...prev, [l]: e.target.value }))}
             />
-            <BlockTextEditor
-              errors={errors as any}
-              name={`jsoncontent-${l}`}
-              min={0}
-              max={10000}
-              inline
-              onEdit
-              textContent={textByLocale[l]}
-              setTextContent={((value: React.SetStateAction<string | undefined>) => {
-                setTextByLocale((prev) => ({
-                  ...prev,
-                  [l]: typeof value === "function" ? (value as any)(prev[l]) : value,
-                }))
-              }) as React.Dispatch<React.SetStateAction<string | undefined>>}
-              content={jsonByLocale[l] as JSONContent | undefined}
-              setContent={((value: React.SetStateAction<JSONContent | undefined>) => {
-                setJsonByLocale((prev) => ({
-                  ...prev,
-                  [l]: typeof value === "function" ? (value as any)(prev[l]) : value,
-                }))
-              }) as React.Dispatch<React.SetStateAction<JSONContent | undefined>>}
-              htmlContent={htmlByLocale[l]}
-              setHtmlContent={((value: React.SetStateAction<string | undefined>) => {
-                setHtmlByLocale((prev) => ({
-                  ...prev,
-                  [l]: typeof value === "function" ? (value as any)(prev[l]) : value,
-                }))
-              }) as React.Dispatch<React.SetStateAction<string | undefined>>}
-            />
+            <div className="bg-brand-card-elevated border border-themeGray/60 rounded-lg p-3">
+              <BlockTextEditor
+                errors={errors as any}
+                name={`jsoncontent-${l}`}
+                min={0}
+                max={10000}
+                inline
+                onEdit
+                textContent={textByLocale[l]}
+                setTextContent={((value: React.SetStateAction<string | undefined>) => {
+                  setTextByLocale((prev) => ({
+                    ...prev,
+                    [l]: typeof value === "function" ? (value as any)(prev[l]) : value,
+                  }))
+                }) as React.Dispatch<React.SetStateAction<string | undefined>>}
+                content={jsonByLocale[l] as JSONContent | undefined}
+                setContent={((value: React.SetStateAction<JSONContent | undefined>) => {
+                  setJsonByLocale((prev) => ({
+                    ...prev,
+                    [l]: typeof value === "function" ? (value as any)(prev[l]) : value,
+                  }))
+                }) as React.Dispatch<React.SetStateAction<JSONContent | undefined>>}
+                htmlContent={htmlByLocale[l]}
+                setHtmlContent={((value: React.SetStateAction<string | undefined>) => {
+                  setHtmlByLocale((prev) => ({
+                    ...prev,
+                    [l]: typeof value === "function" ? (value as any)(prev[l]) : value,
+                  }))
+                }) as React.Dispatch<React.SetStateAction<string | undefined>>}
+              />
+            </div>
           </TabsContent>
         ))}
       </Tabs>

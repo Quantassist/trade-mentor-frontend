@@ -4,6 +4,7 @@ import { onAuthenticatedUser, onGetUserGroupRole } from "@/actions/auth"
 import { client } from "@/lib/prisma"
 import { sectionTypeSchemaMap } from "@/types/section-schemas"
 
+import { generatePublicId, isUUID } from "@/lib/id-utils"
 import { canCreateCourse, hasPermission } from "@/lib/rbac"
 import { cache } from "react"
 const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || "en"
@@ -182,9 +183,25 @@ export const onDeleteCourse = async (groupid: string, courseId: string) => {
   }
 }
 
-// Fetch course details + counts for About page
-export const onGetCourseAbout = cache(async (courseId: string, locale?: string) => {
+/**
+ * Fetch course details + counts for About page
+ * Supports both UUID and slug lookups
+ */
+export const onGetCourseAbout = cache(async (courseIdOrSlug: string, locale?: string) => {
   try {
+    // Resolve course ID from slug if needed
+    let courseId = courseIdOrSlug
+    if (!isUUID(courseIdOrSlug)) {
+      const courseRef = await client.course.findFirst({
+        where: { slug: courseIdOrSlug },
+        select: { id: true },
+      })
+      if (!courseRef) {
+        return { status: 404 as const, message: "Course not found" }
+      }
+      courseId = courseRef.id
+    }
+
     const course = await client.course.findUnique({
       where: { id: courseId },
       select: {
@@ -283,7 +300,10 @@ export const onGetModuleAnchors = cache(async (moduleId: string) => {
   }
 })
 
-// Fetch user's ongoing courses (progress > 0 and < 100), ordered by recent activity
+/**
+ * Fetch user's ongoing courses (progress > 0 and < 100), ordered by recent activity
+ * Returns course slugs for URL-friendly links (section is resolved dynamically on course page)
+ */
 export const onGetOngoingCourses = cache(async (limit = 3) => {
   try {
     const userId = await getAuthedUserId()
@@ -296,11 +316,9 @@ export const onGetOngoingCourses = cache(async (limit = 3) => {
       take: limit,
       select: {
         courseId: true,
-        // keep stored progress but we'll recompute based on latest totals to avoid stale values
         progress: true,
         completedSections: true,
-        lastSectionId: true,
-        Course: { select: { id: true, name: true, thumbnail: true } },
+        Course: { select: { id: true, slug: true, name: true, thumbnail: true } },
       },
     })
 
@@ -317,14 +335,14 @@ export const onGetOngoingCourses = cache(async (limit = 3) => {
       const completedCount = p.completedSections?.length ?? 0
       const totalCount = totals[idx] ?? 0
       const computedPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+      // Use slug for URL-friendly links
+      const courseUrlId = (p.Course as any)?.slug || p.courseId
       return {
-        courseId: p.courseId,
+        courseId: courseUrlId,
         name: p.Course?.name ?? "Untitled Course",
         thumbnail: p.Course?.thumbnail ?? null,
-        lastSectionId: p.lastSectionId ?? null,
         completedCount,
         totalCount,
-        // return computed percent to avoid stale stored progress when course structure changes
         progress: computedPercent,
       }
     })
@@ -335,10 +353,26 @@ export const onGetOngoingCourses = cache(async (limit = 3) => {
   }
 })
 
-// Returns the section id to land on for a course for the current user.
-// Prefers the user's last interacted section; falls back to the first section of the first module.
-export const onGetCourseLandingSection = cache(async (courseId: string) => {
+/**
+ * Returns the section id to land on for a course for the current user.
+ * Prefers the user's last interacted section; falls back to the first section of the first module.
+ * Supports both UUID and slug lookups for courseId.
+ */
+export const onGetCourseLandingSection = cache(async (courseIdOrSlug: string) => {
   try {
+    // Resolve course ID from slug if needed
+    let courseId = courseIdOrSlug
+    if (!isUUID(courseIdOrSlug)) {
+      const courseRef = await client.course.findFirst({
+        where: { slug: courseIdOrSlug },
+        select: { id: true },
+      })
+      if (!courseRef) {
+        return { status: 404 as const, message: "Course not found" }
+      }
+      courseId = courseRef.id
+    }
+
     const userId = await getAuthedUserId()
     if (userId) {
       const progress = await client.userCourseProgress.findUnique({
@@ -346,7 +380,13 @@ export const onGetCourseLandingSection = cache(async (courseId: string) => {
         select: { lastSectionId: true },
       })
       if (progress?.lastSectionId) {
-        return { status: 200 as const, sectionId: progress.lastSectionId, source: "last" as const }
+        // Get the publicId for the last section for URL-friendly redirect
+        const section = await client.section.findUnique({
+          where: { id: progress.lastSectionId },
+          select: { publicId: true },
+        })
+        const sectionUrlId = section?.publicId || progress.lastSectionId
+        return { status: 200 as const, sectionId: sectionUrlId, source: "last" as const }
       }
     }
 
@@ -354,10 +394,12 @@ export const onGetCourseLandingSection = cache(async (courseId: string) => {
     const firstSection = await client.section.findFirst({
       where: { Module: { is: { courseId } } },
       orderBy: [{ Module: { order: "asc" } }, { order: "asc" }, { createdAt: "asc" }],
-      select: { id: true },
+      select: { id: true, publicId: true },
     })
     if (firstSection) {
-      return { status: 200 as const, sectionId: firstSection.id, source: "first" as const }
+      // Use publicId for URL-friendly redirect
+      const sectionUrlId = firstSection.publicId || firstSection.id
+      return { status: 200 as const, sectionId: sectionUrlId, source: "first" as const }
     }
 
     return { status: 204 as const, message: "No sections available" }
@@ -735,8 +777,25 @@ export const onGetGroupCourses = cache(async (
   }
 })
 
-export const onGetCourseModules = cache(async (courseId: string) => {
+/**
+ * Get course modules
+ * Supports both UUID and slug lookups
+ */
+export const onGetCourseModules = cache(async (courseIdOrSlug: string) => {
   try {
+    // Resolve course ID from slug if needed
+    let courseId = courseIdOrSlug
+    if (!isUUID(courseIdOrSlug)) {
+      const courseRef = await client.course.findFirst({
+        where: { slug: courseIdOrSlug },
+        select: { id: true },
+      })
+      if (!courseRef) {
+        return { status: 404, message: "Course not found" }
+      }
+      courseId = courseRef.id
+    }
+
     const [modules, userId] = await Promise.all([
       client.module.findMany({
         where: { courseId },
@@ -750,6 +809,7 @@ export const onGetCourseModules = cache(async (courseId: string) => {
             orderBy: [{ order: "asc" }],
             select: {
               id: true,
+              publicId: true,
               name: true,
               icon: true,
               type: true,
@@ -793,7 +853,7 @@ export const onGetCourseModules = cache(async (courseId: string) => {
 
 export const onCreateCourseModule = async (
   groupid: string,
-  courseId: string,
+  courseIdOrSlug: string,
   name: string,
   moduleId: string,
 ) => {
@@ -804,6 +864,20 @@ export const onCreateCourseModule = async (
     if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "module:create")) {
       return { status: 403, message: "Forbidden" }
     }
+
+    // Resolve course ID from slug if needed
+    let courseId = courseIdOrSlug
+    if (!isUUID(courseIdOrSlug)) {
+      const course = await client.course.findFirst({
+        where: { slug: courseIdOrSlug },
+        select: { id: true },
+      })
+      if (!course) {
+        return { status: 404, message: "Course not found" }
+      }
+      courseId = course.id
+    }
+
     const count = await client.module.count({ where: { courseId } })
     const courseModule = await client.course.update({
       where: {
@@ -882,11 +956,24 @@ export const onUpdateModule = async (
 
 export const onUpdateSection = async (
   groupid: string,
-  sectionId: string,
+  sectionIdOrPublicId: string,
   type: "NAME" | "COMPLETE" | "ICON",
   content: string,
 ) => {
   try {
+    // Resolve section ID from publicId if needed
+    let sectionId = sectionIdOrPublicId
+    if (!isUUID(sectionIdOrPublicId)) {
+      const section = await client.section.findFirst({
+        where: { publicId: sectionIdOrPublicId },
+        select: { id: true },
+      })
+      if (!section) {
+        return { status: 404, message: "Section not found" }
+      }
+      sectionId = section.id
+    }
+
     if (type === "NAME") {
       // RBAC: section:edit
       const userRole = await onGetUserGroupRole(groupid)
@@ -1187,6 +1274,9 @@ export const onCreateModuleSection = async (
     if (!userRole.isSuperAdmin && !hasPermission(userRole.role, "section:create")) {
       return { status: 403, message: "Forbidden" }
     }
+    // Generate publicId for URL-friendly short ID
+    const publicId = generatePublicId()
+    
     const count = await client.section.count({ where: { moduleId: moduleid } })
     const section = await client.module.update({
       where: {
@@ -1196,6 +1286,7 @@ export const onCreateModuleSection = async (
         section: {
           create: {
             id: sectionid,
+            publicId,
             ...(name ? { name } : {}),
             ...(icon ? { icon } : {}),
             ...(options?.type ? { type: options.type as any } : {}),
@@ -1206,7 +1297,7 @@ export const onCreateModuleSection = async (
       },
     })
     if (section) {
-      return { status: 200, message: "New section created" }
+      return { status: 200, message: "New section created", publicId }
     }
     return { status: 404, message: "No sections found" }
   } catch (error) {
@@ -1217,14 +1308,24 @@ export const onCreateModuleSection = async (
   }
 }
 
-export const onGetSectionInfo = cache(async (sectionid: string, locale?: string) => {
+
+export const onGetSectionInfo = cache(async (sectionIdOrPublicId: string, locale?: string) => {
   try {
     const userId = await getAuthedUserId()
-    const section = await client.section.findUnique({
-      where: { id: sectionid },
-      include: { Module: { select: { id: true, courseId: true } } },
-    })
+    // Support both UUID and publicId lookups
+    const section = isUUID(sectionIdOrPublicId)
+      ? await client.section.findUnique({
+          where: { id: sectionIdOrPublicId },
+          include: { Module: { select: { id: true, courseId: true } } },
+        })
+      : await client.section.findFirst({
+          where: { publicId: sectionIdOrPublicId },
+          include: { Module: { select: { id: true, courseId: true } } },
+        })
     if (!section) return { status: 404, message: "No sections found" }
+    
+    // Use resolved section.id for subsequent queries
+    const sectionid = section.id
 
     let completed = false
     if (userId && section.Module?.courseId) {
@@ -1315,13 +1416,26 @@ export const onGetSectionInfo = cache(async (sectionid: string, locale?: string)
 
 export const onUpdateCourseSectionContent = async (
   groupid: string,
-  sectionid: string,
+  sectionIdOrPublicId: string,
   html: string,
   json: string,
   content: string,
   locale?: string,
 ) => {
   try {
+    // Resolve section ID from publicId if needed
+    let sectionid = sectionIdOrPublicId
+    if (!isUUID(sectionIdOrPublicId)) {
+      const section = await client.section.findFirst({
+        where: { publicId: sectionIdOrPublicId },
+        select: { id: true },
+      })
+      if (!section) {
+        return { status: 404, message: "Section not found" }
+      }
+      sectionid = section.id
+    }
+
     // RBAC: section:edit
     const userRole = await onGetUserGroupRole(groupid)
     if (userRole.status !== 200) return { status: 401, message: "Unauthorized" }

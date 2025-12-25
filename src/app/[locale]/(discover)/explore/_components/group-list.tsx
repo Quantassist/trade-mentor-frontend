@@ -15,6 +15,7 @@ const InfiniteScrollObserver = dynamic(
 
 export type GroupStateProps = {
   id: string
+  slug?: string
   name: string
   category: string
   createdAt: Date

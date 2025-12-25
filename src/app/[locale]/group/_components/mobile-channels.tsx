@@ -1,9 +1,10 @@
 "use client"
 
-import { onGetGroupInfo } from "@/actions/groups"
 import { IconRenderer } from "@/components/global/icon-renderer"
 import { Slider } from "@/components/global/slider"
 import { useSideBar } from "@/hooks/navigation"
+import { api } from "@/lib/api"
+import { generateId } from "@/lib/id-utils"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
 import { Plus } from "lucide-react"
@@ -11,7 +12,6 @@ import { useLocale } from "next-intl"
 import { usePathname } from "next/navigation"
 import "swiper/css/bundle"
 import { SwiperSlide } from "swiper/react"
-import { v4 as uuidv4 } from "uuid"
 
 export function MobileChannelBar({ groupid, userid }: { groupid: string; userid: string }) {
   const locale = useLocale()
@@ -23,7 +23,7 @@ export function MobileChannelBar({ groupid, userid }: { groupid: string; userid:
   // fetch role to know if user can manage
   const { data: groupInfo } = useQuery({
     queryKey: ["about-group-info", groupid, locale],
-    queryFn: () => onGetGroupInfo(groupid, locale),
+    queryFn: () => api.groups.getInfo(groupid, locale),
   })
   const canManage = Boolean(
     (groupInfo as any)?.isSuperAdmin || (groupInfo as any)?.groupOwner || (groupInfo as any)?.role === "ADMIN",
@@ -45,7 +45,7 @@ export function MobileChannelBar({ groupid, userid }: { groupid: string; userid:
             disabled={isPending}
             onClick={() =>
               mutate({
-                id: uuidv4(),
+                id: generateId(),
                 icon: "general",
                 name: "unnamed",
                 createdAt: new Date(),
@@ -68,11 +68,11 @@ export function MobileChannelBar({ groupid, userid }: { groupid: string; userid:
             className="w-full"
           >
             {channels.channels.map((ch) => {
-              const active = pathname.endsWith(ch.id)
+              const active = pathname.endsWith(ch.slug || ch.id)
               return (
                 <SwiperSlide key={ch.id} className="!w-auto">
                   <a
-                    href={`/${locale}/group/${groupid}/feed/${ch.id}`}
+                    href={`/${locale}/group/${groupid}/feed/${ch.slug || ch.id}`}
                     title={ch.name}
                     className={cn(
                       "px-4 py-2 rounded-full border border-themeGray flex items-center gap-2 whitespace-nowrap",

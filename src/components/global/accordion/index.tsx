@@ -1,10 +1,13 @@
+"use client"
+
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
 } from "@/components/ui/accordion"
 import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
 
 type GlobalAccordionProps = {
   id: string
@@ -31,8 +34,17 @@ export const GlobalAccordion = ({
   triggerClassName,
   defaultOpen,
 }: GlobalAccordionProps) => {
+  const [value, setValue] = useState<string | undefined>(defaultOpen ? id : undefined)
+
+  // Sync with defaultOpen changes (e.g., when pathname changes after redirect)
+  useEffect(() => {
+    if (defaultOpen) {
+      setValue(id)
+    }
+  }, [defaultOpen, id])
+
   return (
-    <Accordion type="single" collapsible defaultValue={defaultOpen ? id : undefined}>
+    <Accordion type="single" collapsible value={value} onValueChange={setValue}>
       <AccordionItem className={cn("bg-none", itemClassName)} value={id}>
         <AccordionTrigger
           ref={ref}

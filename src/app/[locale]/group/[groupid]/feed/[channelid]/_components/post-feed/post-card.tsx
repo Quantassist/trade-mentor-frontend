@@ -19,6 +19,7 @@ import { PostAuthor } from "./post-author"
 
 type PostCardProps = {
   postid: string
+  publicId?: string
   title: string
   html: string
   totalClaps: number
@@ -47,6 +48,7 @@ export const PostCard = ({
   myClaps,
   comments,
   postid,
+  publicId,
   optimistic,
   isAuthor,
   initialHtml,
@@ -57,6 +59,8 @@ export const PostCard = ({
   showMyClaps = false,
 }: PostCardProps) => {
   const pathname = usePathname()
+  // Use publicId (NanoID) for URL-friendly links, fallback to postid (UUID)
+  const postUrlId = publicId || postid
   const formId = useMemo(() => `edit-post-form-${postid}`, [postid])
   const { mutate: deletePost } = useDeletePost(postid)
   const [showComments, setShowComments] = useState(false)
@@ -126,7 +130,7 @@ export const PostCard = ({
           username={username}
           channel={channelname}
         />
-        <Link href={`${pathname}/${postid}`} className="w-full">
+        <Link href={`${pathname}/${postUrlId}`} className="w-full">
           <div className="flex flex-col gap-y-3">
             <h2 className="text-2xl">{title}</h2>
             <HtmlParser html={html} />
@@ -164,7 +168,7 @@ export const PostCard = ({
               <p className="text-themeTextGray text-sm py-2">Loading comments...</p>
             ) : commentsData?.comments && commentsData.status === 200 && commentsData.comments.length > 0 ? (
               <>
-                {commentsData.comments.slice(0, 3).map((comment) => {
+                {commentsData.comments.slice(0, 3).map((comment: any) => {
                   const { totalClaps: cTotal, myClaps: cMy } = getCommentClaps(comment)
                   return (
                     <UserComment
@@ -191,7 +195,7 @@ export const PostCard = ({
                 {/* Load more comments link */}
                 {commentsData.comments.length > 3 && (
                   <Link 
-                    href={`${pathname}/${postid}`}
+                    href={`${pathname}/${postUrlId}`}
                     className="flex items-center gap-2 text-sm text-themeTextGray hover:text-white transition-colors py-2"
                   >
                     <MessageSquare size={16} />

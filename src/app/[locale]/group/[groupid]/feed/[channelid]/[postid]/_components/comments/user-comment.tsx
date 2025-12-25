@@ -101,8 +101,8 @@ export const UserComment = ({
                 data.replies?.length > 0 &&
                 data.replies.map((rep: any) => {
                   if (rep.commentId !== id) return null
-                  const replyTotalClaps = rep.claps?.reduce((sum: number, c: any) => sum + (c.count || 0), 0) || 0
-                  const replyMyClaps = rep.claps?.find((c: any) => c.userId === userid)?.count || 0
+                  const replyTotalClaps = rep.claps?.reduce((sum: number, clap: any) => sum + (clap.count || 0), 0) || 0
+                  const replyMyClaps = rep.claps?.find((clap: any) => clap.userId === userid)?.count || 0
                   return (
                     <UserComment
                       key={rep.id}
