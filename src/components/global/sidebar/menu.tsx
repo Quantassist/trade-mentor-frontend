@@ -9,10 +9,9 @@ import { api } from "@/lib/api"
 import { generateId } from "@/lib/id-utils"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
-import { Check, ChevronDown, Globe, Monitor, Moon, Pencil, Plus, Sun, Trash } from "lucide-react"
+import { Bookmark, Check, ChevronDown, Globe, Monitor, Moon, Pencil, Plus, Sun, Trash } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import React from "react"
 import { IChannels } from "."
 import { IconRenderer } from "../icon-renderer"
@@ -25,7 +24,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useRouter as useIntlRouter, usePathname as useIntlPathname } from "@/i18n/navigation"
 
 type SideBarMenuProps = {
   channels: IChannels[]
@@ -337,9 +335,9 @@ export const SideBarMenu = ({
         )}
         {confirmDeleteId && (
           <div className="mt-2">
-            <Alert variant="destructive">
-              <AlertTitle>Delete channel?</AlertTitle>
-              <AlertDescription>
+            <Alert variant="destructive" className="bg-[#2a1215] border-[#dc2626]/50">
+              <AlertTitle className="text-[#f87171]">Delete channel?</AlertTitle>
+              <AlertDescription className="text-[#fca5a5]/80">
                 This action cannot be undone. The channel will be permanently removed.
               </AlertDescription>
               <div className="mt-3 flex gap-2">
@@ -349,6 +347,7 @@ export const SideBarMenu = ({
                 <Button
                   size="sm"
                   variant="destructive"
+                  className="bg-[#dc2626] hover:bg-[#b91c1c] text-white"
                   onClick={() => {
                     onChannelDetele(confirmDeleteId)
                     setConfirmDeleteId(null)
@@ -361,6 +360,26 @@ export const SideBarMenu = ({
           </div>
         )}
       </div>
+
+      {/* Library Link */}
+      <div className="mt-4">
+        {showLabels && <p className="text-xs text-[#F7ECE9] mb-2">YOUR LIBRARY</p>}
+        <Link
+          href={`/${locale}/group/${groupSlug}/saved`}
+          className={cn(
+            "flex items-center gap-x-2 p-2 rounded-lg transition-colors",
+            pathname.includes("/saved")
+              ? "bg-[#2a2a2a] text-white"
+              : "text-themeTextGray hover:bg-[#2a2a2a]/70 hover:text-white",
+            !showLabels && "justify-center",
+          )}
+          title="Saved Posts"
+        >
+          <Bookmark size={20} />
+          {showLabels && <span className="text-lg">Saved</span>}
+        </Link>
+      </div>
+
       {/* Bottom section: Theme & Locale switchers */}
       <SidebarFooter showLabels={showLabels} collapsed={collapsed} />
     </div>
@@ -371,8 +390,14 @@ export const SideBarMenu = ({
 function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collapsed: boolean }) {
   const { setTheme, theme } = useTheme()
   const locale = useLocale()
-  const intlPathname = useIntlPathname()
-  const intlRouter = useIntlRouter()
+  const intlPathname = usePathname()
+  const intlRouter = useRouter()
+  const [mounted, setMounted] = React.useState(false)
+
+  // Prevent hydration mismatch by only rendering theme-dependent content after mount
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const switchLocale = (nextLocale: string) => {
     if (!intlPathname || nextLocale === locale) return
@@ -390,22 +415,23 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
 
   return (
     <div className={cn(
-      "mt-auto pt-4 pb-4 border-t border-themeGray/30",
+      "mt-auto pt-6 pb-6 border-t border-themeGray/30",
       collapsed ? "px-1" : "px-0",
     )}>
-      <div className="flex flex-col gap-1">
+      {showLabels && <p className="text-xs text-[#F7ECE9] mb-2">PREFERENCES</p>}
+      <div className="flex flex-col gap-y-1">
         {/* Theme Switcher Row */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               className={cn(
-                "w-full flex items-center gap-3 rounded-lg py-2.5 cursor-pointer transition-colors",
-                "text-themeTextGray hover:text-white hover:bg-[#1e2329]",
-                collapsed ? "px-2 justify-center" : "px-3",
+                "w-full flex items-center gap-x-2 p-2 rounded-lg cursor-pointer transition-colors",
+                "text-themeTextGray hover:text-white hover:bg-[#2a2a2a]/70",
+                !showLabels && "justify-center",
               )}
             >
-              <ThemeIcon className="h-4 w-4 shrink-0" />
-              {showLabels && <span className="text-sm">{themeLabel}</span>}
+              {mounted ? <ThemeIcon size={20} /> : <Monitor size={20} />}
+              {showLabels && <span className="text-lg">{mounted ? themeLabel : "Theme"}</span>}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="top" className="bg-[#1a1a1d] border-themeGray shadow-xl">
@@ -438,13 +464,13 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
           <DropdownMenuTrigger asChild>
             <button
               className={cn(
-                "w-full flex items-center gap-3 rounded-lg py-2.5 cursor-pointer transition-colors",
-                "text-themeTextGray hover:text-white hover:bg-[#1e2329]",
-                collapsed ? "px-2 justify-center" : "px-3",
+                "w-full flex items-center gap-x-2 p-2 rounded-lg cursor-pointer transition-colors",
+                "text-themeTextGray hover:text-white hover:bg-[#2a2a2a]/70",
+                !showLabels && "justify-center",
               )}
             >
-              <Globe className="h-4 w-4 shrink-0" />
-              {showLabels && <span className="text-sm">{labelFor(locale)}</span>}
+              <Globe size={20} />
+              {showLabels && <span className="text-lg">{labelFor(locale)}</span>}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="top" className="w-36 border-themeGray bg-[#1a1a1d] text-white shadow-xl">

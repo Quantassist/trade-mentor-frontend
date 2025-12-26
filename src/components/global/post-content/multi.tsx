@@ -57,15 +57,24 @@ export const MultiPostContent = ({ channelid, formId, hideTabs, forceLocale, onS
           </TabsList>
         )}
         {localesToRender.map((l) => (
-          <TabsContent key={l} value={l} className="flex flex-col gap-y-3">
-            <Input
-              placeholder={`Title (${l})`}
-              className="bg-brand-card-elevated border border-themeGray/60 rounded-lg px-3 py-2 text-xl text-white placeholder:text-themeTextGray focus:ring-1 focus:ring-primary/30"
-              value={titles[l] ?? ""}
-              onChange={(e) => setTitles((prev) => ({ ...prev, [l]: e.target.value }))}
-            />
-            <div className="bg-brand-card-elevated border border-themeGray/60 rounded-lg p-3">
-              <BlockTextEditor
+          <TabsContent key={l} value={l} className="flex flex-col gap-y-4">
+            <div className="flex flex-col gap-y-1.5">
+              <label className="text-sm font-medium text-themeTextGray">
+                Post Title
+              </label>
+              <Input
+                placeholder={`Enter your post title...`}
+                className="bg-brand-card-elevated border border-themeGray/60 rounded-lg px-3 py-2.5 text-xl text-white placeholder:text-themeTextGray/60 focus:ring-1 focus:ring-primary/30 focus:border-primary/50"
+                value={titles[l] ?? ""}
+                onChange={(e) => setTitles((prev) => ({ ...prev, [l]: e.target.value }))}
+              />
+            </div>
+            <div className="flex flex-col gap-y-1.5">
+              <label className="text-sm font-medium text-themeTextGray">
+                Post Content
+              </label>
+              <div className="bg-brand-card-elevated border border-themeGray/60 rounded-lg p-3">
+                <BlockTextEditor
                 errors={errors as any}
                 name={`jsoncontent-${l}`}
                 min={0}
@@ -94,6 +103,7 @@ export const MultiPostContent = ({ channelid, formId, hideTabs, forceLocale, onS
                   }))
                 }) as React.Dispatch<React.SetStateAction<string | undefined>>}
               />
+              </div>
             </div>
           </TabsContent>
         ))}

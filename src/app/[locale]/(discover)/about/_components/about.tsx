@@ -7,6 +7,8 @@ import BlockTextEditor from "@/components/global/rich-text-editor"
 import { NoResult } from "@/components/global/search/no-result"
 import { Button } from "@/components/ui/button"
 import { useGroupAbout, useGroupInfo } from "@/hooks/groups"
+import { ChannelsSection } from "./channels-section"
+import { CoursesSection } from "./courses-section"
 import { MediaGallery } from "./gallery"
 
 type AboutGroupProps = {
@@ -163,6 +165,12 @@ export const AboutGroup = ({ userid, groupid, locale }: AboutGroupProps) => {
           )}
         </div>
       </div>
+
+      {/* Courses Section */}
+      <CoursesSection groupid={groupid} />
+
+      {/* Channels Section */}
+      <ChannelsSection groupid={groupid} />
     </div>
   )
 }

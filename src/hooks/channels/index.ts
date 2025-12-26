@@ -10,7 +10,10 @@ import {
     onUpdateChannelPostMulti
 } from "@/actions/channel"
 import {
+    onCheckPostSaved,
     onDeletePost,
+    onSavePost,
+    onUnsavePost,
     onUpdatePost
 } from "@/actions/groups"
 import { CreateCommentSchema } from "@/components/form/post-comments/schema"
@@ -409,8 +412,9 @@ export const useEditChannelPostMulti = (postid: string) => {
   const [jsonByLocale, setJsonByLocale] = useState<Record<string, JSONContent | undefined>>({})
   const [htmlByLocale, setHtmlByLocale] = useState<Record<string, string | undefined>>({})
   const [textByLocale, setTextByLocale] = useState<Record<string, string | undefined>>({})
+  const [dataLoaded, setDataLoaded] = useState(false)
 
-  const { data } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ["post-all-locales", postid],
     queryFn: () => api.posts.getAllLocales(postid),
   })
@@ -451,6 +455,7 @@ export const useEditChannelPostMulti = (postid: string) => {
     setJsonByLocale(nextJson)
     setHtmlByLocale(nextHtml)
     setTextByLocale(nextText)
+    setDataLoaded(true)
   }, [data])
 
   const {
@@ -513,7 +518,7 @@ export const useEditChannelPostMulti = (postid: string) => {
     textByLocale,
     setTextByLocale,
     isPending,
-    isLoading: !data,
+    isLoading: !data || !dataLoaded,
   }
 }
 
@@ -781,6 +786,80 @@ export const useDeletePost = (postid: string) => {
     },
   })
   return { mutate, isPending }
+}
+
+export const useSavePost = (postId: string, groupId: string) => {
+  const [isSaved, setIsSaved] = useState(false)
+  const queryClient = useQueryClient()
+
+  // Check initial saved status
+  const { data: savedStatus } = useQuery({
+    queryKey: ["post-saved", postId],
+    queryFn: () => onCheckPostSaved(postId),
+    staleTime: 30_000,
+  })
+
+  useEffect(() => {
+    if (savedStatus?.saved !== undefined) {
+      setIsSaved(savedStatus.saved)
+    }
+  }, [savedStatus])
+
+  const { mutate: savePost, isPending: isSaving } = useMutation({
+    mutationFn: () => onSavePost(postId, groupId),
+    onMutate: () => {
+      setIsSaved(true)
+    },
+    onError: () => {
+      setIsSaved(false)
+      toast.error("Failed to save post")
+    },
+    onSuccess: (data) => {
+      if (data.status !== 200) {
+        setIsSaved(false)
+        toast.error(data.message)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["post-saved", postId] })
+      queryClient.invalidateQueries({ queryKey: ["saved-posts", groupId] })
+    },
+  })
+
+  const { mutate: unsavePost, isPending: isUnsaving } = useMutation({
+    mutationFn: () => onUnsavePost(postId),
+    onMutate: () => {
+      setIsSaved(false)
+    },
+    onError: () => {
+      setIsSaved(true)
+      toast.error("Failed to remove post")
+    },
+    onSuccess: (data) => {
+      if (data.status !== 200) {
+        setIsSaved(true)
+        toast.error(data.message)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["post-saved", postId] })
+      queryClient.invalidateQueries({ queryKey: ["saved-posts", groupId] })
+    },
+  })
+
+  const toggleSave = useCallback(() => {
+    if (isSaved) {
+      unsavePost()
+    } else {
+      savePost()
+    }
+  }, [isSaved, savePost, unsavePost])
+
+  return {
+    isSaved,
+    toggleSave,
+    isPending: isSaving || isUnsaving,
+  }
 }
 
 export const useCommentClaps = (commentId: string, initialClaps: number = 0, initialMyClaps: number = 0) => {

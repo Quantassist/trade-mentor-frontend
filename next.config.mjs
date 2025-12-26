@@ -20,6 +20,16 @@ const nextConfig = {
       fullUrl: false,
     },
   },
+  experimental: {
+    // Optimize barrel imports for icon libraries to reduce memory usage
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      '@tanstack/react-query',
+    ],
+    // Reduce memory usage during webpack compilation
+    webpackMemoryOptimizations: true,
+  },
 };
 
 // Point to our request-scoped i18n config

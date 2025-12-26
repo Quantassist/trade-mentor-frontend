@@ -7,7 +7,7 @@ import { UserWidget } from "@/components/global/user-widget"
 import { Button } from "@/components/ui/button"
 import { CheckBadge, Logout } from "@/icons"
 import { MenuIcon } from "lucide-react"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import { GroupDropDown } from "./group-dropdown"
 
 export const Navbar = async () => {

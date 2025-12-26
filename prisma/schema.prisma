@@ -142,6 +142,7 @@ model AppUser {
   message         Message[]
   pointActivities PointActivity[]
   posts           Post[]
+  SavedPost       SavedPost[]
   progress        UserCourseProgress[]
   userPoints      UserPoints[]
   sectionProgress UserSectionProgress[]
@@ -187,6 +188,7 @@ model Group {
   translations    GroupTranslation[]
   member          Members[]
   pointActivities PointActivity[]
+  SavedPost       SavedPost[]
   subscription    Subscription[]
   userPoints      UserPoints[]
 
@@ -223,6 +225,7 @@ model Post {
   author       AppUser           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   channel      Channel           @relation(fields: [channelId], references: [id], onDelete: Cascade)
   translations PostTranslation[]
+  SavedPost    SavedPost[]
 
   @@schema("public")
 }
@@ -238,8 +241,8 @@ model Clap {
   post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade, map: "Like_postId_fkey")
   user      AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Like_userId_fkey")
 
-  @@unique([postId, userId], name: "postId_userId")
-  @@unique([commentId, userId], name: "commentId_userId")
+  @@unique([commentId, userId], map: "Clap_commentId_userId_unique")
+  @@unique([postId, userId], map: "Clap_postId_userId_unique")
   @@schema("public")
 }
 
@@ -608,6 +611,21 @@ model EventAttendee {
 
   @@unique([eventId, userId])
   @@index([userId, eventId])
+  @@schema("public")
+}
+
+model SavedPost {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  postId    String   @db.Uuid
+  groupId   String   @db.Uuid
+  createdAt DateTime @default(now())
+  Group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  Post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  User      AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId, groupId])
   @@schema("public")
 }
 

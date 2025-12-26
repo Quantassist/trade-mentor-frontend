@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { usePathname, useRouter } from "@/i18n/navigation"
+import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import { Logout, Settings } from "@/icons"
 import { signOut } from "@/lib/auth-client"
 import { supabaseClient } from "@/lib/utils"
@@ -10,7 +10,6 @@ import { onOffline } from "@/redux/slices/online-member-slice"
 import { AppDispatch } from "@/redux/store"
 import { ArrowLeft, Check, ChevronRight, User } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
-import Link from "next/link"
 import { useState } from "react"
 import { useDispatch } from "react-redux"
 import { DropDown } from "../drop-down"
@@ -135,7 +134,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
       ) : (
         <>
           <Link
-            href={`/${locale}/profile`}
+            href="/profile"
             className="flex gap-x-2 px-2 py-2 items-center hover:bg-themeGray/30 rounded-md transition-colors"
           >
             <User className="h-4 w-4" />
@@ -143,7 +142,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
           </Link>
 
           <Link
-            href={`/${locale}/account`}
+            href="/account"
             className="flex gap-x-2 px-2 py-2 items-center hover:bg-themeGray/30 rounded-md transition-colors"
           >
             <Settings />

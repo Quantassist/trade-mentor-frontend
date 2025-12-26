@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { LucideIcon } from "lucide-react"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import type { ElementType, ReactNode, ComponentType } from "react"
 import { useEffect, useMemo, useState } from "react"
 

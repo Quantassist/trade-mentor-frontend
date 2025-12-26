@@ -15,7 +15,21 @@ export const FeedLayout = ({ children, sidebar }: FeedLayoutProps) => {
   const accumulatedDelta = useRef(0)
 
   useEffect(() => {
-    const updateStickyPosition = () => {
+    // Find the scrollable container (the overflow-y-auto div in GroupShell)
+    const getScrollContainer = () => {
+      // Look for the scrollable parent container
+      let el = sidebarRef.current?.parentElement
+      while (el) {
+        const style = getComputedStyle(el)
+        if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
+          return el
+        }
+        el = el.parentElement
+      }
+      return null
+    }
+
+    const updateStickyPosition = (scrollContainer: HTMLElement | null) => {
       if (!sidebarRef.current || !wrapperRef.current) return
 
       const sidebarHeight = sidebarRef.current.offsetHeight
@@ -32,7 +46,8 @@ export const FeedLayout = ({ children, sidebar }: FeedLayoutProps) => {
         return
       }
 
-      const scrollY = window.scrollY
+      // Get scroll position from container or window
+      const scrollY = scrollContainer ? scrollContainer.scrollTop : window.scrollY
       const scrollDelta = scrollY - lastScrollY.current
       lastScrollY.current = scrollY
 
@@ -51,17 +66,25 @@ export const FeedLayout = ({ children, sidebar }: FeedLayoutProps) => {
       setStickyTop(accumulatedDelta.current)
     }
 
+    const scrollContainer = getScrollContainer()
+    const handleScroll = () => updateStickyPosition(scrollContainer)
+
     // Initialize
     const initTimeout = setTimeout(() => {
       accumulatedDelta.current = 16
-      updateStickyPosition()
+      updateStickyPosition(scrollContainer)
     }, 100)
 
-    window.addEventListener("scroll", updateStickyPosition, { passive: true })
-    window.addEventListener("resize", updateStickyPosition, { passive: true })
+    // Listen to the scroll container if found, otherwise window
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll, { passive: true })
+    } else {
+      window.addEventListener("scroll", handleScroll, { passive: true })
+    }
+    window.addEventListener("resize", handleScroll, { passive: true })
 
     const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(updateStickyPosition)
+      requestAnimationFrame(handleScroll)
     })
     if (sidebarRef.current) {
       resizeObserver.observe(sidebarRef.current)
@@ -69,8 +92,12 @@ export const FeedLayout = ({ children, sidebar }: FeedLayoutProps) => {
 
     return () => {
       clearTimeout(initTimeout)
-      window.removeEventListener("scroll", updateStickyPosition)
-      window.removeEventListener("resize", updateStickyPosition)
+      if (scrollContainer) {
+        scrollContainer.removeEventListener("scroll", handleScroll)
+      } else {
+        window.removeEventListener("scroll", handleScroll)
+      }
+      window.removeEventListener("resize", handleScroll)
       resizeObserver.disconnect()
     }
   }, [])

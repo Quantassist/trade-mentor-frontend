@@ -6,7 +6,9 @@ import BlockTextEditor from "@/components/global/rich-text-editor"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { useGroupSettings } from "@/hooks/groups"
+import { Globe, Lock } from "lucide-react"
 
 type GroupSettingsFormProps = {
   groupId: string
@@ -25,6 +27,9 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
     setJsonDescription,
     setOnDescription,
     onDescription,
+    isPrivate,
+    onTogglePrivacy,
+    isTogglingPrivacy,
   } = useGroupSettings(groupId)
 
   // console.log("Group setting data", data)
@@ -99,6 +104,42 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
               />
               Change Icon
             </Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Privacy Section */}
+      <div className="bg-[#161a20] border border-themeGray/60 rounded-xl p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-full ${isPrivate ? 'bg-amber-500/20' : 'bg-emerald-500/20'}`}>
+              {isPrivate ? (
+                <Lock className="h-5 w-5 text-amber-400" />
+              ) : (
+                <Globe className="h-5 w-5 text-emerald-400" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-white">
+                {isPrivate ? "Private Group" : "Public Group"}
+              </h3>
+              <p className="text-xs text-themeTextGray mt-0.5">
+                {isPrivate 
+                  ? "Only members can see content and join by invitation" 
+                  : "Anyone can discover and join this group"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-themeTextGray">
+              {isPrivate ? "Private" : "Public"}
+            </span>
+            <Switch
+              checked={isPrivate}
+              onCheckedChange={onTogglePrivacy}
+              disabled={isTogglingPrivacy}
+              className="data-[state=checked]:bg-amber-500"
+            />
           </div>
         </div>
       </div>

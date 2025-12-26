@@ -57,19 +57,32 @@ const CreateNewPost = ({ userImage, channelid, username, locale, groupid }: Prop
       {canPost && (
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <span>
-              <Card className="border-themeGray cursor-pointer first-letter:rounded-2xl overflow-hidden">
-                <CardContent className="p-3 bg-[#1A1A1D] flex gap-x-6 items-center">
-                  <Avatar className="cursor-pointer">
+            <div>
+              <Card className="border-themeGray/60 cursor-pointer rounded-xl overflow-hidden bg-gradient-to-r from-[#1a1f25] to-[#1e2329] hover:from-[#1e2329] hover:to-[#252a32] transition-all duration-300 hover:border-[#d4f0e7]/30 hover:shadow-lg hover:shadow-[#d4f0e7]/5 group">
+                <CardContent className="p-4 flex gap-x-4 items-center">
+                  <Avatar className="h-11 w-11 ring-2 ring-[#d4f0e7]/20 group-hover:ring-[#d4f0e7]/40 transition-all">
                     <AvatarImage src={userImage} alt="user" />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-[#2a3441] to-[#1e2329] text-white">
+                      {username?.[0]?.toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
-                  <CardDescription className="text-themeTextGray">
-                    {tr("hintAddElements")}
-                  </CardDescription>
+                  <div className="flex-1 flex items-center justify-between">
+                    <div className="flex flex-col gap-y-0.5">
+                      <span className="text-themeTextGray/80 text-sm group-hover:text-themeTextGray transition-colors">
+                        {tr("hintAddElements")}
+                      </span>
+                      <span className="text-xs text-themeTextGray/50">
+                        Share your thoughts with the community
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-x-2 px-4 py-2 rounded-full bg-[#d4f0e7]/10 text-[#d4f0e7] text-sm font-medium group-hover:bg-[#d4f0e7]/20 transition-all">
+                      <Upload size={16} />
+                      <span className="hidden sm:inline">Create Post</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-            </span>
+            </div>
           </DialogTrigger>
           <DialogContent
             role="dialog"

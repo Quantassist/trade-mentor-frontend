@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useGroupChat } from "@/hooks/groups"
 import { useAppSelector } from "@/redux/store"
 import { User } from "lucide-react"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 
 type GroupChatMenuProps = {
   groupid: string

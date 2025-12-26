@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { MessageCircle } from "lucide-react"
+import { Bookmark, MessageCircle } from "lucide-react"
 import { ClapButton } from "./clap-button"
 
 type InteractionsProps = {
@@ -15,6 +15,9 @@ type InteractionsProps = {
   showConfetti: boolean
   showMyClaps?: boolean
   onCommentClick?: () => void
+  isSaved?: boolean
+  onSaveClick?: () => void
+  isSaving?: boolean
 }
 
 export const Interactions = ({
@@ -28,6 +31,9 @@ export const Interactions = ({
   showConfetti,
   showMyClaps = false,
   onCommentClick,
+  isSaved = false,
+  onSaveClick,
+  isSaving = false,
 }: InteractionsProps) => {
   return (
     <div
@@ -59,6 +65,29 @@ export const Interactions = ({
           <span className="text-base font-medium tabular-nums">{comments}</span>
         </div>
       </div>
+
+      {/* Save button - right side */}
+      {onSaveClick && (
+        <button
+          onClick={onSaveClick}
+          disabled={isSaving}
+          className={cn(
+            "p-2 rounded-full transition-all duration-200 group",
+            isSaved
+              ? "text-white"
+              : "text-themeTextGray hover:text-white hover:bg-white/10"
+          )}
+          title={isSaved ? "Remove from saved" : "Save for later"}
+        >
+          <Bookmark
+            size={22}
+            className={cn(
+              "transition-all duration-200",
+              isSaved ? "fill-current" : "group-hover:scale-110"
+            )}
+          />
+        </button>
+      )}
     </div>
   )
 }

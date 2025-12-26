@@ -624,17 +624,31 @@ export const onReorderSections = async (
 }
 
 export const onGetGroupCourses = cache(async (
-  groupid: string,
+  groupIdOrSlug: string,
   filter: "all" | "in_progress" | "completed" | "unpublished" | "buckets" = "all",
   locale?: string,
 ) => {
   try {
+    // Resolve group ID from slug if needed
+    let groupId = groupIdOrSlug
+    if (!isUUID(groupIdOrSlug)) {
+      const group = await client.group.findFirst({
+        where: { slug: groupIdOrSlug },
+        select: { id: true },
+      })
+      if (!group) {
+        return { status: 404 as const, message: "Group not found" }
+      }
+      groupId = group.id
+    }
+
     const [courses, userId] = await Promise.all([
       client.course.findMany({
-        where: { groupId: groupid, isDeleted: false },
+        where: { groupId, isDeleted: false },
         orderBy: { createdAt: "desc" },
         select: {
           id: true,
+          slug: true,
           name: true,
           thumbnail: true,
           description: true,

@@ -9,25 +9,24 @@ import { ExplorePageContent } from "./_components/explore-content"
 const ExplorePage = async () => {
   const query = getQueryClient()
 
-  await query.prefetchQuery({
-    queryKey: ["technical-analysis"],
-    queryFn: () => onGetExploreGroup("technical-analysis", 0),
-  })
-
-  await query.prefetchQuery({
-    queryKey: ["fundamental-analysis"],
-    queryFn: () => onGetExploreGroup("fundamental-analysis", 0),
-  })
-
-  await query.prefetchQuery({
-    queryKey: ["personal-finance"],
-    queryFn: () => onGetExploreGroup("personal-finance", 0),
-  })
-
-  await query.prefetchQuery({
-    queryKey: ["investing"],
-    queryFn: () => onGetExploreGroup("investing", 0),
-  })
+  await Promise.all([
+    query.prefetchQuery({
+      queryKey: ["technical-analysis"],
+      queryFn: () => onGetExploreGroup("technical-analysis", 0),
+    }),
+    query.prefetchQuery({
+      queryKey: ["fundamental-analysis"],
+      queryFn: () => onGetExploreGroup("fundamental-analysis", 0),
+    }),
+    query.prefetchQuery({
+      queryKey: ["personal-finance"],
+      queryFn: () => onGetExploreGroup("personal-finance", 0),
+    }),
+    query.prefetchQuery({
+      queryKey: ["investing"],
+      queryFn: () => onGetExploreGroup("investing", 0),
+    }),
+  ])
 
   return (
     <HydrationBoundary state={dehydrate(query)}>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useSavePost } from "@/hooks/channels"
 import { usePostClaps } from "@/hooks/groups"
 import { PostWithClaps } from "./index"
 import { PostCard } from "./post-card"
@@ -7,13 +8,15 @@ import { PostCard } from "./post-card"
 type PostCardWithClapsProps = {
   post: PostWithClaps
   userid: string
+  groupid: string
 }
 
-export const PostCardWithClaps = ({ post, userid }: PostCardWithClapsProps) => {
+export const PostCardWithClaps = ({ post, userid, groupid }: PostCardWithClapsProps) => {
   const { totalClaps, myClaps, handleClap, showConfetti, showMyClaps } = usePostClaps(
     post as any,
     userid
   )
+  const { isSaved, toggleSave, isPending: isSaving } = useSavePost(post.id, groupid)
 
   return (
     <PostCard
@@ -34,6 +37,10 @@ export const PostCardWithClaps = ({ post, userid }: PostCardWithClapsProps) => {
       onClap={handleClap}
       showConfetti={showConfetti}
       showMyClaps={showMyClaps}
+      isSaved={isSaved}
+      onSaveClick={toggleSave}
+      isSaving={isSaving}
+      createdAt={post.createdAt}
     />
   )
 }

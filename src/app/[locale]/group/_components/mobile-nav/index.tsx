@@ -2,7 +2,7 @@ import { Notification } from "@/components/global/user-widget/notification"
 import { UserAvatar } from "@/components/global/user-widget/user"
 import { Home, Message } from "@/icons"
 import { getSession } from "@/lib/get-session"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 
 interface MobileNavProps {
   groupid: string

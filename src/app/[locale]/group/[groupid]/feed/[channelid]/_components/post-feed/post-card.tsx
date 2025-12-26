@@ -10,8 +10,7 @@ import { useComments, useDeletePost, useReply } from "@/hooks/channels"
 import { useAuthenticatedUser } from "@/hooks/user"
 import { cn } from "@/lib/utils"
 import { MessageSquare, Pencil, Trash2, Upload } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { Link, usePathname } from "@/i18n/navigation"
 import { useMemo, useState } from "react"
 import { UserComment } from "../../[postid]/_components/comments/user-comment"
 import { Interactions } from "./interactions"
@@ -36,6 +35,10 @@ type PostCardProps = {
   onClap: () => void
   showConfetti: boolean
   showMyClaps?: boolean
+  isSaved?: boolean
+  onSaveClick?: () => void
+  isSaving?: boolean
+  createdAt?: Date | string
 }
 
 export const PostCard = ({
@@ -57,6 +60,10 @@ export const PostCard = ({
   onClap,
   showConfetti,
   showMyClaps = false,
+  isSaved = false,
+  onSaveClick,
+  isSaving = false,
+  createdAt,
 }: PostCardProps) => {
   const pathname = usePathname()
   // Use publicId (NanoID) for URL-friendly links, fallback to postid (UUID)
@@ -129,6 +136,7 @@ export const PostCard = ({
           image={userimage}
           username={username}
           channel={channelname}
+          createdAt={createdAt}
         />
         <Link href={`${pathname}/${postUrlId}`} className="w-full">
           <div className="flex flex-col gap-y-3">
@@ -148,6 +156,9 @@ export const PostCard = ({
         showConfetti={showConfetti}
         showMyClaps={showMyClaps}
         onCommentClick={handleCommentClick}
+        isSaved={isSaved}
+        onSaveClick={onSaveClick}
+        isSaving={isSaving}
       />
       
       {/* Inline Comments Section - LinkedIn style */}

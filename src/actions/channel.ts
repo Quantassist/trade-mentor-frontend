@@ -8,7 +8,7 @@ import { cache } from "react"
 import { onAuthenticatedUser } from "./auth"
 
 export const onCreateNewChannel = async (
-  groupid: string,
+  groupIdOrSlug: string,
   data: {
     id: string
     name: string
@@ -16,12 +16,25 @@ export const onCreateNewChannel = async (
   },
 ) => {
   try {
+    // Resolve group ID from slug if needed
+    let groupId = groupIdOrSlug
+    if (!isUUID(groupIdOrSlug)) {
+      const group = await client.group.findFirst({
+        where: { slug: groupIdOrSlug },
+        select: { id: true },
+      })
+      if (!group) {
+        return { status: 404, message: "Group not found" }
+      }
+      groupId = group.id
+    }
+
     // Generate slug from channel name
-    const slug = await generateUniqueChannelSlug(data.name, groupid)
+    const slug = await generateUniqueChannelSlug(data.name, groupId)
     
     const channel = await client.group.update({
       where: {
-        id: groupid,
+        id: groupId,
       },
       data: {
         channel: {
@@ -45,6 +58,7 @@ export const onCreateNewChannel = async (
       message: "Channel could not be created",
     }
   } catch (error) {
+    console.error("Error creating channel:", error)
     return {
       status: 400,
       message: "Oops! something went wrong",
@@ -559,7 +573,10 @@ export const onGetPostClaps = async (postid: string, userId?: string) => {
     if (userId) {
       const myClap = await client.clap.findUnique({
         where: {
-          postId_userId: { postId: postid, userId },
+          postId_userId: {
+            postId: postid,
+            userId,
+          },
         },
         select: { count: true },
       })
@@ -689,7 +706,10 @@ export const onGetCommentClaps = async (commentId: string, userId?: string) => {
     if (userId) {
       const myClap = await client.clap.findUnique({
         where: {
-          commentId_userId: { commentId, userId },
+          commentId_userId: {
+            commentId,
+            userId,
+          },
         },
         select: { count: true },
       })

@@ -4,7 +4,7 @@ import { DropDown } from "@/components/global/drop-down"
 import { Button } from "@/components/ui/button"
 import { CarotSort } from "@/icons"
 import { Group } from "lucide-react"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 
 type GroupDropDownProps = {
   groups:

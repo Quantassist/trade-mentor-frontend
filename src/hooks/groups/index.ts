@@ -88,6 +88,7 @@ export const useGroupChatOnline = (userid: string) => {
 export const useGroupList = (query: string) => {
   const { data } = useQuery({
     queryKey: [query],
+    queryFn: () => api.groups.explore(query, 0),
   })
 
   const dispatch: AppDispatch = useDispatch()
@@ -342,6 +343,62 @@ export const useGroupSettings = (groupid: string) => {
 
   const onUpdate = handleSubmit(async (values) => update(values))
 
+  // Privacy toggle mutation
+  const queryClient = useQueryClient()
+  const { mutate: togglePrivacy, isPending: isTogglingPrivacy } = useMutation({
+    mutationKey: ["toggle-privacy", groupid],
+    mutationFn: async (newPrivate: boolean) => {
+      const result = await onUpDateGroupSettings(
+        groupid,
+        "PRIVACY",
+        newPrivate ? "true" : "false",
+        `/group/${groupid}/settings`,
+      )
+      if (result.status !== 200) {
+        throw new Error("Failed to update privacy")
+      }
+      return { isPrivate: newPrivate }
+    },
+    onMutate: async (newPrivate) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["about-group-info", groupid, locale] })
+      
+      // Snapshot previous value
+      const previousData = queryClient.getQueryData(["about-group-info", groupid, locale])
+      
+      // Optimistically update
+      queryClient.setQueryData(["about-group-info", groupid, locale], (old: any) => {
+        if (!old?.group) return old
+        return {
+          ...old,
+          group: {
+            ...old.group,
+            privacy: newPrivate ? "PRIVATE" : "PUBLIC",
+          },
+        }
+      })
+      
+      return { previousData }
+    },
+    onError: (err, newPrivate, context) => {
+      // Rollback on error
+      if (context?.previousData) {
+        queryClient.setQueryData(["about-group-info", groupid, locale], context.previousData)
+      }
+      toast("Error", { description: "Failed to update privacy setting" })
+    },
+    onSuccess: () => {
+      toast("Success", { description: "Privacy setting updated" })
+    },
+    onSettled: async () => {
+      // Refetch to ensure server state
+      await queryClient.invalidateQueries({ queryKey: ["about-group-info", groupid, locale] })
+    },
+  })
+
+  const isPrivate = data?.group?.privacy === "PRIVATE"
+  const onTogglePrivacy = (checked: boolean) => togglePrivacy(checked)
+
   // Return error state instead of client-side redirect
   // Server components/layouts should handle auth protection
   const hasError = data?.status !== 200
@@ -359,6 +416,9 @@ export const useGroupSettings = (groupid: string) => {
     setOnDescription,
     onDescription,
     hasError,
+    isPrivate,
+    onTogglePrivacy,
+    isTogglingPrivacy,
   }
 }
 

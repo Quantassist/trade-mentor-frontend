@@ -123,6 +123,14 @@ export const onGetExploreGroup = async (category: string, paginate: number) => {
       },
       take: 6,
       skip: paginate,
+      include: {
+        _count: {
+          select: {
+            channel: true,
+            courses: true,
+          },
+        },
+      },
     })
 
     if (groups && groups.length > 0) {
@@ -356,16 +364,35 @@ export const onUpDateGroupSettings = async (
     | "NAME"
     | "DESCRIPTION"
     | "JSONDESCRIPTION"
-    | "HTMLDESCRIPTION",
+    | "HTMLDESCRIPTION"
+    | "PRIVACY",
   content: string,
   path: string,
   locale?: string,
 ) => {
   try {
+    // Resolve group by id or slug
+    const group = await client.group.findFirst({
+      where: isUUID(groupid) ? { id: groupid } : { slug: groupid },
+      select: { id: true },
+    })
+    
+    if (!group) {
+      return { status: 404, message: "Group not found" }
+    }
+    
+    const resolvedGroupId = group.id
+    
+    if (type === "PRIVACY") {
+      await client.group.update({
+        where: { id: resolvedGroupId },
+        data: { privacy: content === "true" ? "PRIVATE" : "PUBLIC" },
+      })
+    }
     if (type === "IMAGE") {
       await client.group.update({
         where: {
-          id: groupid,
+          id: resolvedGroupId,
         },
         data: {
           thumbnail: content,
@@ -375,7 +402,7 @@ export const onUpDateGroupSettings = async (
     if (type === "ICON") {
       await client.group.update({
         where: {
-          id: groupid,
+          id: resolvedGroupId,
         },
         data: {
           icon: content,
@@ -387,7 +414,7 @@ export const onUpDateGroupSettings = async (
       // Only update base field for default locale; no separate translation text column
       if (!locale || locale === defaultLocale) {
         await client.group.update({
-          where: { id: groupid },
+          where: { id: resolvedGroupId },
           data: { description: content },
         })
       } else {
@@ -397,7 +424,7 @@ export const onUpDateGroupSettings = async (
     if (type === "NAME") {
       await client.group.update({
         where: {
-          id: groupid,
+          id: resolvedGroupId,
         },
         data: {
           name: content,
@@ -407,19 +434,19 @@ export const onUpDateGroupSettings = async (
     if (type === "JSONDESCRIPTION") {
       if (locale && locale !== defaultLocale) {
         await client.groupTranslation.upsert({
-          where: { groupId_locale: { groupId: groupid, locale } },
+          where: { groupId_locale: { groupId: resolvedGroupId, locale } },
           update: {
             descriptionJson: JSON.parse(content),
           },
           create: {
-            groupId: groupid,
+            groupId: resolvedGroupId,
             locale,
             descriptionJson: JSON.parse(content),
           },
         })
       } else {
         await client.group.update({
-          where: { id: groupid },
+          where: { id: resolvedGroupId },
           data: { jsonDescription: content },
         })
       }
@@ -427,19 +454,19 @@ export const onUpDateGroupSettings = async (
     if (type === "HTMLDESCRIPTION") {
       if (locale && locale !== defaultLocale) {
         await client.groupTranslation.upsert({
-          where: { groupId_locale: { groupId: groupid, locale } },
+          where: { groupId_locale: { groupId: resolvedGroupId, locale } },
           update: {
             descriptionHtml: content,
           },
           create: {
-            groupId: groupid,
+            groupId: resolvedGroupId,
             locale,
             descriptionHtml: content,
           },
         })
       } else {
         await client.group.update({
-          where: { id: groupid },
+          where: { id: resolvedGroupId },
           data: { htmlDescription: content },
         })
       }
@@ -1310,3 +1337,168 @@ export const onAddCustomDomain = async (groupid: string, domain: string) => {
     return { status: 400, message: "Oops! something went wrong" }
   }
 }
+
+export const onSavePost = async (postId: string, groupIdOrSlug: string) => {
+  try {
+    const user = await onAuthenticatedUser()
+    if (!user.id) {
+      return { status: 401, message: "Unauthorized" }
+    }
+
+    // Resolve group ID from slug if needed
+    let groupId = groupIdOrSlug
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(groupIdOrSlug)) {
+      const group = await client.group.findFirst({
+        where: { slug: groupIdOrSlug },
+        select: { id: true },
+      })
+      if (!group) {
+        return { status: 404, message: "Group not found" }
+      }
+      groupId = group.id
+    }
+
+    // Check if already saved
+    const existing = await client.savedPost.findUnique({
+      where: {
+        userId_postId: {
+          userId: user.id,
+          postId,
+        },
+      },
+    })
+
+    if (existing) {
+      return { status: 200, message: "Post already saved", saved: true }
+    }
+
+    await client.savedPost.create({
+      data: {
+        userId: user.id,
+        postId,
+        groupId,
+      },
+    })
+
+    return { status: 200, message: "Post saved", saved: true }
+  } catch (error) {
+    console.error("Error saving post:", error)
+    return { status: 500, message: "Failed to save post" }
+  }
+}
+
+export const onUnsavePost = async (postId: string) => {
+  try {
+    const user = await onAuthenticatedUser()
+    if (!user.id) {
+      return { status: 401, message: "Unauthorized" }
+    }
+
+    await client.savedPost.delete({
+      where: {
+        userId_postId: {
+          userId: user.id,
+          postId,
+        },
+      },
+    })
+
+    return { status: 200, message: "Post removed from saved", saved: false }
+  } catch (error) {
+    console.error("Error unsaving post:", error)
+    return { status: 500, message: "Failed to remove post" }
+  }
+}
+
+export const onCheckPostSaved = async (postId: string) => {
+  try {
+    const user = await onAuthenticatedUser()
+    if (!user.id) {
+      return { status: 200, saved: false }
+    }
+
+    const existing = await client.savedPost.findUnique({
+      where: {
+        userId_postId: {
+          userId: user.id,
+          postId,
+        },
+      },
+    })
+
+    return { status: 200, saved: !!existing }
+  } catch (error) {
+    return { status: 200, saved: false }
+  }
+}
+
+export const onGetSavedPosts = cache(async (groupIdOrSlug: string) => {
+  try {
+    const user = await onAuthenticatedUser()
+    if (!user.id) {
+      return { status: 401, message: "Unauthorized", posts: [] }
+    }
+
+    // Resolve group ID from slug if needed
+    let groupId = groupIdOrSlug
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(groupIdOrSlug)) {
+      const group = await client.group.findFirst({
+        where: { slug: groupIdOrSlug },
+        select: { id: true },
+      })
+      if (!group) {
+        return { status: 404, message: "Group not found", posts: [] }
+      }
+      groupId = group.id
+    }
+
+    const savedPosts = await client.savedPost.findMany({
+      where: {
+        userId: user.id,
+        groupId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        Post: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                firstname: true,
+                lastname: true,
+                image: true,
+              },
+            },
+            channel: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+            claps: true,
+            _count: {
+              select: {
+                comments: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const posts = savedPosts.map((sp) => ({
+      ...sp.Post,
+      savedAt: sp.createdAt,
+    }))
+
+    return { status: 200, posts }
+  } catch (error) {
+    console.error("Error fetching saved posts:", error)
+    return { status: 500, message: "Failed to fetch saved posts", posts: [] }
+  }
+})

@@ -3,8 +3,7 @@
 import { USER_SETTINGS_MENU } from "@/constants/menus"
 import { cn } from "@/lib/utils"
 import { Settings, User } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { Link, usePathname } from "@/i18n/navigation"
 
 type UserSettingsSidebarProps = {
   locale: string
@@ -35,7 +34,7 @@ export const UserSettingsSidebar = ({ locale }: UserSettingsSidebarProps) => {
           {USER_SETTINGS_MENU.map((item) => (
             <Link
               key={item.id}
-              href={`/${locale}/${item.path}`}
+              href={`/${item.path}`}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                 currentSection === item.path

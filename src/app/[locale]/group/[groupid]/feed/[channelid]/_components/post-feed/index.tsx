@@ -20,6 +20,7 @@ export type PostWithClaps = {
   content: string
   authorId: string
   channelId: string
+  createdAt: Date | string
   claps: {
     id: string
     userId: string
@@ -57,6 +58,7 @@ export const PostFeed = ({ channelid, userid, locale, groupid }: PostFeedProps) 
           key={post.id}
           post={post}
           userid={userid}
+          groupid={groupid!}
         />
       ))}
       <InfiniteScrollObserver
@@ -66,7 +68,7 @@ export const PostFeed = ({ channelid, userid, locale, groupid }: PostFeedProps) 
         paginate={posts.length}
         locale={locale}
       >
-        <PaginatedPosts userid={userid} />
+        <PaginatedPosts userid={userid} groupid={groupid!} />
       </InfiniteScrollObserver>
     </>
   ) : (
