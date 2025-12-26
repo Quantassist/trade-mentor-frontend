@@ -7,7 +7,7 @@ import { api } from "@/lib/api"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
 import { ChevronRight, LineChart } from "lucide-react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import Image from "next/image"
 
 type OngoingCoursesWidgetProps = {
@@ -18,6 +18,7 @@ type OngoingCoursesWidgetProps = {
 
 export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingCoursesWidgetProps) => {
   const locale = useLocale()
+  const t = useTranslations("ongoingCourses")
 
   const { data } = useQuery({
     queryKey: ["ongoing-courses", locale, limit],
@@ -35,7 +36,7 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
       <Card className="border-themeGray/60 bg-[#161a20] rounded-xl p-5">
       {/* Continue your journey */}
       <div className="space-y-5">
-        <h3 className="text-themeTextWhite font-semibold tracking-tight text-xl">Continue Your Journey</h3>
+        <h3 className="text-themeTextWhite font-semibold tracking-tight text-xl">{t("title")}</h3>
         <div className="space-y-3">
           {courses.map((c: any) => {
             const currentLesson = Math.min((c.completedCount ?? 0) + 1, c.totalCount || 0)
@@ -70,7 +71,7 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
                   )}
                     <div className="min-w-0 flex-1">
                       <p className="text-themeTextWhite font-medium truncate group-hover:text-themeTextWhite/90">{c.name}</p>
-                      <p className="text-xs text-themeTextGray">{Math.round(progress)}% complete</p>
+                      <p className="text-xs text-themeTextGray">{Math.round(progress)}% {t("complete")}</p>
                       <div className="mt-2">
                         <Progress value={progress} className="h-2 bg-[#1f2023]" />
                       </div>
@@ -89,7 +90,7 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
               href={`/group/${groupid}/courses`}
               className="inline-block text-base md:text-lg font-semibold text-sky-400 hover:text-sky-300 hover:underline"
             >
-              View all courses
+              {t("viewAll")}
             </Link>
           </div>
         )}

@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useCreateEvent } from "@/hooks/events"
 import { ErrorMessage } from "@hookform/error-message"
 import { Calendar, Clock, Link2, MapPin, Users, Video } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 type CreateEventFormProps = {
   groupId: string
@@ -33,18 +34,20 @@ const EVENT_TYPES = [
 
 export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormProps) => {
   const { register, errors, onCreateEvent, isPending, setValue, watch } = useCreateEvent(groupId, userId, onSuccess)
+  const t = useTranslations("events.form")
+  const tTypes = useTranslations("events.types")
 
   return (
     <form onSubmit={onCreateEvent} className="flex flex-col gap-y-5">
       {/* Title */}
       <div className="space-y-2">
         <Label htmlFor="title" className="text-sm font-medium text-white">
-          Event Title *
+          {t("title")} *
         </Label>
         <Input
           id="title"
           type="text"
-          placeholder="Enter event title..."
+          placeholder={t("titlePlaceholder")}
           className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white placeholder:text-themeTextGray/60"
           {...register("title")}
         />
@@ -59,16 +62,16 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
       <div className="space-y-2">
         <Label className="text-sm font-medium text-white flex items-center gap-2">
           <Video className="w-4 h-4 text-emerald-400" />
-          Event Type *
+          {t("eventType")} *
         </Label>
         <Select onValueChange={(value) => setValue("eventType", value as any)} defaultValue="LIVE_CLASS">
           <SelectTrigger className="bg-themeBlack/60 border-themeGray/60 h-11 text-white">
-            <SelectValue placeholder="Select event type" />
+            <SelectValue placeholder={t("selectType")} />
           </SelectTrigger>
           <SelectContent className="bg-[#1a1a1d] border-themeGray">
             {EVENT_TYPES.map((type) => (
               <SelectItem key={type.value} value={type.value} className="text-white hover:bg-themeGray">
-                {type.label}
+                {tTypes(type.value)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -78,11 +81,11 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
       {/* Description */}
       <div className="space-y-2">
         <Label htmlFor="description" className="text-sm font-medium text-white">
-          Description
+          {t("description")}
         </Label>
         <Textarea
           id="description"
-          placeholder="Describe your event..."
+          placeholder={t("descriptionPlaceholder")}
           className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg text-white placeholder:text-themeTextGray/60 min-h-[80px] resize-none"
           {...register("description")}
         />
@@ -93,7 +96,7 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
         <div className="space-y-2">
           <Label htmlFor="startDate" className="text-sm font-medium text-white flex items-center gap-2">
             <Calendar className="w-4 h-4 text-emerald-400" />
-            Start Date *
+            {t("startDate")} *
           </Label>
           <Input
             id="startDate"
@@ -110,7 +113,7 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
         <div className="space-y-2">
           <Label htmlFor="startTime" className="text-sm font-medium text-white flex items-center gap-2">
             <Clock className="w-4 h-4 text-emerald-400" />
-            Start Time *
+            {t("startTime")} *
           </Label>
           <Input
             id="startTime"
@@ -130,7 +133,7 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="endDate" className="text-sm font-medium text-white">
-            End Date
+            {t("endDate")}
           </Label>
           <Input
             id="endDate"
@@ -141,7 +144,7 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
         </div>
         <div className="space-y-2">
           <Label htmlFor="endTime" className="text-sm font-medium text-white">
-            End Time
+            {t("endTime")}
           </Label>
           <Input
             id="endTime"
@@ -156,12 +159,12 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
       <div className="space-y-2">
         <Label htmlFor="meetingUrl" className="text-sm font-medium text-white flex items-center gap-2">
           <Link2 className="w-4 h-4 text-emerald-400" />
-          Meeting URL
+          {t("meetingUrl")}
         </Label>
         <Input
           id="meetingUrl"
           type="url"
-          placeholder="https://zoom.us/j/..."
+          placeholder={t("meetingUrlPlaceholder")}
           className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white placeholder:text-themeTextGray/60"
           {...register("meetingUrl")}
         />
@@ -177,12 +180,12 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
         <div className="space-y-2">
           <Label htmlFor="location" className="text-sm font-medium text-white flex items-center gap-2">
             <MapPin className="w-4 h-4 text-emerald-400" />
-            Location
+            {t("location")}
           </Label>
           <Input
             id="location"
             type="text"
-            placeholder="Online or venue..."
+            placeholder={t("locationPlaceholder")}
             className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white placeholder:text-themeTextGray/60"
             {...register("location")}
           />
@@ -190,12 +193,12 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
         <div className="space-y-2">
           <Label htmlFor="maxAttendees" className="text-sm font-medium text-white flex items-center gap-2">
             <Users className="w-4 h-4 text-emerald-400" />
-            Max Attendees
+            {t("maxAttendees")}
           </Label>
           <Input
             id="maxAttendees"
             type="number"
-            placeholder="Unlimited"
+            placeholder={t("unlimited")}
             className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white placeholder:text-themeTextGray/60"
             {...register("maxAttendees")}
           />
@@ -208,7 +211,7 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
         disabled={isPending}
         className="w-full h-11 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium rounded-lg transition-all mt-2"
       >
-        <Loader loading={isPending}>Create Event</Loader>
+        <Loader loading={isPending}>{t("submit")}</Loader>
       </Button>
     </form>
   )

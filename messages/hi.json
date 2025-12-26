@@ -107,6 +107,118 @@
       "description": "यहाँ अपनी ग्रुप सब्सक्रिप्शंस समायोजित करें।"
     }
   },
+  "sidebar": {
+    "channels": "चैनल",
+    "yourLibrary": "आपकी लाइब्रेरी",
+    "preferences": "प्राथमिकताएं",
+    "theme": {
+      "dark": "डार्क",
+      "light": "लाइट",
+      "system": "सिस्टम"
+    }
+  },
+  "createPost": {
+    "button": "पोस्ट बनाएं"
+  },
+  "groupDropdown": {
+    "ownedGroups": "आपके ग्रुप",
+    "groups": "ग्रुप"
+  },
+  "ongoingCourses": {
+    "title": "अपनी यात्रा जारी रखें",
+    "complete": "पूर्ण",
+    "viewAll": "सभी कोर्स देखें"
+  },
+  "leaderboard": {
+    "title": "लीडरबोर्ड",
+    "period": "30-दिन",
+    "subtitle": "देखें इस महीने किसने सबसे अच्छा प्रदर्शन किया",
+    "pageTitle": "लीडरबोर्ड",
+    "pageSubtitle": "साथी सदस्यों के साथ प्रतिस्पर्धा करें और रैंक में ऊपर चढ़ें!",
+    "yourRank": "आपकी रैंक",
+    "totalPoints": "कुल अंक",
+    "howToEarn": "अंक कैसे कमाएं",
+    "topMembers": "शीर्ष सदस्य",
+    "membersRanked": "सदस्य रैंक किए गए",
+    "noRankings": "अभी तक कोई रैंकिंग नहीं। अंक कमाने के लिए शुरू करें!",
+    "you": "आप",
+    "activities": {
+      "createPost": "पोस्ट बनाएं",
+      "helpfulPost": "उपयोगी पोस्ट",
+      "markHelpful": "उपयोगी चिह्नित करें",
+      "comment": "टिप्पणी",
+      "completeCourse": "कोर्स पूरा करें",
+      "passQuiz": "क्विज़ पास करें",
+      "attendEvent": "इवेंट में भाग लें",
+      "dailyLogin": "दैनिक लॉगिन"
+    }
+  },
+  "events": {
+    "title": "इवेंट्स",
+    "subtitle": "आगामी इवेंट्स और लाइव सेशन",
+    "createEvent": "इवेंट बनाएं",
+    "createEventDescription": "अपने ग्रुप सदस्यों के लिए नया इवेंट शेड्यूल करें",
+    "draftEvents": "ड्राफ्ट इवेंट्स",
+    "mySchedule": "मेरा शेड्यूल",
+    "upcomingEvents": "आगामी इवेंट्स",
+    "noUpcoming": "कोई आगामी इवेंट शेड्यूल नहीं है",
+    "createToStart": "शुरू करने के लिए इवेंट बनाएं!",
+    "noOtherUpcoming": "कोई अन्य आगामी इवेंट नहीं",
+    "registered": "पंजीकृत",
+    "max": "अधिकतम",
+    "joinMeeting": "मीटिंग में शामिल हों",
+    "cancelRegistration": "पंजीकरण रद्द करें",
+    "register": "पंजीकरण करें",
+    "publishEvent": "इवेंट प्रकाशित करें",
+    "delete": "हटाएं",
+    "draft": "ड्राफ्ट",
+    "registeredBadge": "पंजीकृत",
+    "types": {
+      "LIVE_CLASS": "लाइव क्लास",
+      "WEBINAR": "वेबिनार",
+      "WORKSHOP": "वर्कशॉप",
+      "QA_SESSION": "प्रश्नोत्तर सत्र",
+      "MEETUP": "मीटअप",
+      "OTHER": "इवेंट"
+    },
+    "form": {
+      "title": "इवेंट शीर्षक",
+      "titlePlaceholder": "इवेंट शीर्षक दर्ज करें...",
+      "eventType": "इवेंट प्रकार",
+      "selectType": "इवेंट प्रकार चुनें",
+      "description": "विवरण",
+      "descriptionPlaceholder": "अपने इवेंट का वर्णन करें...",
+      "startDate": "प्रारंभ तिथि",
+      "startTime": "प्रारंभ समय",
+      "endDate": "समाप्ति तिथि",
+      "endTime": "समाप्ति समय",
+      "meetingUrl": "मीटिंग URL",
+      "meetingUrlPlaceholder": "https://zoom.us/j/...",
+      "location": "स्थान",
+      "locationPlaceholder": "ऑनलाइन या स्थल...",
+      "maxAttendees": "अधिकतम प्रतिभागी",
+      "unlimited": "असीमित",
+      "submit": "इवेंट बनाएं"
+    }
+  },
+  "about": {
+    "yourMembership": "आपकी सदस्यता",
+    "yourRole": "आपकी भूमिका",
+    "owner": "मालिक",
+    "member": "सदस्य",
+    "memberSince": "सदस्य बने",
+    "groupType": "ग्रुप प्रकार",
+    "private": "प्राइवेट",
+    "public": "पब्लिक",
+    "aboutGroup": "इस ग्रुप के बारे में",
+    "noDescription": "कोई विवरण उपलब्ध नहीं।",
+    "update": "अपडेट करें",
+    "groupStatistics": "ग्रुप आंकड़े",
+    "category": "श्रेणी",
+    "created": "बनाया गया",
+    "galleryItems": "गैलरी आइटम",
+    "privacy": "गोपनीयता"
+  },
   "userMenu": {
     "title": "खाता",
     "profile": "प्रोफ़ाइल",

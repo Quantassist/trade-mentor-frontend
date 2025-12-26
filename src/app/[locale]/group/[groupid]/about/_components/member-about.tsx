@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { useGroupAbout, useGroupInfo } from "@/hooks/groups"
 import { Calendar, Shield, Users } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { MediaGallery } from "./gallery"
 
 type MemberAboutGroupProps = {
@@ -18,6 +19,7 @@ type MemberAboutGroupProps = {
 }
 
 export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupProps) => {
+  const t = useTranslations("about")
   const { group, role, isLoading, hasError } = useGroupInfo(groupid, locale)
 
   const {
@@ -127,7 +129,7 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
 
       {/* Member-Only Section - Membership Details */}
       <div className="mt-4">
-        <h2 className="text-2xl font-semibold text-white mb-4">Your Membership</h2>
+        <h2 className="text-2xl font-semibold text-white mb-4">{t("yourMembership")}</h2>
         <Card className="bg-[#161a20] rounded-xl p-6 border border-themeGray/60">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Role Badge */}
@@ -136,12 +138,12 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
                 <Shield className="h-6 w-6 text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm text-themeTextGray">Your Role</p>
+                <p className="text-sm text-themeTextGray">{t("yourRole")}</p>
                 <p className="text-lg font-semibold text-white capitalize">
                   {isOwner ? (
-                    <span className="text-amber-400">Owner</span>
+                    <span className="text-amber-400">{t("owner")}</span>
                   ) : (
-                    <span className="text-emerald-400">Member</span>
+                    <span className="text-emerald-400">{t("member")}</span>
                   )}
                 </p>
               </div>
@@ -153,7 +155,7 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
                 <Calendar className="h-6 w-6 text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-themeTextGray">Member Since</p>
+                <p className="text-sm text-themeTextGray">{t("memberSince")}</p>
                 <p className="text-lg font-semibold text-white">
                   {new Date(group.createdAt).toLocaleDateString(locale, {
                     month: "short",
@@ -169,9 +171,9 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
                 <Users className="h-6 w-6 text-purple-400" />
               </div>
               <div>
-                <p className="text-sm text-themeTextGray">Group Type</p>
+                <p className="text-sm text-themeTextGray">{t("groupType")}</p>
                 <p className="text-lg font-semibold text-white">
-                  {group.privacy ? "Private" : "Public"}
+                  {group.privacy ? t("private") : t("public")}
                 </p>
               </div>
             </div>
@@ -181,10 +183,10 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
 
       {/* Description Section */}
       <div className="mt-4">
-        <h2 className="text-2xl font-semibold text-white mb-4">About this group</h2>
+        <h2 className="text-2xl font-semibold text-white mb-4">{t("aboutGroup")}</h2>
         <div className="bg-[#161a20] rounded-xl p-6 border border-themeGray/60">
           {userid !== group.userId ? (
-            <HtmlParser html={group.htmlDescription || "<p>No description available.</p>"} />
+            <HtmlParser html={group.htmlDescription || `<p>${t("noDescription")}</p>`} />
           ) : (
             <form
               ref={editor}
@@ -213,7 +215,7 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
                   disabled={isPending}
                   type="submit"
                 >
-                  <Loader loading={isPending}>Update</Loader>
+                  <Loader loading={isPending}>{t("update")}</Loader>
                 </Button>
               )}
             </form>
@@ -224,15 +226,15 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
       {/* Owner-Only Section - Quick Stats */}
       {isOwner && (
         <div className="mt-4">
-          <h2 className="text-2xl font-semibold text-white mb-4">Group Statistics</h2>
+          <h2 className="text-2xl font-semibold text-white mb-4">{t("groupStatistics")}</h2>
           <Card className="bg-[#161a20] rounded-xl p-6 border border-themeGray/60">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <p className="text-sm text-themeTextGray mb-1">Category</p>
+                <p className="text-sm text-themeTextGray mb-1">{t("category")}</p>
                 <p className="text-lg font-medium text-white capitalize">{group.category}</p>
               </div>
               <div>
-                <p className="text-sm text-themeTextGray mb-1">Created</p>
+                <p className="text-sm text-themeTextGray mb-1">{t("created")}</p>
                 <p className="text-lg font-medium text-white">
                   {new Date(group.createdAt).toLocaleDateString(locale, {
                     day: "numeric",
@@ -242,12 +244,12 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
                 </p>
               </div>
               <div>
-                <p className="text-sm text-themeTextGray mb-1">Gallery Items</p>
+                <p className="text-sm text-themeTextGray mb-1">{t("galleryItems")}</p>
                 <p className="text-lg font-medium text-white">{group.gallery?.length || 0}</p>
               </div>
               <div>
-                <p className="text-sm text-themeTextGray mb-1">Privacy</p>
-                <p className="text-lg font-medium text-white">{group.privacy ? "Private" : "Public"}</p>
+                <p className="text-sm text-themeTextGray mb-1">{t("privacy")}</p>
+                <p className="text-lg font-medium text-white">{group.privacy ? t("private") : t("public")}</p>
               </div>
             </div>
           </Card>

@@ -7,6 +7,7 @@ import { CarotSort } from "@/icons"
 import { cn } from "@/lib/utils"
 import { Group } from "lucide-react"
 import { Link, usePathname } from "@/i18n/navigation"
+import { useTranslations } from "next-intl"
 import { DropDown } from "../drop-down"
 import { SideBarMenu } from "./menu"
 import { useSidebar } from "./sidebar-context"
@@ -67,6 +68,7 @@ export interface IGroups {
 
 export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
   const pathname = usePathname()
+  const t = useTranslations("groupDropdown")
   const { groupInfo, groups, mutate, variables, isPending, channels } =
     useSideBar(groupid)
 
@@ -94,7 +96,7 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
       {/* <div className="h-screen bg-black sm:w-[300px] w-[70px] flex-col gap-y-10 fixed sm:px-5 hidden sm:flex"> */}
       {groups.groups && groups.groups.length > 0 && (
         <DropDown
-          title="Groups"
+          title={t("groups")}
           trigger={
             <div
               title={groupInfo.group?.name}

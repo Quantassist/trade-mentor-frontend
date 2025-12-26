@@ -1,11 +1,14 @@
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { useTranslations } from "next-intl"
 
 type LeaderBoardCardProps = {
   light?: boolean
 }
 
 export const LeaderBoardCard = ({ light }: LeaderBoardCardProps) => {
+  const t = useTranslations("leaderboard")
+  
   return (
     <Card
       className={cn(
@@ -14,10 +17,10 @@ export const LeaderBoardCard = ({ light }: LeaderBoardCardProps) => {
       )}
     >
       <h2 className="text-themeTextWhite text-xl font-bold">
-        Leaderboard (30-days)
+        {t("title")} ({t("period")})
       </h2>
       <p className="text-themeTextGray text-sm">
-        See who performed the best this month
+        {t("subtitle")}
       </p>
     </Card>
   )

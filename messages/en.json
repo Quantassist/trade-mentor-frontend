@@ -73,6 +73,118 @@
       "description": "Connect third-party applications into Grouple"
     }
   },
+  "sidebar": {
+    "channels": "CHANNELS",
+    "yourLibrary": "YOUR LIBRARY",
+    "preferences": "PREFERENCES",
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System"
+    }
+  },
+  "createPost": {
+    "button": "Create Post"
+  },
+  "groupDropdown": {
+    "ownedGroups": "Owned Groups",
+    "groups": "Groups"
+  },
+  "ongoingCourses": {
+    "title": "Continue Your Journey",
+    "complete": "complete",
+    "viewAll": "View all courses"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "period": "30-days",
+    "subtitle": "See who performed the best this month",
+    "pageTitle": "Leaderboard",
+    "pageSubtitle": "Compete with fellow members and climb the ranks!",
+    "yourRank": "Your Rank",
+    "totalPoints": "Total Points",
+    "howToEarn": "How to Earn Points",
+    "topMembers": "Top Members",
+    "membersRanked": "members ranked",
+    "noRankings": "No rankings yet. Start engaging to earn points!",
+    "you": "You",
+    "activities": {
+      "createPost": "Create a Post",
+      "helpfulPost": "Helpful Post",
+      "markHelpful": "Mark Helpful",
+      "comment": "Comment",
+      "completeCourse": "Complete Course",
+      "passQuiz": "Pass Quiz",
+      "attendEvent": "Attend Event",
+      "dailyLogin": "Daily Login"
+    }
+  },
+  "events": {
+    "title": "Events",
+    "subtitle": "Upcoming events and live sessions",
+    "createEvent": "Create Event",
+    "createEventDescription": "Schedule a new event for your group members",
+    "draftEvents": "Draft Events",
+    "mySchedule": "My Schedule",
+    "upcomingEvents": "Upcoming Events",
+    "noUpcoming": "No upcoming events scheduled",
+    "createToStart": "Create an event to get started!",
+    "noOtherUpcoming": "No other upcoming events",
+    "registered": "registered",
+    "max": "max",
+    "joinMeeting": "Join Meeting",
+    "cancelRegistration": "Cancel Registration",
+    "register": "Register",
+    "publishEvent": "Publish Event",
+    "delete": "Delete",
+    "draft": "Draft",
+    "registeredBadge": "Registered",
+    "types": {
+      "LIVE_CLASS": "Live Class",
+      "WEBINAR": "Webinar",
+      "WORKSHOP": "Workshop",
+      "QA_SESSION": "Q&A Session",
+      "MEETUP": "Meetup",
+      "OTHER": "Event"
+    },
+    "form": {
+      "title": "Event Title",
+      "titlePlaceholder": "Enter event title...",
+      "eventType": "Event Type",
+      "selectType": "Select event type",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe your event...",
+      "startDate": "Start Date",
+      "startTime": "Start Time",
+      "endDate": "End Date",
+      "endTime": "End Time",
+      "meetingUrl": "Meeting URL",
+      "meetingUrlPlaceholder": "https://zoom.us/j/...",
+      "location": "Location",
+      "locationPlaceholder": "Online or venue...",
+      "maxAttendees": "Max Attendees",
+      "unlimited": "Unlimited",
+      "submit": "Create Event"
+    }
+  },
+  "about": {
+    "yourMembership": "Your Membership",
+    "yourRole": "Your Role",
+    "owner": "Owner",
+    "member": "Member",
+    "memberSince": "Member Since",
+    "groupType": "Group Type",
+    "private": "Private",
+    "public": "Public",
+    "aboutGroup": "About this group",
+    "noDescription": "No description available.",
+    "update": "Update",
+    "groupStatistics": "Group Statistics",
+    "category": "Category",
+    "created": "Created",
+    "galleryItems": "Gallery Items",
+    "privacy": "Privacy"
+  },
   "userMenu": {
     "title": "Account",
     "profile": "Profile",

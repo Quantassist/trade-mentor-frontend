@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { CarotSort } from "@/icons"
 import { Group } from "lucide-react"
 import { Link } from "@/i18n/navigation"
+import { useTranslations } from "next-intl"
 
 type GroupDropDownProps = {
   groups:
@@ -29,9 +30,10 @@ type GroupDropDownProps = {
 
 export const GroupDropDown = ({ groups }: GroupDropDownProps) => {
   const { groups: userGroups } = groups
+  const t = useTranslations("groupDropdown")
   return (
     <DropDown
-      title="Owned Groups"
+      title={t("ownedGroups")}
       trigger={
         <Button
           variant="ghost"

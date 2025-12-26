@@ -33,6 +33,7 @@ const CreateNewPost = ({ userImage, channelid, username, locale, groupid }: Prop
   const name = (data as any)?.channel?.name as string | undefined
   const formId = "create-post-form"
   const tr = useTranslations("channel")
+  const t = useTranslations()
   const currentLocale = useLocale()
 
   // Fetch role info using the same key as server prefetch
@@ -77,7 +78,7 @@ const CreateNewPost = ({ userImage, channelid, username, locale, groupid }: Prop
                     </div>
                     <div className="flex items-center gap-x-2 px-4 py-2 rounded-full bg-[#d4f0e7]/10 text-[#d4f0e7] text-sm font-medium group-hover:bg-[#d4f0e7]/20 transition-all">
                       <Upload size={16} />
-                      <span className="hidden sm:inline">Create Post</span>
+                      <span className="hidden sm:inline">{t("createPost.button")}</span>
                     </div>
                   </div>
                 </CardContent>

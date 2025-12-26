@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { useGroupLeaderboard, useUserRank } from "@/hooks/leaderboard"
 import { cn } from "@/lib/utils"
 import { Crown, Medal, Star, TrendingUp, Trophy, Zap } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 type LeaderboardContentProps = {
   groupid: string
@@ -23,6 +24,7 @@ const RANK_ICONS = {
 }
 
 export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps) => {
+  const t = useTranslations("leaderboard")
   const { leaderboard, total, isLoading } = useGroupLeaderboard(groupid, 50)
   const { rank: userRank, points: userPoints } = useUserRank(userid, groupid)
 
@@ -43,8 +45,8 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
             <Trophy className="h-8 w-8 text-amber-400" />
           </div>
           <div>
-            <h1 className="font-bold text-3xl md:text-4xl text-white">Leaderboard</h1>
-            <p className="text-themeTextGray">Compete with fellow members and climb the ranks!</p>
+            <h1 className="font-bold text-3xl md:text-4xl text-white">{t("pageTitle")}</h1>
+            <p className="text-themeTextGray">{t("pageSubtitle")}</p>
           </div>
         </div>
       </div>
@@ -58,12 +60,12 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
                 <Star className="h-8 w-8 text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm text-themeTextGray">Your Rank</p>
+                <p className="text-sm text-themeTextGray">{t("yourRank")}</p>
                 <p className="text-3xl font-bold text-white">#{userRank}</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-themeTextGray">Total Points</p>
+              <p className="text-sm text-themeTextGray">{t("totalPoints")}</p>
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-amber-400" />
                 <p className="text-3xl font-bold text-amber-400">{(userPoints ?? 0).toLocaleString()}</p>
@@ -77,7 +79,7 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
       <Card className="bg-[#161a20] border-themeGray/60 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-emerald-400" />
-          How to Earn Points
+          {t("howToEarn")}
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
@@ -101,14 +103,14 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
       {/* Leaderboard Table */}
       <Card className="bg-[#161a20] border-themeGray/60 rounded-xl overflow-hidden">
         <div className="p-6 border-b border-themeGray/40">
-          <h3 className="text-lg font-semibold text-white">Top Members</h3>
-          <p className="text-sm text-themeTextGray">{total} members ranked</p>
+          <h3 className="text-lg font-semibold text-white">{t("topMembers")}</h3>
+          <p className="text-sm text-themeTextGray">{total} {t("membersRanked")}</p>
         </div>
 
         {(leaderboard?.length ?? 0) === 0 ? (
           <div className="p-12 text-center">
             <Trophy className="h-12 w-12 text-themeTextGray mx-auto mb-4" />
-            <p className="text-themeTextGray">No rankings yet. Start engaging to earn points!</p>
+            <p className="text-themeTextGray">{t("noRankings")}</p>
           </div>
         ) : (
           <div className="divide-y divide-themeGray/30">
@@ -154,7 +156,7 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
                     <div>
                       <p className={cn("font-medium", isCurrentUser ? "text-emerald-400" : "text-white")}>
                         {entry.user.firstname} {entry.user.lastname}
-                        {isCurrentUser && <span className="ml-2 text-xs">(You)</span>}
+                        {isCurrentUser && <span className="ml-2 text-xs">({t("you")})</span>}
                       </p>
                     </div>
                   </div>

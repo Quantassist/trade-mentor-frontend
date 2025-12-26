@@ -138,7 +138,7 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
               checked={isPrivate}
               onCheckedChange={onTogglePrivacy}
               disabled={isTogglingPrivacy}
-              className="data-[state=checked]:bg-amber-500"
+              className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-themeGray/60 data-[state=unchecked]:border data-[state=unchecked]:border-themeGray"
             />
           </div>
         </div>

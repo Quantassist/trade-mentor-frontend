@@ -59,6 +59,7 @@ export const SideBarMenu = ({
   const currentPage = pathname.includes("settings") ? "settings" : "channels"
   const currentSection = pathname.split("/").pop() // TODO: Fix the bug by resolving current page in robust way
   const tr = useTranslations("menu.settings")
+  const t = useTranslations()
   const { collapsed } = useSidebar()
   const showLabels = Boolean(mobile || !collapsed)
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null)
@@ -193,7 +194,7 @@ export const SideBarMenu = ({
   return (
     <div className="flex flex-col gap-y-5">
       <div className={cn("flex items-center", showLabels ? "justify-between" : "justify-center")}> 
-        {showLabels && <p className="text-xs text-[#F7ECE9]">CHANNELS</p>}
+        {showLabels && <p className="text-xs text-[#F7ECE9]">{t("sidebar.channels")}</p>}
         {userId === groupUserid && (
           <span title="Create channel">
             <Plus
@@ -268,7 +269,7 @@ export const SideBarMenu = ({
                           id="channel-link"
                           title={channel.name}
                           className={cn("flex-1 min-w-0", !showLabels && "flex items-center justify-center w-full")}
-                          href={`/${locale}/group/${groupSlug}/feed/${channel.slug}`}
+                          href={`/group/${groupSlug}/feed/${channel.slug}`}
                         >
                           <div className={cn("flex items-center min-w-0", !showLabels ? "justify-center" : "gap-x-2")}> 
                             <IconRenderer
@@ -363,7 +364,7 @@ export const SideBarMenu = ({
 
       {/* Library Link */}
       <div className="mt-4">
-        {showLabels && <p className="text-xs text-[#F7ECE9] mb-2">YOUR LIBRARY</p>}
+        {showLabels && <p className="text-xs text-[#F7ECE9] mb-2">{t("sidebar.yourLibrary")}</p>}
         <Link
           href={`/${locale}/group/${groupSlug}/saved`}
           className={cn(
@@ -392,6 +393,7 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
   const locale = useLocale()
   const intlPathname = usePathname()
   const intlRouter = useRouter()
+  const t = useTranslations()
   const [mounted, setMounted] = React.useState(false)
 
   // Prevent hydration mismatch by only rendering theme-dependent content after mount
@@ -410,7 +412,7 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
   }
 
   const labelFor = (l: string) => (l === "hi" ? "हिन्दी" : "English")
-  const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "System"
+  const themeLabel = theme === "dark" ? t("sidebar.theme.dark") : theme === "light" ? t("sidebar.theme.light") : t("sidebar.theme.system")
   const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor
 
   return (
@@ -418,7 +420,7 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
       "mt-auto pt-6 pb-6 border-t border-themeGray/30",
       collapsed ? "px-1" : "px-0",
     )}>
-      {showLabels && <p className="text-xs text-[#F7ECE9] mb-2">PREFERENCES</p>}
+      {showLabels && <p className="text-xs text-[#F7ECE9] mb-2">{t("sidebar.preferences")}</p>}
       <div className="flex flex-col gap-y-1">
         {/* Theme Switcher Row */}
         <DropdownMenu>

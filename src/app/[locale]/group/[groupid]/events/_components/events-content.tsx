@@ -24,6 +24,7 @@ import {
     Users,
     Video
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useState } from "react"
 
 type EventsContentProps = {
@@ -51,6 +52,7 @@ const EVENT_TYPE_COLORS: Record<string, { bg: string; text: string; border: stri
 }
 
 export const EventsContent = ({ groupid, userid, canCreateEvent }: EventsContentProps) => {
+  const t = useTranslations("events")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const { events, isLoading } = useGroupEvents(groupid, { upcoming: true, published: true, userId: userid })
   const { events: allEvents } = useGroupEvents(groupid, { userId: userid })
@@ -82,21 +84,21 @@ export const EventsContent = ({ groupid, userid, canCreateEvent }: EventsContent
             <Calendar className="h-8 w-8 text-emerald-400" />
           </div>
           <div>
-            <h1 className="font-bold text-3xl md:text-4xl text-white">Events</h1>
-            <p className="text-themeTextGray">Upcoming events and live sessions</p>
+            <h1 className="font-bold text-3xl md:text-4xl text-white">{t("title")}</h1>
+            <p className="text-themeTextGray">{t("subtitle")}</p>
           </div>
         </div>
 
         {canCreateEvent && (
           <GlassModal
-            title="Create Event"
-            description="Schedule a new event for your group members"
+            title={t("createEvent")}
+            description={t("createEventDescription")}
             open={isCreateOpen}
             onOpenChange={setIsCreateOpen}
             trigger={
               <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white gap-2">
                 <CalendarPlus className="h-4 w-4" />
-                Create Event
+                {t("createEvent")}
               </Button>
             }
           >
@@ -112,7 +114,7 @@ export const EventsContent = ({ groupid, userid, canCreateEvent }: EventsContent
       {/* Draft Events (Owner Only) */}
       {canCreateEvent && draftEvents.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold text-white mb-4">Draft Events</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">{t("draftEvents")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {draftEvents.map((event: any) => (
               <EventCard
@@ -137,7 +139,7 @@ export const EventsContent = ({ groupid, userid, canCreateEvent }: EventsContent
         <div>
           <div className="flex items-center gap-2 mb-4">
             <CalendarCheck className="h-5 w-5 text-emerald-400" />
-            <h2 className="text-xl font-semibold text-white">My Schedule</h2>
+            <h2 className="text-xl font-semibold text-white">{t("mySchedule")}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {myRegisteredEvents.map((event: any) => (
@@ -158,19 +160,19 @@ export const EventsContent = ({ groupid, userid, canCreateEvent }: EventsContent
 
       {/* Upcoming Events */}
       <div>
-        <h2 className="text-xl font-semibold text-white mb-4">Upcoming Events</h2>
+        <h2 className="text-xl font-semibold text-white mb-4">{t("upcomingEvents")}</h2>
         {upcomingEvents.length === 0 && myRegisteredEvents.length === 0 ? (
           <Card className="bg-[#161a20] border-themeGray/60 rounded-xl p-12 text-center">
             <Calendar className="h-12 w-12 text-themeTextGray mx-auto mb-4" />
-            <p className="text-themeTextGray">No upcoming events scheduled</p>
+            <p className="text-themeTextGray">{t("noUpcoming")}</p>
             {canCreateEvent && (
               <p className="text-sm text-themeTextGray mt-2">
-                Create an event to get started!
+                {t("createToStart")}
               </p>
             )}
           </Card>
         ) : upcomingEvents.length === 0 ? (
-          <p className="text-themeTextGray text-sm">No other upcoming events</p>
+          <p className="text-themeTextGray text-sm">{t("noOtherUpcoming")}</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {upcomingEvents.map((event: any) => (
