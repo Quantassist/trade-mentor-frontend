@@ -108,6 +108,9 @@
     "membersRanked": "members ranked",
     "noRankings": "No rankings yet. Start engaging to earn points!",
     "you": "You",
+    "viewLeaderboard": "View Leaderboard",
+    "refreshLeaderboard": "Refresh Leaderboard",
+    "refreshing": "Refreshing...",
     "activities": {
       "createPost": "Create a Post",
       "helpfulPost": "Helpful Post",

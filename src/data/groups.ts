@@ -102,6 +102,14 @@ export const getExploreGroups = cache(async (category: string, paginate: number 
       },
       take: 6,
       skip: paginate,
+      include: {
+        _count: {
+          select: {
+            channel: true,
+            courses: true,
+          },
+        },
+      },
     })
 
     if (groups && groups.length > 0) {

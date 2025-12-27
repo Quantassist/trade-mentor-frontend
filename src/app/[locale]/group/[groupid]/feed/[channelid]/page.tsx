@@ -1,5 +1,6 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import { onGetOngoingCourses } from "@/actions/courses"
+import { onGetGroupLeaderboard } from "@/actions/leaderboard"
 import { LeaderBoardCard } from "@/app/[locale]/group/_components/leaderboard"
 import { GroupSideWidget } from "@/components/global/group-side-widget"
 import { OngoingCoursesWidget } from "@/components/global/ongoing-courses-widget"
@@ -50,6 +51,13 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
       staleTime: 60000,
       gcTime: 300000,
     }),
+    // Prefetch leaderboard for the sidebar widget
+    client.prefetchQuery({
+      queryKey: ["group-leaderboard", groupid, 10],
+      queryFn: () => onGetGroupLeaderboard(groupid, 10),
+      staleTime: 60000,
+      gcTime: 300000,
+    }),
   ])
 
   const [session, authUser] = await Promise.all([sessionPromise, authUserPromise])
@@ -61,7 +69,7 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
           <>
             <GroupSideWidget groupid={groupid} hideGoToFeed />
             <OngoingCoursesWidget groupid={groupid} />
-            <LeaderBoardCard light />
+            <LeaderBoardCard light groupid={groupid} />
           </>
         }
       >

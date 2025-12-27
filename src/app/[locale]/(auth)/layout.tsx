@@ -1,3 +1,4 @@
+import { ThemeSwitcher } from "@/components/global/theme-switcher"
 import { getSession } from "@/lib/get-session"
 import { setRequestLocale } from "next-intl/server"
 import Image from "next/image"
@@ -21,38 +22,39 @@ const AuthLayout = async ({ children, params }: AuthLayoutProps) => {
   if (session) redirect(`/callback/sign-in?locale=${locale}`)
 
   return (
-    <div className="min-h-screen flex flex-col bg-themeBlack">
-      {/* Top bar with language selector */}
-      <div className="container flex items-center justify-end pt-3 pb-0">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-[#0a0a0b] dark:via-[#0f1012] dark:to-[#0a0a0b]">
+      {/* Top bar with theme and language selector */}
+      <div className="container flex items-center justify-end gap-3 pt-4 pb-0">
+        <ThemeSwitcher />
         <AuthLanguageSelector />
       </div>
 
       {/* Main content - centered card with two sides */}
       <div className="flex-1 flex items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-4xl bg-themeGray/50 border border-themeGray rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-          {/* Left side - Form */}
-          <div className="w-full md:w-1/2 p-6 md:p-8 lg:p-10">
-            {children}
-          </div>
-
-          {/* Right side - Image/Branding (hidden on mobile) */}
-          <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-emerald-900 to-emerald-950 items-center justify-center p-8 lg:p-12 rounded-r-2xl">
-            <div className="flex flex-col items-center gap-6">
+        <div className="w-full max-w-5xl flex flex-col md:flex-row gap-0">
+          {/* Left side - Hero/Branding with centered text and image below */}
+          <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-[#1a1a1d] via-[#141416] to-[#0f0f11] items-center justify-center p-8 lg:p-12 rounded-l-[2.5rem]">
+            <div className="flex flex-col items-center gap-6 text-center">
+              <AuthHero />
               <Image
                 src="/stripe.png"
                 alt="TradeMentor"
-                width={120}
-                height={120}
-                className="object-contain"
+                width={160}
+                height={160}
+                className="object-contain mt-4"
               />
-              <AuthHero />
             </div>
+          </div>
+
+          {/* Right side - Form */}
+          <div className="w-full md:w-1/2 bg-white dark:bg-[#1a1d21] rounded-[2.5rem] md:rounded-l-none p-8 md:p-10 lg:p-12 shadow-2xl">
+            {children}
           </div>
         </div>
       </div>
 
-      {/* Mobile hero - shown below card on small screens */}
-      <div className="md:hidden container pb-8">
+      {/* Mobile hero - shown below card on small screens, centered */}
+      <div className="md:hidden container pb-8 text-center">
         <AuthHero />
       </div>
     </div>

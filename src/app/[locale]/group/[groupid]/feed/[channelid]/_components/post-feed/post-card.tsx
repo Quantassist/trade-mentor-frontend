@@ -10,7 +10,7 @@ import { useComments, useDeletePost, useReply } from "@/hooks/channels"
 import { useAuthenticatedUser } from "@/hooks/user"
 import { cn } from "@/lib/utils"
 import { MessageSquare, Pencil, Trash2, Upload } from "lucide-react"
-import { Link, usePathname } from "@/i18n/navigation"
+import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import { useMemo, useState } from "react"
 import { UserComment } from "../../[postid]/_components/comments/user-comment"
 import { Interactions } from "./interactions"
@@ -66,6 +66,7 @@ export const PostCard = ({
   createdAt,
 }: PostCardProps) => {
   const pathname = usePathname()
+  const router = useRouter()
   // Use publicId (NanoID) for URL-friendly links, fallback to postid (UUID)
   const postUrlId = publicId || postid
   const formId = useMemo(() => `edit-post-form-${postid}`, [postid])
@@ -92,10 +93,23 @@ export const PostCard = ({
       deletePost()
     }
   }
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on interactive elements
+    const target = e.target as HTMLElement
+    const interactiveElements = target.closest('button, a, [role="button"], input, textarea, [data-interactive]')
+    if (interactiveElements) return
+    
+    // Navigate to post detail page using router for SPA behavior
+    router.push(`${pathname}/${postUrlId}`)
+  }
+
   return (
-    <Card className="relative border-themeGray/50 bg-brand-card-elevated first-letter:rounded-2xl overflow-hidden">
+    <Card 
+      className="relative border-themeGray/50 bg-brand-card-elevated first-letter:rounded-2xl overflow-hidden cursor-pointer hover:border-themeGray/70 transition-colors"
+      onClick={handleCardClick}
+    >
       {isAuthor && (
-        <div className={cn("absolute right-3 top-3 z-10 flex gap-2")}>
+        <div className={cn("absolute right-3 top-3 z-10 flex gap-2")} data-interactive>
           <SimpleModal
             trigger={
               <button
@@ -138,12 +152,10 @@ export const PostCard = ({
           channel={channelname}
           createdAt={createdAt}
         />
-        <Link href={`${pathname}/${postUrlId}`} className="w-full">
-          <div className="flex flex-col gap-y-3">
-            <h2 className="text-2xl">{title}</h2>
-            <HtmlParser html={html} />
-          </div>
-        </Link>
+        <div className="flex flex-col gap-y-3 w-full">
+          <h2 className="text-2xl">{title}</h2>
+          <HtmlParser html={html} />
+        </div>
       </CardContent>
       <Separator orientation="horizontal" className="bg-themeGray mt-3" />
       <Interactions
@@ -159,6 +171,7 @@ export const PostCard = ({
         isSaved={isSaved}
         onSaveClick={onSaveClick}
         isSaving={isSaving}
+        postUrl={typeof window !== "undefined" ? `${window.location.origin}${pathname}/${postUrlId}` : undefined}
       />
       
       {/* Inline Comments Section - LinkedIn style */}

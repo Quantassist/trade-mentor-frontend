@@ -1,14 +1,18 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { useGroupLeaderboard, useUserRank } from "@/hooks/leaderboard"
 import { cn } from "@/lib/utils"
-import { Crown, Medal, Star, TrendingUp, Trophy, Zap } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
+import { Crown, Loader2, Medal, RefreshCw, Star, TrendingUp, Trophy, Zap } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useState } from "react"
 
 type LeaderboardContentProps = {
   groupid: string
   userid: string
+  canRefresh?: boolean
 }
 
 const RANK_COLORS = {
@@ -23,10 +27,30 @@ const RANK_ICONS = {
   3: Medal,
 }
 
-export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps) => {
+export const LeaderboardContent = ({ groupid, userid, canRefresh = false }: LeaderboardContentProps) => {
   const t = useTranslations("leaderboard")
+  const queryClient = useQueryClient()
   const { leaderboard, total, isLoading } = useGroupLeaderboard(groupid, 50)
   const { rank: userRank, points: userPoints } = useUserRank(userid, groupid)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      const response = await fetch("/api/cron/aggregate-monthly-points", {
+        method: "POST",
+      })
+      if (response.ok) {
+        // Invalidate leaderboard queries to refetch fresh data
+        await queryClient.invalidateQueries({ queryKey: ["group-leaderboard"] })
+        await queryClient.invalidateQueries({ queryKey: ["user-rank"] })
+      }
+    } catch (error) {
+      console.error("Failed to refresh leaderboard:", error)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -40,14 +64,32 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
     <div className="flex flex-col gap-y-8">
       {/* Header */}
       <div className="flex flex-col gap-y-2">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/20">
-            <Trophy className="h-8 w-8 text-amber-400" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/20">
+              <Trophy className="h-8 w-8 text-amber-400" />
+            </div>
+            <div>
+              <h1 className="font-bold text-3xl md:text-4xl text-white">{t("pageTitle")}</h1>
+              <p className="text-themeTextGray">{t("pageSubtitle")}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-3xl md:text-4xl text-white">{t("pageTitle")}</h1>
-            <p className="text-themeTextGray">{t("pageSubtitle")}</p>
-          </div>
+          {canRefresh && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="gap-2"
+            >
+              {isRefreshing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              {isRefreshing ? t("refreshing") : t("refreshLeaderboard")}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -75,32 +117,7 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
         </Card>
       )}
 
-      {/* Point System Info */}
-      <Card className="bg-[#161a20] border-themeGray/60 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-emerald-400" />
-          {t("howToEarn")}
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { activity: "Create a Post", points: 10 },
-            { activity: "Helpful Post", points: 5 },
-            { activity: "Mark Helpful", points: 2 },
-            { activity: "Comment", points: 3 },
-            { activity: "Complete Course", points: 50 },
-            { activity: "Pass Quiz", points: 15 },
-            { activity: "Attend Event", points: 20 },
-            { activity: "Daily Login", points: 1 },
-          ].map((item) => (
-            <div key={item.activity} className="flex items-center justify-between p-3 rounded-lg bg-themeBlack/50">
-              <span className="text-sm text-themeTextGray">{item.activity}</span>
-              <span className="text-sm font-semibold text-emerald-400">+{item.points}</span>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* Leaderboard Table */}
+      {/* Leaderboard Table - Top Members */}
       <Card className="bg-[#161a20] border-themeGray/60 rounded-xl overflow-hidden">
         <div className="p-6 border-b border-themeGray/40">
           <h3 className="text-lg font-semibold text-white">{t("topMembers")}</h3>
@@ -141,7 +158,7 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
                   {/* User Info */}
                   <div className="flex items-center gap-3 flex-1">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 flex items-center justify-center overflow-hidden">
-                      {entry.user.image ? (
+                      {entry.user?.image ? (
                         <img
                           src={entry.user.image}
                           alt={`${entry.user.firstname}`}
@@ -149,13 +166,13 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
                         />
                       ) : (
                         <span className="text-white font-semibold">
-                          {entry.user.firstname?.[0]}{entry.user.lastname?.[0]}
+                          {entry.user?.firstname?.[0]}{entry.user?.lastname?.[0]}
                         </span>
                       )}
                     </div>
                     <div>
                       <p className={cn("font-medium", isCurrentUser ? "text-emerald-400" : "text-white")}>
-                        {entry.user.firstname} {entry.user.lastname}
+                        {entry.user?.firstname} {entry.user?.lastname}
                         {isCurrentUser && <span className="ml-2 text-xs">({t("you")})</span>}
                       </p>
                     </div>
@@ -171,6 +188,29 @@ export const LeaderboardContent = ({ groupid, userid }: LeaderboardContentProps)
             })}
           </div>
         )}
+      </Card>
+
+      {/* Point System Info */}
+      <Card className="bg-[#161a20] border-themeGray/60 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-emerald-400" />
+          {t("howToEarn")}
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {[
+            { activity: "Create a Post", points: 10 },
+            { activity: "Comment", points: 3 },
+            { activity: "Complete Course", points: 50 },
+            { activity: "Pass Quiz", points: 15 },
+            { activity: "Receive Clap", points: 1 },
+            { activity: "Daily Login", points: 1 },
+          ].map((item) => (
+            <div key={item.activity} className="flex items-center justify-between p-3 rounded-lg bg-themeBlack/50">
+              <span className="text-sm text-themeTextGray">{item.activity}</span>
+              <span className="text-sm font-semibold text-emerald-400">+{item.points}</span>
+            </div>
+          ))}
+        </div>
       </Card>
     </div>
   )

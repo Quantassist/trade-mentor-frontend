@@ -6,7 +6,7 @@ import { ThemeSwitcher } from "@/components/global/theme-switcher"
 import { UserWidget } from "@/components/global/user-widget"
 import { Button } from "@/components/ui/button"
 import { CheckBadge, Logout } from "@/icons"
-import { MenuIcon } from "lucide-react"
+import { MenuIcon, Plus } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import { GroupDropDown } from "./group-dropdown"
 
@@ -15,32 +15,33 @@ export const Navbar = async () => {
   const groups = await onGetUserGroups(user.id!)
 
   return (
-    <div className="flex px-5 py-3 items-center bg-themeBlack border-b-[1px] border-themeDarkGray fixed z-50 w-full bg-clip-padding backdrop--blur__safari backdrop-filter backdrop-blur-2xl bg-opacity-60">
+    <div className="flex px-5 lg:px-8 py-4 items-center bg-[#0a0a0b]/80 border-b border-themeGray/20 fixed z-50 w-full backdrop-blur-xl">
       <div className="hidden lg:inline">
         {user.status === 200 ? (
-          // <GroupDropDown members={groups.members} groups={groups} />
           <GroupDropDown groups={groups} />
         ) : (
-          <p>TradeFlix</p>
+          <Link href="/" className="text-xl font-bold text-white hover:text-emerald-400 transition-colors">
+            TradeFlix
+          </Link>
         )}
       </div>
       <GlassSheet
         trigger={
           <span className="lg:hidden flex items-center gap-2 py-2">
-            <MenuIcon className="cursor-pointer" />
-            <p>TradeFlix</p>
+            <MenuIcon className="cursor-pointer h-5 w-5" />
+            <p className="font-semibold">TradeFlix</p>
           </span>
         }
       >
         <div>Content</div>
       </GlassSheet>
-      <div className="flex-1 lg:flex hidden justify-end gap-3">
+      <div className="flex-1 lg:flex hidden justify-end gap-3 items-center">
         <Link href={user.status === 200 ? `/group/create` : "/sign-in"}>
           <Button
             variant="outline"
-            className="bg-themeBlack rounded-2xl flex gap-2 border-themeGray hover:bg-themeGray/80 hover:border-themeGray"
+            className="bg-transparent rounded-full flex gap-2 border-themeGray/60 hover:bg-[#1a1d21] hover:border-themeGray text-white transition-all h-10 px-5"
           >
-            <CheckBadge />
+            <Plus className="h-4 w-4" />
             Create Group
           </Button>
         </Link>
@@ -50,7 +51,7 @@ export const Navbar = async () => {
           <UserWidget image={user.image!} />
         ) : (
           <Link href="/sign-in">
-            <Button className="rounded-2xl flex gap-2 font-medium bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] shadow-lg">
+            <Button className="rounded-full flex gap-2 font-semibold bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/20 h-10 px-5 transition-all">
               <Logout />
               Login / Signup
             </Button>

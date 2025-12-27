@@ -6,6 +6,7 @@ import { generateUniqueChannelSlug } from "@/lib/id-utils.server"
 import { client } from "@/lib/prisma"
 import { cache } from "react"
 import { onAuthenticatedUser } from "./auth"
+import { onAwardPoints } from "./leaderboard"
 
 export const onCreateNewChannel = async (
   groupIdOrSlug: string,
@@ -186,17 +187,25 @@ export const onCreateChannelPostMulti = async (
   try {
     const user = await onAuthenticatedUser()
     
-    // Resolve channel ID from slug if needed
+    // Resolve channel ID and get groupId from slug if needed
     let channelId = channelIdOrSlug
+    let groupId: string | null = null
     if (!isUUID(channelIdOrSlug)) {
       const channel = await client.channel.findFirst({
         where: { slug: channelIdOrSlug },
-        select: { id: true },
+        select: { id: true, groupId: true },
       })
       if (!channel) {
         return { status: 404, message: "Channel not found" }
       }
       channelId = channel.id
+      groupId = channel.groupId
+    } else {
+      const channel = await client.channel.findUnique({
+        where: { id: channelId },
+        select: { groupId: true },
+      })
+      groupId = channel?.groupId ?? null
     }
     
     // Generate publicId for URL-friendly short ID
@@ -248,6 +257,10 @@ export const onCreateChannelPostMulti = async (
     }
 
     if (post) {
+      // Award points for creating a post
+      if (groupId && user.id) {
+        onAwardPoints(user.id, groupId, "POST_CREATED", post.id, "Created a post").catch(() => {})
+      }
       return { status: 200, message: "Post created successfully" }
     }
     return { status: 404, message: "Post not found!" }
@@ -530,7 +543,15 @@ export const onClapPost = async (postid: string, clapCount: number) => {
   try {
     const user = await onAuthenticatedUser()
 
-    // Upsert clap - add to existing count or create new
+    // Get post author and groupId for awarding points
+    const post = await client.post.findUnique({
+      where: { id: postid },
+      select: { authorId: true, channel: { select: { groupId: true } } },
+    })
+    const postAuthorId = post?.authorId
+    const groupId = post?.channel?.groupId
+
+    // Check if this is the first clap from this user on this post
     const existing = await client.clap.findUnique({
       where: {
         postId_userId: {
@@ -539,6 +560,8 @@ export const onClapPost = async (postid: string, clapCount: number) => {
         },
       },
     })
+
+    const isFirstClap = !existing
 
     if (existing) {
       await client.clap.update({
@@ -553,6 +576,12 @@ export const onClapPost = async (postid: string, clapCount: number) => {
           count: clapCount,
         },
       })
+    }
+
+    // Award points to post author ONLY on first clap from this user (prevents spam)
+    // Each unique user clapping = 1 point, regardless of clap count
+    if (isFirstClap && groupId && postAuthorId && postAuthorId !== user.id) {
+      onAwardPoints(postAuthorId, groupId, "CLAP_RECEIVED", `${postid}_${user.id}`, "Received a clap on post").catch(() => {})
     }
 
     return { status: 200, message: "Clapped!", newClaps: clapCount }
@@ -600,6 +629,14 @@ export const onCreateNewComment = async (
 ) => {
   try {
     const user = await onAuthenticatedUser()
+    
+    // Get groupId from post's channel
+    const post = await client.post.findUnique({
+      where: { id: postid },
+      select: { channel: { select: { groupId: true } } },
+    })
+    const groupId = post?.channel?.groupId
+    
     const comment = await client.post.update({
       where: {
         id: postid,
@@ -616,6 +653,10 @@ export const onCreateNewComment = async (
     })
 
     if (comment) {
+      // Award points for creating a comment
+      if (groupId && user.id) {
+        onAwardPoints(user.id, groupId, "COMMENT_CREATED", commentid, "Created a comment").catch(() => {})
+      }
       return { status: 200, message: "Comment created successfully" }
     }
 
@@ -633,6 +674,14 @@ export const onCreateCommentReply = async (
 ) => {
   try {
     const user = await onAuthenticatedUser()
+    
+    // Get groupId from post's channel
+    const post = await client.post.findUnique({
+      where: { id: postid },
+      select: { channel: { select: { groupId: true } } },
+    })
+    const groupId = post?.channel?.groupId
+    
     const reply = await client.comment.update({
       where: {
         id: commentid,
@@ -651,6 +700,10 @@ export const onCreateCommentReply = async (
     })
 
     if (reply) {
+      // Award points for creating a reply (counts as a comment)
+      if (groupId && user.id) {
+        onAwardPoints(user.id, groupId, "COMMENT_CREATED", replyid, "Replied to a comment").catch(() => {})
+      }
       return { status: 200, message: "Reply created successfully" }
     }
 
@@ -664,6 +717,15 @@ export const onClapComment = async (commentId: string, clapCount: number) => {
   try {
     const user = await onAuthenticatedUser()
 
+    // Get comment author and groupId for awarding points
+    const comment = await client.comment.findUnique({
+      where: { id: commentId },
+      select: { userId: true, post: { select: { channel: { select: { groupId: true } } } } },
+    })
+    const commentAuthorId = comment?.userId
+    const groupId = comment?.post?.channel?.groupId
+
+    // Check if this is the first clap from this user on this comment
     const existing = await client.clap.findUnique({
       where: {
         commentId_userId: {
@@ -672,6 +734,8 @@ export const onClapComment = async (commentId: string, clapCount: number) => {
         },
       },
     })
+
+    const isFirstClap = !existing
 
     if (existing) {
       await client.clap.update({
@@ -686,6 +750,12 @@ export const onClapComment = async (commentId: string, clapCount: number) => {
           count: clapCount,
         },
       })
+    }
+
+    // Award points to comment author ONLY on first clap from this user (prevents spam)
+    // Each unique user clapping = 1 point, regardless of clap count
+    if (isFirstClap && groupId && commentAuthorId && commentAuthorId !== user.id) {
+      onAwardPoints(commentAuthorId, groupId, "COMMENT_CLAP_RECEIVED", `${commentId}_${user.id}`, "Received a clap on comment").catch(() => {})
     }
 
     return { status: 200, message: "Clapped!", newClaps: clapCount }

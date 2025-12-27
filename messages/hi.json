@@ -142,6 +142,9 @@
     "membersRanked": "सदस्य रैंक किए गए",
     "noRankings": "अभी तक कोई रैंकिंग नहीं। अंक कमाने के लिए शुरू करें!",
     "you": "आप",
+    "viewLeaderboard": "लीडरबोर्ड देखें",
+    "refreshLeaderboard": "लीडरबोर्ड रिफ्रेश करें",
+    "refreshing": "रिफ्रेश हो रहा है...",
     "activities": {
       "createPost": "पोस्ट बनाएं",
       "helpfulPost": "उपयोगी पोस्ट",

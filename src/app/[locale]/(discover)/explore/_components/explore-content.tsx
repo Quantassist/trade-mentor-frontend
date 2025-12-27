@@ -1,6 +1,7 @@
 "use client"
 
 import { useAppSelector } from "@/redux/store"
+import { Layers } from "lucide-react"
 import { useTranslations } from "next-intl"
 import dynamic from "next/dynamic"
 import { ExploreSlider } from "./explore-slider"
@@ -40,6 +41,17 @@ export const ExplorePageContent = ({
         status !== 200 &&
         (layout === "SLIDER" ? (
           <>
+            {/* Categories Section Header */}
+            <div className="flex items-center gap-3 mt-8 px-[40px] lg:px-[150px]">
+              <div className="p-2 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20">
+                <Layers className="h-5 w-5 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Categories</h3>
+                <p className="text-xs text-themeTextGray">Browse groups by topic</p>
+              </div>
+            </div>
+
             <ExploreSlider
               label={t("slider.technical-analysis.label")}
               text={t("slider.technical-analysis.text")}

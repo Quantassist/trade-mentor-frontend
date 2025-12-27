@@ -5,7 +5,7 @@ import { useGroupChatOnline } from "@/hooks/groups"
 import { useSideBar } from "@/hooks/navigation"
 import { CarotSort } from "@/icons"
 import { cn } from "@/lib/utils"
-import { Group } from "lucide-react"
+import { Compass, Group } from "lucide-react"
 import { Link, usePathname } from "@/i18n/navigation"
 import { useTranslations } from "next-intl"
 import { DropDown } from "../drop-down"
@@ -102,12 +102,12 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
               title={groupInfo.group?.name}
               className={cn(
                 "w-full flex items-center text-themeTextGray rounded-xl cursor-pointer transition-colors",
-                "hover:bg-[#1e2329] hover:text-white",
+                "bg-[#1a1d21] hover:bg-[#252a31] hover:text-white",
                 isSheet
                   ? "justify-between p-3"
                   : effectiveCollapsed
                     ? "justify-center px-0 py-2"
-                    : "justify-between md:border-[1px] border-themeGray p-3",
+                    : "justify-between md:border-[1px] border-themeGray/60 p-3",
               )}
             >
               <div className={cn(
@@ -146,6 +146,16 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
               </span>
             </div>
           }
+          footer={
+            <Link href="/explore" className="block">
+              <Button
+                className="flex gap-2 w-full justify-center items-center bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl h-10 shadow-lg shadow-emerald-500/20 transition-all"
+              >
+                <Compass className="h-4 w-4" />
+                Explore All Groups
+              </Button>
+            </Link>
+          }
         >
           {groups &&
             groups.groups.length > 0 &&
@@ -153,7 +163,7 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
               <Link key={item.id} href={`/group/${item.slug || item.id}/about`}>
                 <Button
                   variant="ghost"
-                  className="flex gap-2 w-full justify-start hover:bg-themeGray items-center"
+                  className="flex gap-2 w-full justify-start hover:bg-[#2a2f36] items-center"
                 >
                   <Group />
                   {item.name}

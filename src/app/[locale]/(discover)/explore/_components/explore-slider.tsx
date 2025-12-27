@@ -6,6 +6,7 @@ import { SwiperSlide } from "swiper/react"
 
 import { Skeleton } from "@/components/global/skeleton"
 import { useAppSelector } from "@/redux/store"
+import { ChevronRight } from "lucide-react"
 import "swiper/css/bundle"
 import { GroupCard } from "./group-card"
 
@@ -31,9 +32,16 @@ export const ExploreSlider = ({ query, label, text }: ExploreSliderProps) => {
     groups.length > 0 &&
     onLoadSlider && (
       <div className="flex flex-col mt-16">
-        <div className="flex flex-col px-[40px] lg:px-[150px]">
-          <h2 className="text-2xl font-bold text-white">{label}</h2>
-          <p className="text-sm text-themeTextGray">{text}</p>
+        <div className="flex flex-col px-[40px] lg:px-[150px] mb-4">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="h-8 w-1 bg-gradient-to-b from-emerald-400 to-teal-500 rounded-full" />
+            <h2 className="text-2xl font-bold text-white">{label}</h2>
+          </div>
+          <p className="text-sm text-themeTextGray ml-4">{text}</p>
+          <div className="flex items-center gap-1 mt-3 ml-4 text-themeTextGray text-xs">
+            <span>Swipe to see more</span>
+            <ChevronRight className="h-3 w-3 animate-pulse" />
+          </div>
         </div>
         <Slider
           freeMode

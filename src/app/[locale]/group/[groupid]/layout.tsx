@@ -6,6 +6,8 @@ import {
   onGetGroupSubscription,
   onGetUserGroups,
 } from "@/actions/groups"
+import { DailyLoginTracker } from "@/components/global/daily-login-tracker"
+import { PointsNotificationProvider } from "@/components/global/points-notification"
 import { SidebarProvider } from "@/components/global/sidebar/sidebar-context"
 import { SessionProvider } from "@/components/providers/session-provider"
 import { getQueryClient } from "@/lib/get-query-client"
@@ -76,16 +78,19 @@ const GroupLayout = async ({ children, params }: GroupLayoutProps) => {
   return (
     <HydrationBoundary state={dehydrate(query)}>
       <SessionProvider session={session}>
-        <SidebarProvider>
-          <GroupShell
-            groupid={groupid}
-            userid={user.id}
-            navbar={<Navbar groupid={groupid} userid={user.id} />}
-          >
-            {children}
-            <MobileBottomGroupNav />
-          </GroupShell>
-        </SidebarProvider>
+        <PointsNotificationProvider>
+          <SidebarProvider>
+            <DailyLoginTracker userId={user.id} groupId={groupid} />
+            <GroupShell
+              groupid={groupid}
+              userid={user.id}
+              navbar={<Navbar groupid={groupid} userid={user.id} />}
+            >
+              {children}
+              <MobileBottomGroupNav />
+            </GroupShell>
+          </SidebarProvider>
+        </PointsNotificationProvider>
       </SessionProvider>
     </HydrationBoundary>
   )

@@ -1,6 +1,7 @@
 "use server"
 
 import { onAuthenticatedUser, onGetUserGroupRole } from "@/actions/auth"
+import { onAwardPoints } from "@/actions/leaderboard"
 import { client } from "@/lib/prisma"
 import { sectionTypeSchemaMap } from "@/types/section-schemas"
 
@@ -1032,20 +1033,24 @@ export const onUpdateSection = async (
       const userId = await getAuthedUserId()
       if (!userId) return { status: 401, message: "Unauthorized" }
 
-      // Resolve courseId and moduleId for the section
+      // Resolve courseId, moduleId, and groupId for the section
       const section = await client.section.findUnique({
         where: { id: sectionId },
-        include: { Module: { select: { id: true, courseId: true } } },
+        include: { Module: { select: { id: true, courseId: true, Course: { select: { groupId: true } } } } },
       })
       if (!section || !section.Module?.courseId) return { status: 404, message: "No sections found" }
       const courseId = section.Module.courseId
       const moduleId = section.Module.id
+      const groupId = section.Module.Course?.groupId
 
       // Read existing progress
       const existing = await client.userCourseProgress.findUnique({
         where: { userId_courseId: { userId, courseId } },
-        select: { completedSections: true },
+        select: { completedSections: true, isComplete: true },
       })
+
+      // Check if this section was already completed
+      const wasAlreadyCompleted = existing?.completedSections?.includes(sectionId)
 
       const prev = new Set(existing?.completedSections ?? [])
       prev.add(sectionId)
@@ -1054,6 +1059,8 @@ export const onUpdateSection = async (
       // Total sections in course to compute %
       const totalSections = await client.section.count({ where: { Module: { is: { courseId } } } })
       const progressPct = totalSections > 0 ? (completedSections.length / totalSections) * 100 : 0
+      const isNowComplete = progressPct >= 100
+      const wasNotComplete = !existing?.isComplete
 
       await client.userCourseProgress.upsert({
         where: { userId_courseId: { userId, courseId } },
@@ -1064,16 +1071,26 @@ export const onUpdateSection = async (
           lastSectionId: sectionId,
           completedSections,
           progress: progressPct,
-          isComplete: progressPct >= 100,
+          isComplete: isNowComplete,
         },
         update: {
           lastModuleId: moduleId,
           lastSectionId: sectionId,
           completedSections: { set: completedSections },
           progress: progressPct,
-          isComplete: progressPct >= 100,
+          isComplete: isNowComplete,
         },
       })
+
+      // Award points for section completion (only if not already completed)
+      if (groupId && !wasAlreadyCompleted) {
+        onAwardPoints(userId, groupId, "SECTION_COMPLETED", sectionId, "Completed a section").catch(() => {})
+        
+        // Award bonus points for course completion
+        if (isNowComplete && wasNotComplete) {
+          onAwardPoints(userId, groupId, "COURSE_COMPLETED", courseId, "Completed a course").catch(() => {})
+        }
+      }
 
       return { status: 200, message: "Section successfully updated" }
     }
@@ -1169,20 +1186,41 @@ export const onSubmitQuizAttempt = async (
     }
 
     if (passed) {
-      const sec = await client.section.findUnique({ where: { id: sectionid }, select: { id: true, Module: { select: { id: true, courseId: true } } } })
+      const sec = await client.section.findUnique({ 
+        where: { id: sectionid }, 
+        select: { id: true, Module: { select: { id: true, courseId: true, Course: { select: { groupId: true } } } } } 
+      })
       if (sec?.Module?.courseId) {
         const courseId = sec.Module.courseId
+        const sectionGroupId = sec.Module.Course?.groupId
         const totalSections = await client.section.count({ where: { Module: { is: { courseId } } } })
-        const existing = await client.userCourseProgress.findUnique({ where: { userId_courseId: { userId, courseId } }, select: { completedSections: true } })
+        const existing = await client.userCourseProgress.findUnique({ where: { userId_courseId: { userId, courseId } }, select: { completedSections: true, isComplete: true } })
+        
+        // Check if this section was already completed
+        const wasAlreadyCompleted = existing?.completedSections?.includes(sectionid)
+        const wasNotComplete = !existing?.isComplete
+        
         const prev = new Set(existing?.completedSections ?? [])
         prev.add(sectionid)
         const completedSections = Array.from(prev)
         const progressPct = totalSections > 0 ? (completedSections.length / totalSections) * 100 : 0
+        const isNowComplete = progressPct >= 100
+        
         await client.userCourseProgress.upsert({
           where: { userId_courseId: { userId, courseId } },
-          create: { userId, courseId, lastSectionId: sectionid, lastModuleId: sec.Module.id, completedSections, progress: progressPct, isComplete: progressPct >= 100 },
-          update: { lastSectionId: sectionid, lastModuleId: sec.Module.id, completedSections: { set: completedSections }, progress: progressPct, isComplete: progressPct >= 100 },
+          create: { userId, courseId, lastSectionId: sectionid, lastModuleId: sec.Module.id, completedSections, progress: progressPct, isComplete: isNowComplete },
+          update: { lastSectionId: sectionid, lastModuleId: sec.Module.id, completedSections: { set: completedSections }, progress: progressPct, isComplete: isNowComplete },
         })
+        
+        // Award points for passing quiz (only first time)
+        if (sectionGroupId && !wasAlreadyCompleted) {
+          onAwardPoints(userId, sectionGroupId, "QUIZ_PASSED", sectionid, "Passed a quiz").catch(() => {})
+          
+          // Award bonus points for course completion
+          if (isNowComplete && wasNotComplete) {
+            onAwardPoints(userId, sectionGroupId, "COURSE_COMPLETED", courseId, "Completed a course").catch(() => {})
+          }
+        }
       }
     }
 

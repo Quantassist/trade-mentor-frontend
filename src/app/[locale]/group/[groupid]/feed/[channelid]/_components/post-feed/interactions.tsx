@@ -1,7 +1,8 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Bookmark, MessageCircle } from "lucide-react"
+import { Bookmark, MessageCircle, Share2 } from "lucide-react"
+import { toast } from "sonner"
 import { ClapButton } from "./clap-button"
 
 type InteractionsProps = {
@@ -18,6 +19,7 @@ type InteractionsProps = {
   isSaved?: boolean
   onSaveClick?: () => void
   isSaving?: boolean
+  postUrl?: string
 }
 
 export const Interactions = ({
@@ -34,7 +36,17 @@ export const Interactions = ({
   isSaved = false,
   onSaveClick,
   isSaving = false,
+  postUrl,
 }: InteractionsProps) => {
+  const handleShare = async () => {
+    const url = postUrl || (typeof window !== "undefined" ? window.location.href : "")
+    try {
+      await navigator.clipboard.writeText(url)
+      toast.success("Copied to clipboard!")
+    } catch {
+      toast.error("Failed to copy link")
+    }
+  }
   return (
     <div
       className={cn(
@@ -55,7 +67,8 @@ export const Interactions = ({
         />
 
         {/* Comments - secondary action */}
-        <div 
+        <button 
+          type="button"
           onClick={onCommentClick}
           className="flex items-center gap-2 text-themeTextGray hover:text-white transition-colors cursor-pointer group"
         >
@@ -63,31 +76,46 @@ export const Interactions = ({
             <MessageCircle size={22} className="group-hover:text-blue-400 transition-colors" />
           </div>
           <span className="text-base font-medium tabular-nums">{comments}</span>
-        </div>
+        </button>
       </div>
 
-      {/* Save button - right side */}
-      {onSaveClick && (
+      {/* Right side actions */}
+      <div className="flex items-center gap-1">
+        {/* Share button */}
         <button
-          onClick={onSaveClick}
-          disabled={isSaving}
-          className={cn(
-            "p-2 rounded-full transition-all duration-200 group",
-            isSaved
-              ? "text-white"
-              : "text-themeTextGray hover:text-white hover:bg-white/10"
-          )}
-          title={isSaved ? "Remove from saved" : "Save for later"}
+          onClick={handleShare}
+          className="p-2 rounded-full text-themeTextGray hover:text-white hover:bg-white/10 transition-all duration-200 group"
+          title="Share post"
         >
-          <Bookmark
-            size={22}
-            className={cn(
-              "transition-all duration-200",
-              isSaved ? "fill-current" : "group-hover:scale-110"
-            )}
+          <Share2
+            size={20}
+            className="transition-all duration-200 group-hover:scale-110"
           />
         </button>
-      )}
+
+        {/* Save button */}
+        {onSaveClick && (
+          <button
+            onClick={onSaveClick}
+            disabled={isSaving}
+            className={cn(
+              "p-2 rounded-full transition-all duration-200 group",
+              isSaved
+                ? "text-white"
+                : "text-themeTextGray hover:text-white hover:bg-white/10"
+            )}
+            title={isSaved ? "Remove from saved" : "Save for later"}
+          >
+            <Bookmark
+              size={22}
+              className={cn(
+                "transition-all duration-200",
+                isSaved ? "fill-current" : "group-hover:scale-110"
+              )}
+            />
+          </button>
+        )}
+      </div>
     </div>
   )
 }

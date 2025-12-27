@@ -4,8 +4,7 @@ import { LocaleSwitcher } from "@/components/global/locale-switcher"
 import { ThemeSwitcher } from "@/components/global/theme-switcher"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
-import { Logout } from "@/icons"
-import { ArrowRight, MenuIcon } from "lucide-react"
+import { ArrowRight, LogIn, MenuIcon } from "lucide-react"
 import { Menu } from "./menu"
 
 export const LandingPageNavbar = async () => {
@@ -28,7 +27,7 @@ export const LandingPageNavbar = async () => {
         ) : (
           <Link href="/sign-in">
             <Button className="rounded-2xl flex gap-2 font-medium bg-gradient-to-r from-[#d4f0e7] to-[#e8f5f0] text-[#1a1a1a] hover:from-[#c4e6db] hover:to-[#d8ebe5] shadow-lg">
-              <Logout />
+              <LogIn className="h-4 w-4" />
               Login / Signup
             </Button>
           </Link>
