@@ -44,8 +44,12 @@ export const GroupListItem = ({
   return (
     <div
       className={cn(
-        "flex gap-3 items-center py-2 px-4 rounded-2xl bg-themeGray border-2 cursor-pointer",
-        selected === label ? "border-themeTextGray" : "border-themeGray",
+        "flex gap-3 items-center py-2 px-4 rounded-2xl border-2 cursor-pointer transition-colors",
+        "bg-slate-100 dark:bg-themeGray text-slate-700 dark:text-themeTextWhite",
+        "hover:bg-slate-200 dark:hover:bg-themeGray/80",
+        selected === label 
+          ? "border-slate-400 dark:border-themeTextGray" 
+          : "border-slate-200 dark:border-themeGray",
       )}
     >
       {icon}

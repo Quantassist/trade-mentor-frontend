@@ -33,10 +33,12 @@ export const Menu = ({ orientation }: MenuProps) => {
       }))
 
       // Determine active using current pathname (e.g., /group/:id/feed/:cid)
+      // Use regex to match the path segment after /group/:id/ to handle slug URLs
+      const pathAfterGroup = pathname?.split(`/group/${groupid}/`)[1]?.split('/')[0] || ''
       const activeFromPath = GROUPLE_CONSTANTS.groupPageMenu.find((m) =>
-        pathname?.includes(`${basePath}/${m.path}`),
+        m.path === pathAfterGroup
       )
-      const activeUrl = activeFromPath ? `${basePath}/${activeFromPath.path}` : section
+      const activeUrl = activeFromPath ? `${basePath}/${activeFromPath.path}` : undefined
 
       return (
         <TubeNavBar

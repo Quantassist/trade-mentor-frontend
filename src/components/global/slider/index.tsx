@@ -30,10 +30,10 @@ export const Slider = ({ children, overlay, label, showNavigation, ...rest }: Sl
         {showNavigation && (
           <button
             onClick={() => swiperRef.current?.slidePrev()}
-            className="shrink-0 bg-themeBlack/80 hover:bg-themeGray border border-themeGray/60 rounded-full p-2 transition-colors"
+            className="shrink-0 bg-slate-200 dark:bg-themeBlack/80 hover:bg-slate-300 dark:hover:bg-themeGray border border-slate-300 dark:border-themeGray/60 rounded-full p-2 transition-colors"
             aria-label="Previous"
           >
-            <ChevronLeft className="h-5 w-5 text-white" />
+            <ChevronLeft className="h-5 w-5 text-slate-600 dark:text-white" />
           </button>
         )}
         <div className="flex-1 overflow-hidden">
@@ -48,10 +48,10 @@ export const Slider = ({ children, overlay, label, showNavigation, ...rest }: Sl
         {showNavigation && (
           <button
             onClick={() => swiperRef.current?.slideNext()}
-            className="shrink-0 bg-themeBlack/80 hover:bg-themeGray border border-themeGray/60 rounded-full p-2 transition-colors"
+            className="shrink-0 bg-slate-200 dark:bg-themeBlack/80 hover:bg-slate-300 dark:hover:bg-themeGray border border-slate-300 dark:border-themeGray/60 rounded-full p-2 transition-colors"
             aria-label="Next"
           >
-            <ChevronRight className="h-5 w-5 text-white" />
+            <ChevronRight className="h-5 w-5 text-slate-600 dark:text-white" />
           </button>
         )}
       </div>

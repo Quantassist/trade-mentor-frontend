@@ -64,24 +64,14 @@ const GroupChannelPage = async ({ params }: GroupChannelPageProps) => {
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <FeedLayout
-        sidebar={
-          <>
-            <GroupSideWidget groupid={groupid} hideGoToFeed />
-            <OngoingCoursesWidget groupid={groupid} />
-            <LeaderBoardCard light groupid={groupid} />
-          </>
-        }
-      >
-        <CreateNewPost
-          userImage={session?.user?.image || ""}
-          channelid={channelid}
-          username={session?.user?.name?.split(" ")[0] || "User"}
-          locale={locale}
-          groupid={groupid}
-        />
-        <PostFeed channelid={channelid} userid={authUser?.id!} locale={locale} groupid={groupid} />
-      </FeedLayout>
+      <CreateNewPost
+        userImage={session?.user?.image || ""}
+        channelid={channelid}
+        username={session?.user?.name?.split(" ")[0] || "User"}
+        locale={locale}
+        groupid={groupid}
+      />
+      <PostFeed channelid={channelid} userid={authUser?.id!} locale={locale} groupid={groupid} />
     </HydrationBoundary>
   )
 }

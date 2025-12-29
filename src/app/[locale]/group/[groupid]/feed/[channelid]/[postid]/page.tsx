@@ -40,9 +40,9 @@ const PostPage = async ({
     <HydrationBoundary state={dehydrate(client)}>
       <div className="flex justify-center w-full min-h-[calc(100dvh-var(--group-navbar-h,5rem))]">
         {/* Main content area - fixed width to match feed */}
-        <div className="flex-1 max-w-[600px] border-x border-slate-200 dark:border-themeGray/30">
+        <div className="flex-1 max-w-[650px]">
           <PostHeader channelId={channelid} groupId={groupid} />
-          <div className="py-4 px-3">
+          <div className="py-4">
             <PostInfo id={postid} userid={user.id!} locale={locale} />
             <div className="mt-4">
               <PostCommentForm
@@ -54,12 +54,12 @@ const PostPage = async ({
             <PostComments postid={postid} userid={user.id!} />
           </div>
         </div>
-        {/* Sidebar - consistent width */}
+        {/* Sidebar - consistent width
         <div className="hidden lg:block w-[350px] flex-shrink-0 pt-4 pl-4 pr-2">
           <div className="sticky top-4">
-            <GroupSideWidget groupid={groupid} light />
+            <GroupSideWidget groupid={groupid} />
           </div>
-        </div>
+        </div> */}
       </div>
     </HydrationBoundary>
   )

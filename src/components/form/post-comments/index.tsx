@@ -21,18 +21,18 @@ export const PostCommentForm = ({
     usePostComment(postid)
 
   return (
-    <div className="flex flex-col gap-y-5">
+    <div className="flex flex-col gap-y-5 bg-white dark:bg-[#161a20] rounded-xl p-4">
       <form
         onSubmit={onCreateComment}
-        className="flex items-center border-2 bg-transparent py-2 px-3 mt-5 border-white rounded-xl overflow-hidden"
+        className="flex items-center border-2 bg-slate-50 dark:bg-[#1e2329] py-2 px-3 border-slate-200 dark:border-themeGray/60 rounded-xl overflow-hidden"
       >
         <Input
-          className="flex-1 bg-transparent border-none outline-none"
+          className="flex-1 bg-transparent border-none outline-none text-slate-900 dark:text-themeTextWhite placeholder:text-slate-400 dark:placeholder:text-themeTextGray"
           placeholder="Add a comment..."
           {...register("comment")}
         />
         <Button variant="ghost" className="p-0 hover:bg-transparent">
-          <Send className="text-themeGray" />
+          <Send className="text-slate-500 dark:text-themeTextWhite" />
         </Button>
       </form>
       {isPending && variables && (

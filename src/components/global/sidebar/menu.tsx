@@ -57,7 +57,18 @@ export const SideBarMenu = ({
   const pathname = usePathname()
   const locale = useLocale()
   const currentPage = pathname.includes("settings") ? "settings" : "channels"
-  const currentSection = pathname.split("/").pop() // TODO: Fix the bug by resolving current page in robust way
+  
+  // Extract channel slug from URL - handles both /feed/[channelid] and /feed/[channelid]/[postid]
+  const getCurrentChannel = () => {
+    if (!pathname) return undefined
+    // Match pattern: /group/{groupid}/feed/{channelSlug} or /group/{groupid}/feed/{channelSlug}/{postid}
+    const feedMatch = pathname.match(/\/feed\/([^/]+)/)
+    if (feedMatch) return feedMatch[1]
+    // Fallback for settings pages
+    if (pathname.includes("settings")) return pathname.split("/").pop()
+    return pathname.split("/").pop()
+  }
+  const currentSection = getCurrentChannel()
   const tr = useTranslations("menu.settings")
   const t = useTranslations()
   const { collapsed } = useSidebar()

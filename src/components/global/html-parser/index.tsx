@@ -20,7 +20,7 @@ export const HtmlParser = ({ html }: HtmlParserProps) => {
     }
   }, [])
 
-  const content = mounted
+  const content = mounted && typeof html === 'string' && html.length > 0
     ? parse(html, {
         replace: (node: any) => {
           if (node?.type === "tag" && node?.name === "img") {

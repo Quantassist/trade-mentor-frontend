@@ -26,14 +26,14 @@ const SectionNavBar = ({ sectionid, groupid }: SectionNavBarProps) => {
   return (
     <div className="flex justify-between p-5 overflow-y-auto items-center">
       <div>
-        <p className="text-themeTextGray">Course Title</p>
-        <h2 className="text-3xl text-themeTextWhite font-bold">
+        <p className="text-slate-500  dark:text-themeTextWhite font-bold">Course Title</p>
+        <h2 className="text-3xl text-slate-900 dark:text-themeTextWhite font-bold">
           {data.section?.name}
         </h2>
       </div>
       <div>
         <Button
-          className="bg-themeDarkGray flex gap-x-3 items-center border-themeGray text-themeTextWhite"
+          className="bg-slate-100 dark:bg-themeDarkGray flex gap-x-3 items-center border-slate-300 dark:border-themeGray text-slate-700 dark:text-themeTextWhite hover:bg-amber-500 hover:text-slate-900 hover:border-amber-500 dark:hover:bg-amber-500 dark:hover:text-slate-900 dark:hover:border-amber-500 transition-colors"
           variant="outline"
           onClick={() => {
             // optimistic UI
