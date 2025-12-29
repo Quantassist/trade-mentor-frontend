@@ -47,7 +47,7 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 space-y-5">
-          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20]">
+          <div className="rounded-xl overflow-hidden  bg-white dark:bg-[#161a20]">
             <Accordion type="multiple" value={open} onValueChange={setOpen}>
               {leftItems.map((it) => (
                 <AccordionItem key={it.id} value={it.id} className="border-slate-200 dark:border-themeGray/60">
@@ -64,7 +64,7 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
-                    <div className="rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-4 text-slate-700 dark:text-themeTextWhite">
+                    <div className="rounded-lg  bg-slate-50 dark:bg-[#12151b] p-4 text-slate-700 dark:text-themeTextWhite">
                       <Markdown>{it.content}</Markdown>
                     </div>
                   </AccordionContent>
@@ -74,7 +74,7 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
           </div>
 
           {learn.length > 0 && (
-            <section className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] p-4">
+            <section className="rounded-xl  bg-white dark:bg-[#161a20] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="h-4 w-4 text-[#b9a9ff]" />
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-themeTextWhite">Key Learnings</h3>
@@ -93,7 +93,7 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
 
         <aside className="space-y-5 lg:sticky lg:top-4 h-max">
           {dataPoints.length > 0 && (
-            <div className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] p-4">
+            <div className="rounded-xl  bg-white dark:bg-[#161a20] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <ListTree className="h-5 w-5 text-[#b9a9ff]" />
                 <h4 className="text-base md:text-lg font-semibold text-slate-900 dark:text-themeTextWhite">Key Data Points</h4>
@@ -107,7 +107,7 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
           )}
 
           {steps.length > 0 && (
-            <div className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] p-4">
+            <div className="rounded-xl  bg-white dark:bg-[#161a20] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <CalendarDays className="h-5 w-5 text-[#b9a9ff]" />
                 <h4 className="text-base md:text-lg font-semibold text-slate-900 dark:text-themeTextWhite">Timeline</h4>
@@ -118,7 +118,7 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
                   {steps.map((s: any, i: number) => (
                     <li key={i} className="relative pl-8">
                       <div className="absolute left-0 top-3 h-3 w-3 rounded-full bg-[#b9a9ff]" />
-                      <div className="rounded-md border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+                      <div className="rounded-md  bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
                         {s?.date_period ? (
                           <div className="text-xs text-[#b9a9ff] mb-1">{s.date_period}</div>
                         ) : null}
@@ -132,7 +132,7 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
           )}
 
           {effectivePayload?.sebi_context && (
-            <div className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-4">
+            <div className="rounded-xl  bg-slate-50 dark:bg-[#12151b] p-4">
               <div className="flex items-center gap-2 mb-2 text-slate-900 dark:text-themeTextWhite">
                 <Landmark className="h-5 w-5 text-[#b9a9ff]" />
                 <h4 className="text-base md:text-lg font-semibold text-slate-900 dark:text-themeTextWhite">SEBI Context</h4>
@@ -147,7 +147,7 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
     </div>
     {canEdit && (
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 text-slate-700 dark:text-themeTextWhite">
+        <DialogContent className="bg-white dark:bg-[#161a20]  text-slate-700 dark:text-themeTextWhite">
           <DialogHeader>
             <DialogTitle className="text-slate-900 dark:text-themeTextWhite">Edit Case Study</DialogTitle>
           </DialogHeader>

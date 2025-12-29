@@ -33,7 +33,7 @@ export const ChannelsSection = ({ groupid }: ChannelsSectionProps) => {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 rounded-xl p-4 animate-pulse"
+              className="bg-white dark:bg-[#161a20]  rounded-xl p-4 animate-pulse"
             >
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg bg-slate-200 dark:bg-themeGray/40" />
@@ -75,7 +75,7 @@ export const ChannelsSection = ({ groupid }: ChannelsSectionProps) => {
               key={channel.id}
               href={`/group/${groupid}/feed/${channelUrlId}`}
             >
-              <Card className="bg-white dark:bg-[#161a20] border-slate-200 dark:border-themeGray/60 rounded-xl p-4 group transition-all duration-200 hover:bg-slate-50 dark:hover:bg-[#1e2329] hover:border-slate-300 dark:hover:border-themeGray/80 hover:shadow-lg hover:shadow-black/10 dark:hover:shadow-black/20 cursor-pointer h-full">
+              <Card className="bg-white dark:bg-[#161a20]  rounded-xl p-4 group transition-all duration-200 hover:bg-slate-50 dark:hover:bg-[#1e2329]  hover:shadow-lg hover:shadow-black/10 dark:hover:shadow-black/20 cursor-pointer h-full">
                 <div className="flex items-center gap-4">
                   <div className="h-11 w-11 rounded-lg bg-gradient-to-br from-[#b9a9ff]/20 to-[#b9a9ff]/5 flex items-center justify-center text-[#b9a9ff] ring-1 ring-white/10 group-hover:ring-[#b9a9ff]/30 transition-all">
                     {icon}

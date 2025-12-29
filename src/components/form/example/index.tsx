@@ -37,12 +37,12 @@ export default function ExampleContentForm({ groupid, sectionid, locale, initial
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label className="text-slate-900 dark:text-themeTextWhite">Persona</Label>
-          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14] border border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite"
+          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14]  text-slate-900 dark:text-themeTextWhite"
             onClick={() => (persona as any).append({ name: "", age: 0, occupation: "", financial_goal: "" })}>Add persona</Button>
         </div>
         <div className="space-y-4">
           {persona.fields.map((f, i) => (
-            <div key={f.id} className="rounded-md border border-slate-200 dark:border-themeGray/60 p-3 bg-white dark:bg-[#161a20] space-y-2">
+            <div key={f.id} className="rounded-md  p-3 bg-white dark:bg-[#161a20] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-[#b9a9ff]">Persona {i + 1}</span>
                 <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => persona.remove(i)}>Remove</Button>
@@ -77,12 +77,12 @@ export default function ExampleContentForm({ groupid, sectionid, locale, initial
       </div>
         <div className="flex items-center justify-between">
           <Label className="text-slate-900 dark:text-themeTextWhite">Q&A Pairs</Label>
-          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14] border border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite"
+          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14]  text-slate-900 dark:text-themeTextWhite"
             onClick={() => (qaPairs as any).append({ question: "", answer: "" })}>Add pair</Button>
         </div>
         <div className="space-y-4">
           {qaPairs.fields.map((f, i) => (
-            <div key={f.id} className="rounded-md border border-slate-200 dark:border-themeGray/60 p-3 bg-white dark:bg-[#161a20] space-y-2">
+            <div key={f.id} className="rounded-md  p-3 bg-white dark:bg-[#161a20] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-[#b9a9ff]">Question {i + 1}</span>
                 <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => qaPairs.remove(i)}>Remove</Button>

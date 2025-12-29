@@ -24,7 +24,7 @@ const SavedPostsPage = async ({ params }: SavedPostsPageProps) => {
     <HydrationBoundary state={dehydrate(query)}>
       <div className="py-8 px-4 md:px-8 max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
-          <div className="h-12 w-12 rounded-xl bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 flex items-center justify-center">
+          <div className="h-12 w-12 rounded-xl bg-white dark:bg-[#161a20]  flex items-center justify-center">
             <Bookmark size={24} className="text-[#b9a9ff]" />
           </div>
           <div>

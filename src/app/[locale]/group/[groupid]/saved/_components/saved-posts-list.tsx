@@ -137,7 +137,7 @@ export const SavedPostsList = ({ groupid, userid }: SavedPostsListProps) => {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 rounded-xl p-4 animate-pulse"
+            className="bg-white dark:bg-[#161a20]  rounded-xl p-4 animate-pulse"
           >
             <div className="flex items-center gap-2 mb-3">
               <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-themeGray/40" />

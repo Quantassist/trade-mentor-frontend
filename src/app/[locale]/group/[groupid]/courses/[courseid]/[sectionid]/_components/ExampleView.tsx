@@ -54,7 +54,7 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
                 <p className="text-xs text-slate-500 dark:text-themeTextGray">A fictional character that grounds this example in a real-life story.</p>
               </div>
               {(effective as any)?.persona?.map((p: any, i: number) => (
-                <div key={i} className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-gradient-to-b from-white to-slate-50 dark:from-[#171a22] dark:to-[#141821] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
+                <div key={i} className="rounded-xl  bg-gradient-to-b from-white to-slate-50 dark:from-[#171a22] dark:to-[#141821] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
                   <div className="p-4 flex items-start gap-3">
                     <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-themeGray/40 flex items-center justify-center ring-1 ring-slate-200 dark:ring-white/10">
                       <UserRound className="h-5 w-5 text-[#b9a9ff]" />
@@ -66,14 +66,14 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
                       </div>
                       <div className="mt-1 flex flex-wrap gap-1.5">
                         {p?.occupation ? (
-                          <span className="px-1.5 py-0.5 rounded border border-slate-200 dark:border-themeGray/60 bg-slate-100 dark:bg-white/5 text-[11px] text-slate-500 dark:text-themeTextGray">{p.occupation}</span>
+                          <span className="px-1.5 py-0.5 rounded  bg-slate-100 dark:bg-white/5 text-[11px] text-slate-500 dark:text-themeTextGray">{p.occupation}</span>
                         ) : null}
                         {typeof p?.age === "number" && p.age > 0 ? (
-                          <span className="px-1.5 py-0.5 rounded border border-slate-200 dark:border-themeGray/60 bg-slate-100 dark:bg-white/5 text-[11px] text-slate-500 dark:text-themeTextGray">Age {p.age}</span>
+                          <span className="px-1.5 py-0.5 rounded  bg-slate-100 dark:bg-white/5 text-[11px] text-slate-500 dark:text-themeTextGray">Age {p.age}</span>
                         ) : null}
                       </div>
                       {p?.financial_goal ? (
-                        <div className="mt-3 rounded-md border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite">
+                        <div className="mt-3 rounded-md  bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite">
                           <div className="flex items-center gap-2 mb-1">
                             <Target className="h-3.5 w-3.5 text-[#b9a9ff]" />
                             <span className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-themeTextGray">Financial goal</span>
@@ -88,7 +88,7 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
             </aside>
 
             {/* Financial Context: 2/3 */}
-            <section className="md:col-span-2 rounded-xl border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
+            <section className="md:col-span-2 rounded-xl  bg-white dark:bg-[#161a20] p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
               <div className="mb-1 flex items-center gap-2">
                 <ClipboardList className="h-4 w-4 text-[#b9a9ff]" />
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-themeTextWhite">Financial Context</h3>
@@ -96,7 +96,7 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
               <p className="text-xs text-slate-500 dark:text-themeTextGray mb-3">Key constraints and preferences that shape choices in this scenario.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {(effective as any).financial_context?.time_horizon ? (
-                  <div className="rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite flex items-start gap-2 min-h-[90px] hover:bg-slate-100 dark:hover:bg-[#141821] transition-colors">
+                  <div className="rounded-lg  bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite flex items-start gap-2 min-h-[90px] hover:bg-slate-100 dark:hover:bg-[#141821] transition-colors">
                     <Clock className="h-4 w-4 text-[#b9a9ff] mt-0.5" />
                     <div>
                       <p className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-themeTextGray">Time horizon</p>
@@ -105,7 +105,7 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
                   </div>
                 ) : null}
                 {(effective as any).financial_context?.available_amount ? (
-                  <div className="rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite flex items-start gap-2 min-h-[90px] hover:bg-slate-100 dark:hover:bg-[#141821] transition-colors">
+                  <div className="rounded-lg  bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite flex items-start gap-2 min-h-[90px] hover:bg-slate-100 dark:hover:bg-[#141821] transition-colors">
                     <IndianRupee className="h-4 w-4 text-[#b9a9ff] mt-0.5" />
                     <div>
                       <p className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-themeTextGray">Available amount</p>
@@ -114,7 +114,7 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
                   </div>
                 ) : null}
                 {(effective as any).financial_context?.risk_tolerance ? (
-                  <div className="rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite flex items-start gap-2 min-h-[90px] hover:bg-slate-100 dark:hover:bg-[#141821] transition-colors">
+                  <div className="rounded-lg  bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite flex items-start gap-2 min-h-[90px] hover:bg-slate-100 dark:hover:bg-[#141821] transition-colors">
                     <BadgeCheck className="h-4 w-4 text-[#b9a9ff] mt-0.5" />
                     <div>
                       <p className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-themeTextGray">Risk tolerance</p>
@@ -123,7 +123,7 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
                   </div>
                 ) : null}
                 {(effective as any).financial_context?.current_situation ? (
-                  <div className="rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite flex items-start gap-2 min-h-[90px] hover:bg-slate-100 dark:hover:bg-[#141821] transition-colors">
+                  <div className="rounded-lg  bg-slate-50 dark:bg-[#12151b] p-3 text-slate-700 dark:text-themeTextWhite flex items-start gap-2 min-h-[90px] hover:bg-slate-100 dark:hover:bg-[#141821] transition-colors">
                     <ClipboardList className="h-4 w-4 text-[#b9a9ff] mt-0.5" />
                     <div>
                       <p className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-themeTextGray">Current situation</p>
@@ -136,12 +136,12 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
           </div>
         ) : null}
 
-        <div className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-4">
+        <div className="rounded-xl  bg-slate-50 dark:bg-[#12151b] p-4">
           <Markdown>{effective?.scenario_md}</Markdown>
         </div>
 
         {count > 0 && (
-          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20]">
+          <div className="rounded-xl overflow-hidden  bg-white dark:bg-[#161a20]">
             <Accordion type="multiple" value={open} onValueChange={setOpen}>
               {pairs.map((qa: { question: string; answer: string }, i: number) => (
                 <AccordionItem key={i} value={`qa-${i}`} className="border-slate-200 dark:border-themeGray/60">
@@ -156,13 +156,13 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
                           <p className="text-sm md:text-base text-slate-900 dark:text-themeTextWhite break-words">{qa.question}</p>
                         </div>
                       </div>
-                      <span className="ml-3 shrink-0 rounded-full border border-slate-200 dark:border-themeGray/60 bg-slate-100 dark:bg-[#0f0f14] px-2 py-0.5 text-[11px] text-slate-500 dark:text-themeTextGray">
+                      <span className="ml-3 shrink-0 rounded-full  bg-slate-100 dark:bg-[#0f0f14] px-2 py-0.5 text-[11px] text-slate-500 dark:text-themeTextGray">
                         {open.includes(`qa-${i}`) ? "Hide answer" : "Show answer"}
                       </span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
-                    <div className="rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-4 text-slate-700 dark:text-themeTextWhite">
+                    <div className="rounded-lg  bg-slate-50 dark:bg-[#12151b] p-4 text-slate-700 dark:text-themeTextWhite">
                       {qa.answer}
                     </div>
                   </AccordionContent>
@@ -177,7 +177,7 @@ export default function ExampleView({ payload, sectionid, groupid, locale, initi
 
       {canEdit && (
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogContent className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 text-slate-700 dark:text-themeTextWhite">
+          <DialogContent className="bg-white dark:bg-[#161a20]  text-slate-700 dark:text-themeTextWhite">
             <DialogHeader>
               <DialogTitle className="text-slate-900 dark:text-themeTextWhite">Edit Example</DialogTitle>
             </DialogHeader>

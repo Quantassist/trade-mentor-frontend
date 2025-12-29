@@ -25,7 +25,7 @@ export default function SectionAnchors({ moduleId, anchorIds, className }: Props
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="max-w-[220px] truncate rounded-full border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] px-2.5 py-1 text-[12px] text-slate-700 dark:text-themeTextWhite hover:bg-slate-100 dark:hover:bg-[#141821] ring-1 ring-slate-200 dark:ring-white/5"
+              className="max-w-[220px] truncate rounded-full  bg-white dark:bg-[#161a20] px-2.5 py-1 text-[12px] text-slate-700 dark:text-themeTextWhite hover:bg-slate-100 dark:hover:bg-[#141821] ring-1 ring-slate-200 dark:ring-white/5"
               title={a.title}
             >
               {a.title}

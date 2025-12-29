@@ -110,9 +110,9 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
 
         {/* React mode takes precedence if code exists */}
         {runner?.code ? (
-          <div className="rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#0f0f14] p-4 text-slate-700 dark:text-themeTextWhite">
+          <div className="rounded-lg  bg-slate-50 dark:bg-[#0f0f14] p-4 text-slate-700 dark:text-themeTextWhite">
             <div className="text-sm text-slate-500 dark:text-themeTextGray mb-2">Preview (React)</div>
-            <div className="rounded-md border border-slate-200 dark:border-themeGray/60 p-4 bg-white dark:bg-[#12151b]">
+            <div className="rounded-md  p-4 bg-white dark:bg-[#12151b]">
               {libsLoading ? (
                 <div className="text-slate-500 dark:text-themeTextGray text-sm">Loading libraries...</div>
               ) : (
@@ -128,7 +128,7 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
             </div>
           </div>
         ) : html ? (
-          <div className="relative w-full overflow-hidden rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#0f0f14]" style={{ paddingTop: "56.25%" }}>
+          <div className="relative w-full overflow-hidden rounded-lg  bg-slate-50 dark:bg-[#0f0f14]" style={{ paddingTop: "56.25%" }}>
             <iframe
               title="Interactive Demo"
               className="absolute inset-0 h-full w-full"
@@ -146,7 +146,7 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
 
       {canEdit && (
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogContent className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 text-slate-700 dark:text-themeTextWhite">
+          <DialogContent className="bg-white dark:bg-[#161a20]  text-slate-700 dark:text-themeTextWhite">
             <DialogHeader>
               <DialogTitle className="text-slate-900 dark:text-themeTextWhite">Edit Interactive</DialogTitle>
             </DialogHeader>

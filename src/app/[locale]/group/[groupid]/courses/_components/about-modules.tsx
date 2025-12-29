@@ -20,7 +20,7 @@ export function AboutModules({ modules }: { modules: Module[] }) {
       <div className="space-y-3">
         <Accordion type="single" collapsible className="w-full">
           {safe.sort((a,b)=>a.order-b.order).map((m, idx) => (
-            <AccordionItem key={m.id} value={m.id} className="rounded-xl overflow-hidden border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20]">
+            <AccordionItem key={m.id} value={m.id} className="rounded-xl overflow-hidden  bg-white dark:bg-[#161a20]">
               <AccordionTrigger className="px-4 py-4 hover:no-underline">
                 <div className="w-full flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0 text-left">

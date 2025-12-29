@@ -46,7 +46,7 @@ export default function ReflectionContentForm({ groupid, sectionid, locale, init
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label className="text-slate-900 dark:text-themeTextWhite">Sample responses</Label>
-          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14] border border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite" onClick={() => (samples as any).append("")}>Add sample</Button>
+          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14]  text-slate-900 dark:text-themeTextWhite" onClick={() => (samples as any).append("")}>Add sample</Button>
         </div>
         <div className="space-y-2">
           {samples.fields.map((f, i) => (

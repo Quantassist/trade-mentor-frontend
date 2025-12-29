@@ -62,14 +62,14 @@ export default function CaseStudyContentForm({ groupid, sectionid, locale, initi
                 <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => dataPoints.remove(i)}>Remove</Button>
               </div>
             ))}
-            <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14] border border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite" onClick={() => (dataPoints as any).append("")}>Add</Button>
+            <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14]  text-slate-900 dark:text-themeTextWhite" onClick={() => (dataPoints as any).append("")}>Add</Button>
           </div>
         </div>
         <div className="space-y-2">
           <Label className="text-slate-900 dark:text-themeTextWhite">Timeline Steps</Label>
           <div className="space-y-3">
             {timeline.fields.map((f, i) => (
-              <div key={f.id} className="rounded-md border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#13161c] p-3">
+              <div key={f.id} className="rounded-md  bg-white dark:bg-[#13161c] p-3">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <div className="md:col-span-1">
                     <Label className="text-slate-600 dark:text-themeTextGray">Date/Period</Label>
@@ -99,7 +99,7 @@ export default function CaseStudyContentForm({ groupid, sectionid, locale, initi
             <Button
               type="button"
               variant="secondary"
-              className="bg-slate-100 dark:bg-[#0f0f14] border border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite"
+              className="bg-slate-100 dark:bg-[#0f0f14]  text-slate-900 dark:text-themeTextWhite"
               onClick={() => (timeline as any).append({ date_period: "", event_description: "" })}
             >
               Add
@@ -115,7 +115,7 @@ export default function CaseStudyContentForm({ groupid, sectionid, locale, initi
                 <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => learnings.remove(i)}>Remove</Button>
               </div>
             ))}
-            <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14] border border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite" onClick={() => (learnings as any).append("")}>Add</Button>
+            <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14]  text-slate-900 dark:text-themeTextWhite" onClick={() => (learnings as any).append("")}>Add</Button>
           </div>
         </div>
       </div>

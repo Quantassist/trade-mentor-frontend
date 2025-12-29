@@ -33,7 +33,7 @@ export const CoursesSection = ({ groupid }: CoursesSectionProps) => {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 rounded-xl overflow-hidden animate-pulse"
+              className="bg-white dark:bg-[#161a20]  rounded-xl overflow-hidden animate-pulse"
             >
               <div className="w-full aspect-video bg-slate-200 dark:bg-themeGray/40" />
               <div className="p-5 space-y-3">

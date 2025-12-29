@@ -45,7 +45,7 @@ export default function QuizContentForm({ groupid, sectionid, locale, initial, i
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label className="text-slate-900 dark:text-themeTextWhite">Questions</Label>
-          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14] border border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite"
+          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14]  text-slate-900 dark:text-themeTextWhite"
             onClick={() => (items as any).append({ stem: "", choices: [{ text: "", correct: false, explanation: "" }, { text: "", correct: false, explanation: "" }], rationale: "", difficulty: "", anchor_ids: [] })}>Add question</Button>
         </div>
         <div className="space-y-4">
@@ -76,7 +76,7 @@ function QuestionEditor({ idx, control, register, onRemove }: { idx: number; con
   const choices = useFieldArray({ control: control as any, name: `${base}.choices` as any })
   const anchors = useFieldArray({ control: control as any, name: `${base}.anchor_ids` as any })
   return (
-    <div className="rounded-md border border-slate-200 dark:border-themeGray/60 p-3 bg-white dark:bg-[#161a20] space-y-3">
+    <div className="rounded-md  p-3 bg-white dark:bg-[#161a20] space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-xs text-[#b9a9ff]">Question {idx + 1}</span>
         <Button type="button" variant="ghost" className="text-themeTextGray" onClick={onRemove}>Remove</Button>
@@ -89,11 +89,11 @@ function QuestionEditor({ idx, control, register, onRemove }: { idx: number; con
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label className="text-slate-900 dark:text-themeTextWhite">Choices</Label>
-          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14] border border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite" onClick={() => (choices as any).append({ text: "", correct: false, explanation: "" })}>Add choice</Button>
+          <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14]  text-slate-900 dark:text-themeTextWhite" onClick={() => (choices as any).append({ text: "", correct: false, explanation: "" })}>Add choice</Button>
         </div>
         <div className="space-y-3">
           {choices.fields.map((c, ci) => (
-            <div key={c.id} className="rounded border border-slate-200 dark:border-themeGray/60 p-3 bg-slate-50 dark:bg-[#12151b] space-y-2">
+            <div key={c.id} className="rounded  p-3 bg-slate-50 dark:bg-[#12151b] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-themeTextGray">Choice {ci + 1}</span>
                 <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => choices.remove(ci)}>Remove</Button>
@@ -128,7 +128,7 @@ function QuestionEditor({ idx, control, register, onRemove }: { idx: number; con
                 <Button type="button" variant="ghost" className="text-themeTextGray" onClick={() => anchors.remove(ai)}>Remove</Button>
               </div>
             ))}
-            <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14] border border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite" onClick={() => (anchors as any).append("")}>Add</Button>
+            <Button type="button" variant="secondary" className="bg-slate-100 dark:bg-[#0f0f14]  text-slate-900 dark:text-themeTextWhite" onClick={() => (anchors as any).append("")}>Add</Button>
           </div>
         </div>
       </div>

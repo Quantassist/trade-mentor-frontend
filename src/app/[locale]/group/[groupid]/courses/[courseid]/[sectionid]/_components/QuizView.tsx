@@ -57,10 +57,10 @@ export default function QuizView({ payload, sectionid, groupid, locale, user, in
       <div className="p-5 md:p-6 space-y-6">
         <SectionAnchors moduleId={moduleId} anchorIds={anchorIds} />
         <div className="flex items-center gap-4">
-          <span className="rounded-full border border-slate-200 dark:border-themeGray/60 bg-slate-100 dark:bg-[#0f0f14] px-3 py-1.5 text-xs md:text-sm text-slate-500 dark:text-themeTextGray ring-1 ring-slate-200 dark:ring-white/5">{typeBadge}</span>
+          <span className="rounded-full  bg-slate-100 dark:bg-[#0f0f14] px-3 py-1.5 text-xs md:text-sm text-slate-500 dark:text-themeTextGray ring-1 ring-slate-200 dark:ring-white/5">{typeBadge}</span>
           <div className="mx-auto" />
           <div className="flex items-center gap-2">
-            <span className="rounded-full border border-slate-200 dark:border-themeGray/60 bg-slate-100 dark:bg-[#0f0f14] px-3 py-1.5 text-xs md:text-sm text-slate-500 dark:text-themeTextGray ring-1 ring-slate-200 dark:ring-white/5">Pass ≥ {passThreshold}%</span>
+            <span className="rounded-full  bg-slate-100 dark:bg-[#0f0f14] px-3 py-1.5 text-xs md:text-sm text-slate-500 dark:text-themeTextGray ring-1 ring-slate-200 dark:ring-white/5">Pass ≥ {passThreshold}%</span>
             {submitted && total > 0 && (
               <span
                 className={
@@ -88,11 +88,11 @@ export default function QuizView({ payload, sectionid, groupid, locale, user, in
           {effective.items.map((q: any, idx: number) => {
             const sel = answers[idx] ?? null
             return (
-              <div key={idx} className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] p-4">
+              <div key={idx} className="rounded-xl  bg-white dark:bg-[#161a20] p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <div className="font-medium text-slate-900 dark:text-themeTextWhite">Q{idx + 1}. {q.stem}</div>
                   {q.difficulty ? (
-                    <span className="rounded-full border border-slate-200 dark:border-themeGray/60 bg-slate-100 dark:bg-[#0f0f14] px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-500 dark:text-themeTextGray">
+                    <span className="rounded-full  bg-slate-100 dark:bg-[#0f0f14] px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-500 dark:text-themeTextGray">
                       {q.difficulty}
                     </span>
                   ) : null}
@@ -128,7 +128,7 @@ export default function QuizView({ payload, sectionid, groupid, locale, user, in
                   })}
                 </div>
                 {(submitted || revealed[idx]) && q.rationale && (
-                  <div className="mt-3 rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-3 relative">
+                  <div className="mt-3 rounded-lg  bg-slate-50 dark:bg-[#12151b] p-3 relative">
                     <Lightbulb className="absolute right-2 top-2 h-4 w-4 text-[#b9a9ff] opacity-20" />
                     <div className="text-[10px] font-semibold tracking-wide text-[#b9a9ff] mb-1">WHY</div>
                     <div className="text-sm text-slate-600 dark:text-themeTextWhite/90">{q.rationale}</div>
@@ -181,7 +181,7 @@ export default function QuizView({ payload, sectionid, groupid, locale, user, in
       )}
     {canEdit && (
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 text-slate-700 dark:text-themeTextWhite">
+        <DialogContent className="bg-white dark:bg-[#161a20]  text-slate-700 dark:text-themeTextWhite">
           <DialogHeader>
             <DialogTitle className="text-slate-900 dark:text-themeTextWhite">Edit Quiz</DialogTitle>
           </DialogHeader>

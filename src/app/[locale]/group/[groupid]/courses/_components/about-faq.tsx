@@ -17,7 +17,7 @@ export function AboutFaq({ faqs }: { faqs: { question?: string; answer?: string 
           <AccordionItem
             key={i}
             value={`faq-${i}`}
-            className="rounded-xl overflow-hidden border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] mb-3"
+            className="rounded-xl overflow-hidden  bg-white dark:bg-[#161a20] mb-3"
           >
             <AccordionTrigger className="px-4 py-4 hover:no-underline text-left text-slate-900 dark:text-themeTextWhite">
               {f.q || `FAQ ${i + 1}`}

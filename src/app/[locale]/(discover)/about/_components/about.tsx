@@ -127,7 +127,7 @@ export const AboutGroup = ({ userid, groupid, locale }: AboutGroupProps) => {
       {/* Description Section */}
       <div className="mt-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-themeTextWhite mb-4">About this group</h2>
-        <div className="bg-white dark:bg-[#161a20] rounded-xl p-6 border border-slate-200 dark:border-themeGray/60">
+        <div className="bg-white dark:bg-[#161a20] rounded-xl p-6 ">
           {userid !== group.userId ? (
             <HtmlParser html={group.htmlDescription || "<p>No description available.</p>"} />
           ) : (
