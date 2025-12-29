@@ -152,8 +152,8 @@ export const SideBarMenu = ({
               className={cn(
                 "flex items-center gap-x-2 font-semibold rounded-xl p-2 transition-colors",
                 item.path === currentSection
-                  ? "bg-[#2a2a2a] text-white"
-                  : "text-themeTextGray hover:bg-[#2a2a2a]/70 hover:text-white",
+                  ? "bg-slate-100 dark:bg-[#2a2a2a] text-slate-900 dark:text-themeTextWhite"
+                  : "text-slate-600 dark:text-themeTextWhite hover:bg-slate-200 dark:hover:bg-[#2a2a2a]/70 hover:text-slate-900 dark:hover:text-white",
               )}
               key={item.id}
               href={`/${locale}/group/${groupSlug}/settings/${item.path}`}
@@ -170,8 +170,8 @@ export const SideBarMenu = ({
               className={cn(
                 "flex items-center gap-x-2 p-2 rounded-lg transition-colors",
                 item.path === currentSection
-                  ? "bg-[#2a2a2a] text-white"
-                  : "text-themeTextGray hover:bg-[#2a2a2a]/70 hover:text-white",
+                  ? "bg-slate-100 dark:bg-[#2a2a2a] text-slate-900 dark:text-themeTextWhite"
+                  : "text-slate-600 dark:text-themeTextWhite hover:bg-slate-300 dark:hover:bg-[#2a2a2a]/70 hover:text-slate-900 dark:hover:text-white",
               )}
             >
               {/* <IconRenderer icon={item.icon} mode="DARK" />
@@ -194,7 +194,7 @@ export const SideBarMenu = ({
   return (
     <div className="flex flex-col gap-y-5">
       <div className={cn("flex items-center", showLabels ? "justify-between" : "justify-center")}> 
-        {showLabels && <p className="text-xs text-[#F7ECE9]">{t("sidebar.channels")}</p>}
+        {showLabels && <p className="text-xs text-slate-500 dark:text-themeTextWhite">{t("sidebar.channels")}</p>}
         {userId === groupUserid && (
           <span title="Create channel">
             <Plus
@@ -226,16 +226,17 @@ export const SideBarMenu = ({
                   <div
                     key={channel.id}
                     className={cn(
-                      "flex w-full p-2 group rounded-lg items-center transition-colors hover:bg-[#2a2a2a]/70",
+                      "flex w-full p-2 group rounded-lg items-center transition-colors",
+                      "hover:bg-slate-200 dark:hover:bg-[#2a2a2a]/70",
                       showLabels ? "justify-between" : "justify-center",
-                      (currentSection === channel.id || (channel.id === current && edit)) && "bg-[#2a2a2a]",
+                      (currentSection === channel.slug || (channel.slug === current && edit)) && "bg-slate-300 dark:bg-[#2a2a2a]",
                     )}
                   >
                     {editingChannelId === channel.id ? (
                       <div className="flex items-center gap-x-2 flex-1 min-w-0">
                         <IconRenderer
                           icon={channel.icon}
-                          mode={currentSection === channel.id ? "LIGHT" : "DARK"}
+                          mode={currentSection === channel.slug ? "LIGHT" : "DARK"}
                         />
                         <Input
                           ref={channelInputRef}
@@ -260,7 +261,7 @@ export const SideBarMenu = ({
                             cancelEditingChannel()
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className="bg-[#1e2329] border-themeGray text-white text-base h-7 flex-1"
+                          className="bg-slate-100 dark:bg-[#1e2329] border-slate-300 dark:border-themeGray text-slate-900 dark:text-themeTextWhite text-base h-7 flex-1"
                         />
                       </div>
                     ) : (
@@ -274,18 +275,18 @@ export const SideBarMenu = ({
                           <div className={cn("flex items-center min-w-0", !showLabels ? "justify-center" : "gap-x-2")}> 
                             <IconRenderer
                               icon={channel.icon}
-                              mode={currentSection === channel.id ? "LIGHT" : "DARK"}
+                              mode={currentSection === channel.slug ? "LIGHT" : "DARK"}
                             />
                             {showLabels && (
                               <p
                                 className={cn(
                                   "text-lg capitalize truncate",
-                                  currentSection === channel.id
-                                    ? "text-white"
-                                    : "text-themeTextGray",
+                                  currentSection === channel.slug
+                                    ? "text-slate-900 dark:text-themeTextWhite"
+                                    : "text-slate-600 dark:text-themeTextWhite",
                                 )}
                               >
-                                {isPending && variables && currentSection === channel.id
+                                {isPending && variables && currentSection === channel.slug
                                   ? variables.name
                                   : channel.name}
                               </p>
@@ -304,7 +305,7 @@ export const SideBarMenu = ({
                                   e.stopPropagation()
                                   startEditingChannel(channel.id, channel.name)
                                 }}
-                                className="text-themeTextGray hover:text-white"
+                                className="text-slate-500 dark:text-themeTextWhite hover:text-slate-900 dark:hover:text-white"
                                 aria-label="Edit channel name"
                                 title="Edit channel name"
                               >
@@ -316,7 +317,7 @@ export const SideBarMenu = ({
                                   e.stopPropagation()
                                   setConfirmDeleteId(channel.id)
                                 }}
-                                className="text-themeTextGray hover:text-red-400"
+                                className="text-slate-500 dark:text-themeTextWhite/60 hover:text-red-500 dark:hover:text-red-400"
                                 aria-label="Delete channel"
                                 title="Delete channel"
                               >
@@ -364,14 +365,14 @@ export const SideBarMenu = ({
 
       {/* Library Link */}
       <div className="mt-4">
-        {showLabels && <p className="text-xs text-[#F7ECE9] mb-2">{t("sidebar.yourLibrary")}</p>}
+        {showLabels && <p className="text-xs text-slate-500 dark:text-[#F7ECE9] mb-2">{t("sidebar.yourLibrary")}</p>}
         <Link
           href={`/${locale}/group/${groupSlug}/saved`}
           className={cn(
             "flex items-center gap-x-2 p-2 rounded-lg transition-colors",
             pathname.includes("/saved")
-              ? "bg-[#2a2a2a] text-white"
-              : "text-themeTextGray hover:bg-[#2a2a2a]/70 hover:text-white",
+              ? "bg-slate-100 dark:bg-[#2a2a2a] text-slate-900 dark:text-themeTextWhite"
+              : "text-slate-600 dark:text-themeTextWhite hover:bg-slate-200 dark:hover:bg-[#2a2a2a]/70 hover:text-slate-900 dark:hover:text-white",
             !showLabels && "justify-center",
           )}
           title="Saved Posts"
@@ -417,10 +418,10 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
 
   return (
     <div className={cn(
-      "mt-auto pt-6 pb-6 border-t border-themeGray/30",
+      "mt-auto pt-6 pb-6 border-t border-slate-200 dark:border-themeGray/30",
       collapsed ? "px-1" : "px-0",
     )}>
-      {showLabels && <p className="text-xs text-[#F7ECE9] mb-2">{t("sidebar.preferences")}</p>}
+      {showLabels && <p className="text-xs text-slate-500 dark:text-[#F7ECE9] mb-2">{t("sidebar.preferences")}</p>}
       <div className="flex flex-col gap-y-1">
         {/* Theme Switcher Row */}
         <DropdownMenu>
@@ -428,7 +429,7 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
             <button
               className={cn(
                 "w-full flex items-center gap-x-2 p-2 rounded-lg cursor-pointer transition-colors",
-                "text-themeTextGray hover:text-white hover:bg-[#2a2a2a]/70",
+                "text-slate-600 dark:text-themeTextWhite hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#2a2a2a]/70",
                 !showLabels && "justify-center",
               )}
             >
@@ -436,24 +437,24 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
               {showLabels && <span className="text-lg">{mounted ? themeLabel : "Theme"}</span>}
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" side="top" className="bg-[#1a1a1d] border-themeGray shadow-xl">
+          <DropdownMenuContent align="start" side="top" className="bg-white dark:bg-[#1a1a1d] border-slate-200 dark:border-themeGray shadow-xl">
             <DropdownMenuItem 
               onClick={() => setTheme("light")}
-              className="text-themeTextGray hover:text-white hover:bg-themeGray cursor-pointer"
+              className="text-slate-600 dark:text-themeTextWhite hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-themeGray cursor-pointer"
             >
               <Sun className="mr-2 h-4 w-4" />
               Light
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => setTheme("dark")}
-              className="text-themeTextGray hover:text-white hover:bg-themeGray cursor-pointer"
+              className="text-slate-600 dark:text-themeTextWhite hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-themeGray cursor-pointer"
             >
               <Moon className="mr-2 h-4 w-4" />
               Dark
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => setTheme("system")}
-              className="text-themeTextGray hover:text-white hover:bg-themeGray cursor-pointer"
+              className="text-slate-600 dark:text-themeTextWhite hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-themeGray cursor-pointer"
             >
               <Monitor className="mr-2 h-4 w-4" />
               System
@@ -467,7 +468,7 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
             <button
               className={cn(
                 "w-full flex items-center gap-x-2 p-2 rounded-lg cursor-pointer transition-colors",
-                "text-themeTextGray hover:text-white hover:bg-[#2a2a2a]/70",
+                "text-slate-600 dark:text-themeTextWhite hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#2a2a2a]/70",
                 !showLabels && "justify-center",
               )}
             >
@@ -475,16 +476,16 @@ function SidebarFooter({ showLabels, collapsed }: { showLabels: boolean; collaps
               {showLabels && <span className="text-lg">{labelFor(locale)}</span>}
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" side="top" className="w-36 border-themeGray bg-[#1a1a1d] text-white shadow-xl">
+          <DropdownMenuContent align="start" side="top" className="w-36 border-slate-200 dark:border-themeGray bg-white dark:bg-[#1a1a1d] text-slate-900 dark:text-themeTextWhite shadow-xl">
             <DropdownMenuItem
-              className="cursor-pointer hover:bg-themeGray hover:text-white"
+              className="cursor-pointer text-slate-600 dark:text-themeTextWhite hover:bg-slate-200 dark:hover:bg-themeGray hover:text-slate-900 dark:hover:text-white"
               onClick={() => switchLocale("en")}
             >
               <span className="flex-1">English</span>
               {locale === "en" && <Check className="h-4 w-4" />}
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer hover:bg-themeGray hover:text-white"
+              className="cursor-pointer text-slate-600 dark:text-themeTextWhite hover:bg-slate-200 dark:hover:bg-themeGray hover:text-slate-900 dark:hover:text-white"
               onClick={() => switchLocale("hi")}
             >
               <span className="flex-1">हिन्दी</span>

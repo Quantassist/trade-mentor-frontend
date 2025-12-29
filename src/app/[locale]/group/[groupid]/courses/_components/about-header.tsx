@@ -24,21 +24,21 @@ export function AboutHeader({ groupid, courseId, name, description, thumbnail, r
         <div className="space-y-3">
           {/* Banner image first on small screens only (hide on lg+ to avoid duplicate with aside) */}
           <div className="lg:hidden">
-            <div className="relative w-full h-52 rounded-xl overflow-hidden ring-1 ring-white/10">
+            <div className="relative w-full h-52 rounded-xl overflow-hidden ring-1 ring-slate-200 dark:ring-white/10">
               {thumb ? (
                 <Image src={thumb} alt="Course banner" fill className="object-cover" sizes="100vw" />
               ) : (
-                <div className="h-full w-full bg-themeGray" />
+                <div className="h-full w-full bg-slate-200 dark:bg-themeGray" />
               )}
             </div>
           </div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-white">{name}</h1>
+          <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-themeTextWhite">{name}</h1>
           {description && (
-            <p className="text-themeTextGray leading-relaxed max-w-3xl">{description}</p>
+            <p className="text-slate-600 dark:text-themeTextGray leading-relaxed max-w-3xl">{description}</p>
           )}
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="bg-themeGray/70 text-themeTextWhite">Course</Badge>
-            <Badge variant="outline" className="border-themeGray text-themeTextGray">Updated</Badge>
+            <Badge variant="secondary" className="bg-slate-100 dark:bg-themeGray/70 text-slate-700 dark:text-themeTextWhite">Course</Badge>
+            <Badge variant="outline" className="border-slate-300 dark:border-themeGray text-slate-500 dark:text-themeTextGray">Updated</Badge>
           </div>
         </div>
       </div>

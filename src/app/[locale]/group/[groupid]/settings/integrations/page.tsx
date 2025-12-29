@@ -18,7 +18,7 @@ const IntegrationsPage = async ({
     <div className="p-8">
       <div className="flex flex-col mb-5">
         <h3 className="text-3xl font-bold">{t("title")}</h3>
-        <p className="text-sm text-themeTextGray">{t("description")}</p>
+        <p className="text-sm text-slate-500 dark:text-themeTextGray">{t("description")}</p>
       </div>
       <IntegrationsList connections={connections} groupid={groupid} />
     </div>

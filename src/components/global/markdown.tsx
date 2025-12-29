@@ -17,13 +17,13 @@ function mdToHtml(md?: string): string {
   // Fenced code blocks ```lang\ncode\n```
   html = html.replace(/```[\s\S]*?```/g, (block) => {
     const inner = block.replace(/^```[a-zA-Z0-9_-]*\n?|```$/g, "")
-    return `<pre class="rounded-md border border-themeGray/60 bg-black/40 p-3 overflow-x-auto"><code>${inner}</code></pre>`
+    return `<pre class="rounded-md border border-slate-200 dark:border-themeGray/60 bg-slate-100 dark:bg-black/40 p-3 overflow-x-auto"><code class="text-slate-800 dark:text-themeTextWhite">${inner}</code></pre>`
   })
 
   // Headings #, ##, ### (line-start)
-  html = html.replace(/^###\s*(.*)$/gm, '<h3 class="mt-4 mb-2 text-xl font-semibold text-white">$1</h3>')
-  html = html.replace(/^##\s*(.*)$/gm, '<h2 class="mt-5 mb-3 text-2xl font-semibold text-white">$1</h2>')
-  html = html.replace(/^#\s*(.*)$/gm, '<h1 class="mt-6 mb-4 text-3xl font-bold text-white">$1</h1>')
+  html = html.replace(/^###\s*(.*)$/gm, '<h3 class="mt-4 mb-2 text-xl font-semibold text-slate-900 dark:text-themeTextWhite">$1</h3>')
+  html = html.replace(/^##\s*(.*)$/gm, '<h2 class="mt-5 mb-3 text-2xl font-semibold text-slate-900 dark:text-themeTextWhite">$1</h2>')
+  html = html.replace(/^#\s*(.*)$/gm, '<h1 class="mt-6 mb-4 text-3xl font-bold text-slate-900 dark:text-themeTextWhite">$1</h1>')
 
   // Images ![alt](src "title") to <img>
   html = html.replace(/!\[([^\]]*)\]\(([^\s)]+)(?:\s+"([^"]*)")?\)/g, (_m, alt, src, title) => {
@@ -58,7 +58,7 @@ function mdToHtml(md?: string): string {
         ? `<div class="h-6 not-prose" aria-hidden="true"></div>`
         : /<\/?(h1|h2|h3|ul|li|pre|code)/.test(chunk)
         ? chunk
-        : `<p class="text-themeTextWhite leading-7">${chunk.replace(/\n/g, '<br/>')}</p>`,
+        : `<p class="text-slate-700 dark:text-themeTextWhite leading-7">${chunk.replace(/\n/g, '<br/>')}</p>`,
     )
     .join("\n")
 

@@ -46,8 +46,8 @@ export const GroupSideWidget = ({
   return (
     <Card
       className={cn(
-        "border-themeGray/60 bg-[#161a20] rounded-xl overflow-hidden",
-        light ? "bg-themeGray" : "",
+        "border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] rounded-xl overflow-hidden",
+        light && "dark:bg-themeGray",
       )}
     >
       <img
@@ -56,12 +56,12 @@ export const GroupSideWidget = ({
         className="w-full aspect-video"
       />
       <div className="flex flex-col p-5 gap-y-2">
-        <h2 className="font-bold text-lg">{group.name}</h2>
-        <p className="text-sm text-themeTextGray">
+        <h2 className="font-bold text-lg text-slate-900 dark:text-themeTextWhite">{group.name}</h2>
+        <p className="text-sm text-slate-500 dark:text-themeTextWhite">
           {truncateString(stripHtmlAndEntities(group.htmlDescription) || group.description || "")}
         </p>
       </div>
-      <Separator orientation="horizontal" className="bg-themeGray/60" />
+      <Separator orientation="horizontal" className="bg-slate-200 dark:bg-themeGray/60" />
       {groupid && (
         <JoinButton
           groupid={group.id}

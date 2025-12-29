@@ -60,7 +60,7 @@ export const CourseContentForm = ({
   // For managers: show read-only view with Edit button, or edit mode with Save button
   if (canManage) {
     return (
-      <div className="bg-[#1e2329] p-5 overflow-x-hidden">
+      <div className="bg-white dark:bg-[#1e2329] p-5 overflow-x-hidden">
         {/* Top action bar - shows Edit button or Cancel/Save buttons */}
         <div className="flex justify-end mb-3 gap-3">
           {onEditDescription ? (
@@ -68,7 +68,7 @@ export const CourseContentForm = ({
               <Button
                 type="button"
                 variant="ghost"
-                className="text-themeTextGray hover:text-white"
+                className="text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white"
                 onClick={() => setOnEditDescription(false)}
               >
                 Cancel
@@ -122,7 +122,7 @@ export const CourseContentForm = ({
 
   // Non-managers: read-only view
   return (
-    <div className="bg-[#1e2329] p-5 overflow-x-hidden">
+    <div className="bg-white dark:bg-[#1e2329] p-5 overflow-x-hidden">
       <SectionAnchors
         moduleId={(data?.section?.Module?.id as string) || undefined}
         anchorIds={Array.isArray((data as any)?.section?.anchorIds) ? (data as any).section.anchorIds : []}

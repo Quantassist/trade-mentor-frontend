@@ -35,10 +35,10 @@ export const ExploreSlider = ({ query, label, text }: ExploreSliderProps) => {
         <div className="flex flex-col px-[40px] lg:px-[150px] mb-4">
           <div className="flex items-center gap-3 mb-1">
             <div className="h-8 w-1 bg-gradient-to-b from-emerald-400 to-teal-500 rounded-full" />
-            <h2 className="text-2xl font-bold text-white">{label}</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-themeTextWhite">{label}</h2>
           </div>
-          <p className="text-sm text-themeTextGray ml-4">{text}</p>
-          <div className="flex items-center gap-1 mt-3 ml-4 text-themeTextGray text-xs">
+          <p className="text-sm text-slate-500 dark:text-themeTextGray ml-4">{text}</p>
+          <div className="flex items-center gap-1 mt-3 ml-4 text-slate-500 dark:text-themeTextGray text-xs">
             <span>Swipe to see more</span>
             <ChevronRight className="h-3 w-3 animate-pulse" />
           </div>

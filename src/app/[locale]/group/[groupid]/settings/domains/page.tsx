@@ -24,30 +24,30 @@ const DomainConfigPage = async (props: Props) => {
   return (
     <HydrationBoundary state={dehydrate(client)}>
       <div className="flex flex-col gap-y-5 items-start p-5">
-        <Card className="border-themeGray bg-[#1A1A1D] p-5">
+        <Card className="border-slate-200 dark:border-themeGray bg-white dark:bg-[#1A1A1D] p-5">
           <CardTitle className="text-3xl">{t("title")}</CardTitle>
-          <CardDescription className="text-themeTextGray">{t("description")}</CardDescription>
+          <CardDescription className="text-slate-500 dark:text-themeTextGray">{t("description")}</CardDescription>
           <CustomDomainForm groupid={groupid} />
         </Card>
-        <Card className="border-themeGray bg-[#1A1A1D] p-5">
+        <Card className="border-slate-200 dark:border-themeGray bg-white dark:bg-[#1A1A1D] p-5">
           <CardTitle className="text-3xl">{t("manualTitle")}</CardTitle>
-          <CardDescription className="text-themeTextGray">{t("manualDescription")}</CardDescription>
+          <CardDescription className="text-slate-500 dark:text-themeTextGray">{t("manualDescription")}</CardDescription>
           <div className="flex gap-x-5 mt-8">
             <Label className="flex flex-col gap-y-3">
               {t("record")}
-              <span className="bg-themeDarkGray p-3 rounded-lg text-xs text-themeTextGray">
+              <span className="bg-slate-100 dark:bg-themeDarkGray p-3 rounded-lg text-xs text-slate-600 dark:text-themeTextGray">
                 A
               </span>
             </Label>
             <Label className="flex flex-col gap-y-3">
               {t("host")}
-              <span className="bg-themeDarkGray p-3 rounded-lg text-xs text-themeTextGray">
+              <span className="bg-slate-100 dark:bg-themeDarkGray p-3 rounded-lg text-xs text-slate-600 dark:text-themeTextGray">
                 @
               </span>
             </Label>
             <Label className="flex flex-col gap-y-3">
               {t("requiredValue")}
-              <span className="bg-themeDarkGray p-3 rounded-lg text-xs text-themeTextGray">
+              <span className="bg-slate-100 dark:bg-themeDarkGray p-3 rounded-lg text-xs text-slate-600 dark:text-themeTextGray">
                 76.76.21.21
               </span>
             </Label>

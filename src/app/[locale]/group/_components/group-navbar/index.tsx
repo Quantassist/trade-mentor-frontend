@@ -57,10 +57,10 @@ export const Menu = ({ orientation }: MenuProps) => {
               href={`${locale}/${basePath}/${menuItem.path}`}
               onClick={() => onSetSection(`${basePath}/${menuItem.path}`)}
               className={cn(
-                "rounded-xl flex gap-2 py-2 px-4 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20",
+                "rounded-xl flex gap-2 py-2 px-4 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/20 dark:focus-visible:ring-white/20",
                 pathname?.includes(`${basePath}/${menuItem.path}`)
-                  ? "bg-themeGray border-[#27272A]"
-                  : "",
+                  ? "bg-slate-100 dark:bg-themeGray border-slate-200 dark:border-[#27272A] text-slate-900 dark:text-themeTextWhite"
+                  : "text-slate-600 dark:text-themeTextGray hover:bg-slate-100 dark:hover:bg-themeGray/50",
               )}
               aria-current={
                 pathname?.includes(`${basePath}/${menuItem.path}`)

@@ -70,7 +70,7 @@ export const Interactions = ({
         <button 
           type="button"
           onClick={onCommentClick}
-          className="flex items-center gap-2 text-themeTextGray hover:text-white transition-colors cursor-pointer group"
+          className="flex items-center gap-2 text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer group"
         >
           <div className="p-2 rounded-full group-hover:bg-blue-500/15 transition-colors">
             <MessageCircle size={22} className="group-hover:text-blue-400 transition-colors" />
@@ -84,7 +84,7 @@ export const Interactions = ({
         {/* Share button */}
         <button
           onClick={handleShare}
-          className="p-2 rounded-full text-themeTextGray hover:text-white hover:bg-white/10 transition-all duration-200 group"
+          className="p-2 rounded-full text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-all duration-200 group"
           title="Share post"
         >
           <Share2
@@ -101,8 +101,8 @@ export const Interactions = ({
             className={cn(
               "p-2 rounded-full transition-all duration-200 group",
               isSaved
-                ? "text-white"
-                : "text-themeTextGray hover:text-white hover:bg-white/10"
+                ? "text-slate-900 dark:text-themeTextWhite"
+                : "text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10"
             )}
             title={isSaved ? "Remove from saved" : "Save for later"}
           >

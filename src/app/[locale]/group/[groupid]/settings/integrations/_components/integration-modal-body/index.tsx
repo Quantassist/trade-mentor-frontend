@@ -32,11 +32,11 @@ export const IntegrationModalBody = ({
               <p>{item}</p>
             </div>
           ))}
-          <Separator orientation="horizontal" className=" bg-themeGray my-5" />
+          <Separator orientation="horizontal" className="bg-slate-200 dark:bg-themeGray my-5" />
           <div className="flex justify-between">
             <Button
               variant="outline"
-              className=" bg-themeBlack border border-themeGray"
+              className="bg-white dark:bg-themeBlack border border-slate-200 dark:border-themeGray"
             >
               Learn more
             </Button>

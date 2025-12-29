@@ -30,30 +30,30 @@ export const PostAuthor = ({ image, username, channel, createdAt }: PostAuthorPr
 
   return (
     <div className="flex items-center gap-x-3">
-      <Avatar className="h-10 w-10 ring-2 ring-white/10 cursor-pointer transition-transform hover:scale-105">
+      <Avatar className="h-10 w-10 ring-2 ring-slate-200 dark:ring-white/10 cursor-pointer transition-transform hover:scale-105">
         <AvatarImage src={image} alt={username || "user"} className="object-cover" />
-        <AvatarFallback className="bg-gradient-to-br from-[#2a3441] to-[#1e2329] text-white text-sm font-medium">
+        <AvatarFallback className="bg-gradient-to-br from-slate-200 to-slate-100 dark:from-[#2a3441] dark:to-[#1e2329] text-slate-600 dark:text-themeTextWhite text-sm font-medium">
           {initials}
         </AvatarFallback>
       </Avatar>
       <div className="flex flex-col gap-y-0.5">
         <div className="flex items-center gap-x-1.5 flex-wrap">
-          <span className="text-white font-medium text-sm hover:underline cursor-pointer">
+          <span className="text-slate-900 dark:text-themeTextWhite font-medium text-sm hover:underline cursor-pointer">
             {username}
           </span>
           {createdAt && (
             <>
-              <span className="text-themeTextGray/40">·</span>
+              <span className="text-slate-400 dark:text-themeTextGray/40">·</span>
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="text-themeTextGray/60 text-sm cursor-default hover:text-themeTextGray transition-colors">
+                    <span className="text-slate-400 dark:text-themeTextGray/60 text-sm cursor-default hover:text-slate-600 dark:hover:text-themeTextGray transition-colors">
                       {formatRelativeTime(createdAt)}
                     </span>
                   </TooltipTrigger>
                   <TooltipContent 
                     side="bottom" 
-                    className="bg-[#1a1a1d] border-themeGray/60 text-white text-xs px-2.5 py-1.5 shadow-xl"
+                    className="bg-white dark:bg-[#1a1a1d] border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite text-xs px-2.5 py-1.5 shadow-xl"
                   >
                     {formatFullDateTime(createdAt)}
                   </TooltipContent>
@@ -62,10 +62,10 @@ export const PostAuthor = ({ image, username, channel, createdAt }: PostAuthorPr
             </>
           )}
         </div>
-        <p className="text-xs text-themeTextGray/70">
+        <p className="text-xs text-slate-500 dark:text-themeTextGray/70">
           {currentLocale === "hi" ? (
             <>
-              <span className="font-medium text-themeTextGray hover:text-white transition-colors cursor-pointer">
+              <span className="font-medium text-slate-600 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer">
                 #{channel}
               </span>{" "}
               {tr("postingIn")}
@@ -73,7 +73,7 @@ export const PostAuthor = ({ image, username, channel, createdAt }: PostAuthorPr
           ) : (
             <>
               {tr("postingIn")}{" "}
-              <span className="font-medium text-themeTextGray hover:text-white transition-colors cursor-pointer">
+              <span className="font-medium text-slate-600 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer">
                 #{channel}
               </span>
             </>

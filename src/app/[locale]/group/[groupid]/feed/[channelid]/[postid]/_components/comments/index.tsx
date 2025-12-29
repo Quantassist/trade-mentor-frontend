@@ -48,7 +48,7 @@ export const PostComments = ({ postid, userid }: PostCommentsProps) => {
           )
         })
       ) : (
-        <p className="text-themeTextGray text-sm">No comments yet</p>
+        <p className="text-slate-500 dark:text-themeTextGray text-sm">No comments yet</p>
       )}
     </div>
   )

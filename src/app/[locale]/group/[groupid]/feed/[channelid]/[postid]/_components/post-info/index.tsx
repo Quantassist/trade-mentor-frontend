@@ -30,7 +30,7 @@ const PostInfo = ({ id, userid, locale }: PostInfoProps) => {
     )
   }
   return (
-    <div className="rounded-lg border border-themeGray/50 bg-brand-card-elevated p-4">
+    <div className="rounded-lg border border-slate-200 dark:border-themeGray/50 bg-white dark:bg-brand-card-elevated p-4">
       <div className="flex flex-col gap-y-5">
         <PostAuthor
           image={post.author?.image as string}

@@ -100,7 +100,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
             e.stopPropagation()
             setShowLanguageMenu(false)
           }}
-          className="p-1 hover:bg-themeGray/20 rounded-md transition-colors"
+          className="p-1 hover:bg-slate-200 dark:hover:bg-themeGray/20 rounded-md transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
@@ -114,7 +114,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
               e.stopPropagation()
               switchLocale("en")
             }}
-            className="flex w-full items-center justify-between px-2 py-2 hover:bg-themeGray/20 rounded-md text-sm"
+            className="flex w-full items-center justify-between px-2 py-2 hover:bg-slate-100 dark:hover:bg-themeGray/20 rounded-md text-sm"
           >
             <span>English</span>
             {locale === "en" && <Check className="h-4 w-4" />}
@@ -125,7 +125,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
               e.stopPropagation()
               switchLocale("hi")
             }}
-            className="flex w-full items-center justify-between px-2 py-2 hover:bg-themeGray/20 rounded-md text-sm"
+            className="flex w-full items-center justify-between px-2 py-2 hover:bg-slate-100 dark:hover:bg-themeGray/20 rounded-md text-sm"
           >
             <span>हिन्दी</span>
             {locale === "hi" && <Check className="h-4 w-4" />}
@@ -135,7 +135,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
         <>
           <Link
             href="/profile"
-            className="flex gap-x-2 px-2 py-2 items-center hover:bg-themeGray/30 rounded-md transition-colors"
+            className="flex gap-x-2 px-2 py-2 items-center hover:bg-slate-100 dark:hover:bg-themeGray/30 rounded-md transition-colors"
           >
             <User className="h-4 w-4" />
             {t("profile") || "Profile"}
@@ -143,7 +143,7 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
 
           <Link
             href="/account"
-            className="flex gap-x-2 px-2 py-2 items-center hover:bg-themeGray/30 rounded-md transition-colors"
+            className="flex gap-x-2 px-2 py-2 items-center hover:bg-slate-100 dark:hover:bg-themeGray/30 rounded-md transition-colors"
           >
             <Settings />
             {t("settings")}
@@ -156,16 +156,16 @@ export const UserAvatar = ({ image, groupid, userid }: UserWidgetProps) => {
               e.stopPropagation()
               setShowLanguageMenu(true)
             }}
-            className="flex w-full gap-x-2 px-2 py-2 items-center justify-between hover:bg-themeGray/30 rounded-md transition-colors text-sm"
+            className="flex w-full gap-x-2 px-2 py-2 items-center justify-between hover:bg-slate-100 dark:hover:bg-themeGray/30 rounded-md transition-colors text-sm"
           >
             <div className="flex items-center gap-x-2">
-              <span className="rounded bg-[#1F1F22] px-1.5 py-0.5 text-[10px] text-[#cbd5e1]">A/अ</span>
+              <span className="rounded bg-slate-200 dark:bg-[#1F1F22] px-1.5 py-0.5 text-[10px] text-slate-600 dark:text-[#cbd5e1]">A/अ</span>
               <span className="whitespace-nowrap">Display language: {labelFor(locale)}</span>
             </div>
             <ChevronRight className="h-4 w-4 shrink-0" />
           </button>
 
-          <div className="border-t border-themeGray/30 my-1" />
+          <div className="border-t border-slate-200 dark:border-themeGray/30 my-1" />
 
           <Button
             onClick={onLogout}

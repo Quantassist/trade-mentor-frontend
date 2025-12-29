@@ -17,7 +17,7 @@ const IntegrationsList = ({ connections, groupid }: Props) => {
       {INTEGRATION_LIST_ITEMS.map((item) => (
         <Card
           key={item.id}
-          className=" bg-themeBlack border border-themeGray rounded-xl"
+          className="bg-white dark:bg-themeBlack border border-slate-200 dark:border-themeGray rounded-xl"
         >
           <CardContent className="flex flex-col p-5 gap-2">
             <div className="flex w-full justify-between items-start gap-x-20">

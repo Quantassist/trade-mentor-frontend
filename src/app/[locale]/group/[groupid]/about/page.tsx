@@ -50,8 +50,8 @@ const GroupAboutPage = async ({ params }: AboutPageProps) => {
         
         {/* Channels and Courses Sections - reused from discover about page */}
         <div className="mt-10 space-y-12">
-          <ChannelsSection groupid={groupid} />
           <CoursesSection groupid={groupid} />
+          <ChannelsSection groupid={groupid} />
         </div>
       </div>
     </HydrationBoundary>

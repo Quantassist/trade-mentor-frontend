@@ -38,7 +38,7 @@ export const SimpleModal = ({
             role="dialog"
             onInteractOutside={(e) => e.preventDefault()}
             onPointerDownOutside={(e) => e.preventDefault()}
-            className="bg-themeBlack border-themeDarkGray"
+            className="bg-white dark:bg-themeBlack border-slate-200 dark:border-themeDarkGray"
           >
             <div className="flex justify-center gap-3">
               <div className="w-12 h-12 relative">
@@ -84,7 +84,7 @@ export const SimpleModal = ({
             role="dialog"
             onInteractOutside={(e) => e.preventDefault()}
             onPointerDownOutside={(e) => e.preventDefault()}
-            className="bg-[#1C1C1E] !max-w-2xl border-themeDarkGray"
+            className="bg-white dark:bg-[#1C1C1E] !max-w-2xl border-slate-200 dark:border-themeDarkGray"
           >
             <DialogHeader>
               <VisuallyHidden>

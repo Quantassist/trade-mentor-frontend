@@ -11,7 +11,7 @@ const SelectSubscription = () => {
 
   return (
     <div className="grid grid-cols-4 gap-8 pt-8">
-      <Card className="bg-[#101011] border-themeGray hover:bg-themeBlack transition duration-100 cursor-pointer border-dashed rounded-xl">
+      <Card className="bg-white dark:bg-[#101011] border-slate-200 dark:border-themeGray hover:bg-slate-50 dark:hover:bg-themeBlack transition duration-100 cursor-pointer border-dashed rounded-xl">
         <CardContent className="opacity-20 flex gap-x-2 p-0 justify-center items-center h-full">
           <BadgePlus />
           <p>Add Price</p>

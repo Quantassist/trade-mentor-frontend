@@ -35,10 +35,10 @@ export function LocaleSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="h-9 gap-2 rounded-full border-themeGray bg-[#0B0B0C] text-white hover:bg-[#121214] hover:border-themeGray"
+          className="h-9 gap-2 rounded-full border-slate-200 dark:border-themeGray bg-white dark:bg-[#0B0B0C] text-slate-900 dark:text-themeTextWhite hover:bg-slate-50 dark:hover:bg-[#121214] hover:border-slate-300 dark:hover:border-themeGray"
         >
           {/* <Globe className="h-4 w-4" /> */}
-          <span className="ml-1 rounded bg-[#1F1F22] px-1.5 py-0.5 text-[10px] text-[#cbd5e1]">A/अ</span>
+          <span className="ml-1 rounded bg-slate-100 dark:bg-[#1F1F22] px-1.5 py-0.5 text-[10px] text-slate-500 dark:text-[#cbd5e1]">A/अ</span>
           <span className="text-sm">{labelFor(locale)}</span>
           
           <ChevronDown className="h-4 w-4 opacity-70" />
@@ -46,20 +46,20 @@ export function LocaleSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-44 border-themeGray bg-[#0B0B0C] text-white"
+        className="w-44 border-slate-200 dark:border-themeGray bg-white dark:bg-[#0B0B0C] text-slate-900 dark:text-themeTextWhite"
       >
-        <DropdownMenuLabel className="text-xs text-[#9aa0a6]">
+        <DropdownMenuLabel className="text-xs text-slate-500 dark:text-[#9aa0a6]">
           Language
         </DropdownMenuLabel>
         <DropdownMenuItem
-          className="cursor-pointer focus:bg-[#121214] focus:text-white"
+          className="cursor-pointer focus:bg-slate-100 dark:focus:bg-[#121214] focus:text-slate-900 dark:focus:text-white"
           onClick={() => switchTo("en")}
         >
           <span className="flex-1">English</span>
           {locale === "en" && <Check className="h-4 w-4" />}
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="cursor-pointer focus:bg-[#121214] focus:text-white"
+          className="cursor-pointer focus:bg-slate-100 dark:focus:bg-[#121214] focus:text-slate-900 dark:focus:text-white"
           onClick={() => switchTo("hi")}
         >
           <span className="flex-1">हिन्दी</span>

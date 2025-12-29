@@ -70,8 +70,8 @@ export const LeaderboardContent = ({ groupid, userid, canRefresh = false }: Lead
               <Trophy className="h-8 w-8 text-amber-400" />
             </div>
             <div>
-              <h1 className="font-bold text-3xl md:text-4xl text-white">{t("pageTitle")}</h1>
-              <p className="text-themeTextGray">{t("pageSubtitle")}</p>
+              <h1 className="font-bold text-3xl md:text-4xl text-slate-900 dark:text-themeTextWhite">{t("pageTitle")}</h1>
+              <p className="text-slate-500 dark:text-themeTextGray">{t("pageSubtitle")}</p>
             </div>
           </div>
           {canRefresh && (
@@ -102,12 +102,12 @@ export const LeaderboardContent = ({ groupid, userid, canRefresh = false }: Lead
                 <Star className="h-8 w-8 text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm text-themeTextGray">{t("yourRank")}</p>
-                <p className="text-3xl font-bold text-white">#{userRank}</p>
+                <p className="text-sm text-slate-500 dark:text-themeTextGray">{t("yourRank")}</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-themeTextWhite">#{userRank}</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-themeTextGray">{t("totalPoints")}</p>
+              <p className="text-sm text-slate-500 dark:text-themeTextGray">{t("totalPoints")}</p>
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-amber-400" />
                 <p className="text-3xl font-bold text-amber-400">{(userPoints ?? 0).toLocaleString()}</p>
@@ -118,19 +118,19 @@ export const LeaderboardContent = ({ groupid, userid, canRefresh = false }: Lead
       )}
 
       {/* Leaderboard Table - Top Members */}
-      <Card className="bg-[#161a20] border-themeGray/60 rounded-xl overflow-hidden">
-        <div className="p-6 border-b border-themeGray/40">
-          <h3 className="text-lg font-semibold text-white">{t("topMembers")}</h3>
-          <p className="text-sm text-themeTextGray">{total} {t("membersRanked")}</p>
+      <Card className="bg-white dark:bg-[#161a20] border-slate-200 dark:border-themeGray/60 rounded-xl overflow-hidden">
+        <div className="p-6 border-b border-slate-200 dark:border-themeGray/40">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-themeTextWhite">{t("topMembers")}</h3>
+          <p className="text-sm text-slate-500 dark:text-themeTextGray">{total} {t("membersRanked")}</p>
         </div>
 
         {(leaderboard?.length ?? 0) === 0 ? (
           <div className="p-12 text-center">
-            <Trophy className="h-12 w-12 text-themeTextGray mx-auto mb-4" />
-            <p className="text-themeTextGray">{t("noRankings")}</p>
+            <Trophy className="h-12 w-12 text-slate-400 dark:text-themeTextGray mx-auto mb-4" />
+            <p className="text-slate-500 dark:text-themeTextGray">{t("noRankings")}</p>
           </div>
         ) : (
-          <div className="divide-y divide-themeGray/30">
+          <div className="divide-y divide-slate-200 dark:divide-themeGray/30">
             {(leaderboard ?? []).map((entry) => {
               const isCurrentUser = entry.userId === userid
               const RankIcon = RANK_ICONS[entry.rank as keyof typeof RANK_ICONS]
@@ -140,7 +140,7 @@ export const LeaderboardContent = ({ groupid, userid, canRefresh = false }: Lead
                 <div
                   key={entry.id}
                   className={cn(
-                    "flex items-center gap-4 p-4 transition-colors hover:bg-themeGray/20",
+                    "flex items-center gap-4 p-4 transition-colors hover:bg-slate-50 dark:hover:bg-themeGray/20",
                     isCurrentUser && "bg-emerald-500/10",
                   )}
                 >
@@ -151,7 +151,7 @@ export const LeaderboardContent = ({ groupid, userid, canRefresh = false }: Lead
                         {RankIcon && <RankIcon className="h-5 w-5 text-white" />}
                       </div>
                     ) : (
-                      <span className="text-xl font-bold text-themeTextGray">#{entry.rank}</span>
+                      <span className="text-xl font-bold text-slate-500 dark:text-themeTextGray">#{entry.rank}</span>
                     )}
                   </div>
 
@@ -171,7 +171,7 @@ export const LeaderboardContent = ({ groupid, userid, canRefresh = false }: Lead
                       )}
                     </div>
                     <div>
-                      <p className={cn("font-medium", isCurrentUser ? "text-emerald-400" : "text-white")}>
+                      <p className={cn("font-medium", isCurrentUser ? "text-emerald-500 dark:text-emerald-400" : "text-slate-900 dark:text-themeTextWhite")}>
                         {entry.user?.firstname} {entry.user?.lastname}
                         {isCurrentUser && <span className="ml-2 text-xs">({t("you")})</span>}
                       </p>
@@ -191,8 +191,8 @@ export const LeaderboardContent = ({ groupid, userid, canRefresh = false }: Lead
       </Card>
 
       {/* Point System Info */}
-      <Card className="bg-[#161a20] border-themeGray/60 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+      <Card className="bg-white dark:bg-[#161a20] border-slate-200 dark:border-themeGray/60 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-themeTextWhite mb-4 flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-emerald-400" />
           {t("howToEarn")}
         </h3>
@@ -205,8 +205,8 @@ export const LeaderboardContent = ({ groupid, userid, canRefresh = false }: Lead
             { activity: "Receive Clap", points: 1 },
             { activity: "Daily Login", points: 1 },
           ].map((item) => (
-            <div key={item.activity} className="flex items-center justify-between p-3 rounded-lg bg-themeBlack/50">
-              <span className="text-sm text-themeTextGray">{item.activity}</span>
+            <div key={item.activity} className="flex items-center justify-between p-3 rounded-lg bg-slate-100 dark:bg-themeBlack/50">
+              <span className="text-sm text-slate-600 dark:text-themeTextGray">{item.activity}</span>
               <span className="text-sm font-semibold text-emerald-400">+{item.points}</span>
             </div>
           ))}

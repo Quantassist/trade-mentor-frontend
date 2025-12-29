@@ -15,7 +15,7 @@ export const Menu = ({ orientation }: MenuProps) => {
   switch (orientation) {
     case "desktop":
       return (
-        <Card className="bg-themeGray border-themeGray bg-clip-padding backdrop--blur__safari backdrop-filter backdrop-blur-2xl bg-opacity-60 p-1 lg:flex hidden rounded-xl">
+        <Card className="bg-slate-100/80 dark:bg-themeGray border-slate-200 dark:border-themeGray bg-clip-padding backdrop--blur__safari backdrop-filter backdrop-blur-2xl bg-opacity-60 p-1 lg:flex hidden rounded-xl">
           <CardContent className="p-0 flex gap-2">
             {GROUPLE_CONSTANTS.landingPageMenu.map((menuItem) => (
               <Link
@@ -26,7 +26,7 @@ export const Menu = ({ orientation }: MenuProps) => {
                 className={cn(
                   "rounded-xl flex gap-2 py-2 px-4 items-center",
                   section == menuItem.path
-                    ? "bg-[#09090B] border-[#27272A]"
+                    ? "bg-white dark:bg-[#09090B] border-slate-200 dark:border-[#27272A] shadow-sm"
                     : "",
                 )}
                 key={menuItem.id}
@@ -51,7 +51,7 @@ export const Menu = ({ orientation }: MenuProps) => {
               })}
               className={cn(
                 "rounded-xl flex gap-2 py-2 px-4 items-center",
-                section == menuItem.path ? "bg-themeGray border-[#27272A]" : "",
+                section == menuItem.path ? "bg-slate-100 dark:bg-themeGray border-slate-200 dark:border-[#27272A]" : "",
               )}
               key={menuItem.id}
             >

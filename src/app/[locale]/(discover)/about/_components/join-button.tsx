@@ -58,7 +58,7 @@ export const JoinButton = ({ groupid, groupSlug, owner, isMember, hideGoToFeed }
           </span>
           <Link 
             href={`/group/${groupUrlId}/settings/general`}
-            className="flex items-center gap-1.5 text-xs text-themeTextGray hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-themeTextWhite hover:text-slate-900 dark:hover:text-white transition-colors"
           >
             <Settings className="h-3.5 w-3.5" />
             <span>Settings</span>

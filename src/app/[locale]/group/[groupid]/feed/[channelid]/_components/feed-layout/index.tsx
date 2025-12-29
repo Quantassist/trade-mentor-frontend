@@ -105,7 +105,7 @@ export const FeedLayout = ({ children, sidebar }: FeedLayoutProps) => {
   return (
     <div className="flex justify-center w-full">
       {/* Center - Posts Feed */}
-      <div className="flex-1 max-w-[600px] border-x border-themeGray/30">
+      <div className="flex-1 max-w-[650px]">
         <div className="flex flex-col gap-y-4 py-4 px-3">
           {children}
         </div>

@@ -38,7 +38,7 @@ export const GroupCard = ({
 
   return (
     <Link href={`/about/${slug || id}`}>
-      <Card className="bg-[#161a20] border-themeGray/60 rounded-xl overflow-hidden group transition-all duration-300 hover:bg-[#1e2329] hover:border-themeGray/80 hover:shadow-xl hover:shadow-black/20 h-full">
+      <Card className="bg-white dark:bg-[#161a20] border-slate-200 dark:border-themeGray/60 rounded-xl overflow-hidden group transition-all duration-300 hover:bg-slate-50 dark:hover:bg-[#1e2329] hover:border-slate-300 dark:hover:border-themeGray/80 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/20 h-full">
         <div className="relative overflow-hidden">
           <img
             src={preview || `https://ucarecdn.com/${thumbnail}/`}
@@ -71,19 +71,19 @@ export const GroupCard = ({
           )}
         </div>
         <div className="p-5">
-          <h3 className="text-lg text-white font-semibold group-hover:text-[#d4f0e7] transition-colors line-clamp-1">
+          <h3 className="text-lg text-slate-900 dark:text-themeTextWhite font-semibold group-hover:text-emerald-600 dark:group-hover:text-[#d4f0e7] transition-colors line-clamp-1">
             {name}
           </h3>
-          <p className="text-sm text-themeTextGray mt-2 line-clamp-2">
+          <p className="text-sm text-slate-500 dark:text-themeTextGray mt-2 line-clamp-2">
             {description && truncateString(description, 100)}
           </p>
           {/* Stats Row */}
-          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-themeGray/30">
-            <div className="flex items-center gap-1.5 text-themeTextGray">
+          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-200 dark:border-themeGray/30">
+            <div className="flex items-center gap-1.5 text-slate-500 dark:text-themeTextGray">
               <MessageCircle className="h-4 w-4" />
               <span className="text-sm">{channelCount} {channelCount === 1 ? 'channel' : 'channels'}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-themeTextGray">
+            <div className="flex items-center gap-1.5 text-slate-500 dark:text-themeTextGray">
               <GraduationCap className="h-4 w-4" />
               <span className="text-sm">{courseCount} {courseCount === 1 ? 'course' : 'courses'}</span>
             </div>

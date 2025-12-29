@@ -162,9 +162,11 @@ export const onSignInUser = async (betterAuthId: string) => {
         group: {
           select: {
             id: true,
+            slug: true,
             channel: {
               select: {
                 id: true,
+                slug: true,
               },
               take: 1,
               orderBy: {
@@ -177,17 +179,19 @@ export const onSignInUser = async (betterAuthId: string) => {
     })) as {
       id: string
       locale?: string | null
-      group: { id: string; channel: { id: string }[] }[]
+      group: { id: string; slug: string; channel: { id: string; slug: string }[] }[]
     } | null
 
     if (loggedInUser) {
       if (loggedInUser.group.length > 0) {
+        const group = loggedInUser.group[0]
+        const channel = group.channel[0]
         return {
           status: 207,
           id: loggedInUser.id,
           locale: loggedInUser.locale ?? "en",
-          groupId: loggedInUser.group[0].id,
-          channelId: loggedInUser.group[0].channel[0].id,
+          groupId: group.slug || group.id,
+          channelId: channel.slug || channel.id,
         }
       }
 

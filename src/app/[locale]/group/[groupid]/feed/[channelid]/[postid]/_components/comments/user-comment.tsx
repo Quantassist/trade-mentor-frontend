@@ -87,7 +87,7 @@ export const UserComment = ({
               {...(!optimistic && {
                 onClick: onReply,
               })}
-              className="flex items-center gap-x-1 text-themeTextGray text-xs cursor-pointer"
+              className="flex items-center gap-x-1 text-slate-500 dark:text-themeTextGray text-xs cursor-pointer"
             >
               <Chat />
               Reply
@@ -123,7 +123,7 @@ export const UserComment = ({
             </Loader>
             <span
               onClick={onActiveComment}
-              className="hover:bg-themeGray text-sm cursor-pointer p-2 rounded-lg"
+              className="hover:bg-slate-100 dark:hover:bg-themeGray text-sm cursor-pointer p-2 rounded-lg"
             >
               Load more replies
             </span>

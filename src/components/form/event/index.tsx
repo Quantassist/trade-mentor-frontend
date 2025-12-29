@@ -41,14 +41,14 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
     <form onSubmit={onCreateEvent} className="flex flex-col gap-y-5">
       {/* Title */}
       <div className="space-y-2">
-        <Label htmlFor="title" className="text-sm font-medium text-white">
+        <Label htmlFor="title" className="text-sm font-medium text-slate-900 dark:text-themeTextWhite">
           {t("title")} *
         </Label>
         <Input
           id="title"
           type="text"
           placeholder={t("titlePlaceholder")}
-          className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white placeholder:text-themeTextGray/60"
+          className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-slate-900 dark:text-themeTextWhite placeholder:text-slate-400 dark:placeholder:text-themeTextGray/60"
           {...register("title")}
         />
         <ErrorMessage
@@ -60,17 +60,17 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
 
       {/* Event Type */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium text-white flex items-center gap-2">
+        <Label className="text-sm font-medium text-slate-900 dark:text-themeTextWhite flex items-center gap-2">
           <Video className="w-4 h-4 text-emerald-400" />
           {t("eventType")} *
         </Label>
         <Select onValueChange={(value) => setValue("eventType", value as any)} defaultValue="LIVE_CLASS">
-          <SelectTrigger className="bg-themeBlack/60 border-themeGray/60 h-11 text-white">
+          <SelectTrigger className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 h-11 text-slate-900 dark:text-themeTextWhite">
             <SelectValue placeholder={t("selectType")} />
           </SelectTrigger>
-          <SelectContent className="bg-[#1a1a1d] border-themeGray">
+          <SelectContent className="bg-white dark:bg-[#1a1a1d] border-slate-200 dark:border-themeGray">
             {EVENT_TYPES.map((type) => (
-              <SelectItem key={type.value} value={type.value} className="text-white hover:bg-themeGray">
+              <SelectItem key={type.value} value={type.value} className="text-slate-900 dark:text-themeTextWhite hover:bg-slate-100 dark:hover:bg-themeGray">
                 {tTypes(type.value)}
               </SelectItem>
             ))}
@@ -80,13 +80,13 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
 
       {/* Description */}
       <div className="space-y-2">
-        <Label htmlFor="description" className="text-sm font-medium text-white">
+        <Label htmlFor="description" className="text-sm font-medium text-slate-900 dark:text-themeTextWhite">
           {t("description")}
         </Label>
         <Textarea
           id="description"
           placeholder={t("descriptionPlaceholder")}
-          className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg text-white placeholder:text-themeTextGray/60 min-h-[80px] resize-none"
+          className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 focus:border-emerald-500/60 rounded-lg text-slate-900 dark:text-themeTextWhite placeholder:text-slate-400 dark:placeholder:text-themeTextGray/60 min-h-[80px] resize-none"
           {...register("description")}
         />
       </div>
@@ -94,14 +94,14 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
       {/* Date and Time Row */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="startDate" className="text-sm font-medium text-white flex items-center gap-2">
+          <Label htmlFor="startDate" className="text-sm font-medium text-slate-900 dark:text-themeTextWhite flex items-center gap-2">
             <Calendar className="w-4 h-4 text-emerald-400" />
             {t("startDate")} *
           </Label>
           <Input
             id="startDate"
             type="date"
-            className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white"
+            className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-slate-900 dark:text-themeTextWhite"
             {...register("startDate")}
           />
           <ErrorMessage
@@ -111,14 +111,14 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="startTime" className="text-sm font-medium text-white flex items-center gap-2">
+          <Label htmlFor="startTime" className="text-sm font-medium text-slate-900 dark:text-themeTextWhite flex items-center gap-2">
             <Clock className="w-4 h-4 text-emerald-400" />
             {t("startTime")} *
           </Label>
           <Input
             id="startTime"
             type="time"
-            className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white"
+            className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-slate-900 dark:text-themeTextWhite"
             {...register("startTime")}
           />
           <ErrorMessage
@@ -132,24 +132,24 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
       {/* End Date and Time Row */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="endDate" className="text-sm font-medium text-white">
+          <Label htmlFor="endDate" className="text-sm font-medium text-slate-900 dark:text-themeTextWhite">
             {t("endDate")}
           </Label>
           <Input
             id="endDate"
             type="date"
-            className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white"
+            className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-slate-900 dark:text-themeTextWhite"
             {...register("endDate")}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="endTime" className="text-sm font-medium text-white">
+          <Label htmlFor="endTime" className="text-sm font-medium text-slate-900 dark:text-themeTextWhite">
             {t("endTime")}
           </Label>
           <Input
             id="endTime"
             type="time"
-            className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white"
+            className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-slate-900 dark:text-themeTextWhite"
             {...register("endTime")}
           />
         </div>
@@ -157,7 +157,7 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
 
       {/* Meeting URL */}
       <div className="space-y-2">
-        <Label htmlFor="meetingUrl" className="text-sm font-medium text-white flex items-center gap-2">
+        <Label htmlFor="meetingUrl" className="text-sm font-medium text-slate-900 dark:text-themeTextWhite flex items-center gap-2">
           <Link2 className="w-4 h-4 text-emerald-400" />
           {t("meetingUrl")}
         </Label>
@@ -165,7 +165,7 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
           id="meetingUrl"
           type="url"
           placeholder={t("meetingUrlPlaceholder")}
-          className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white placeholder:text-themeTextGray/60"
+          className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-slate-900 dark:text-themeTextWhite placeholder:text-slate-400 dark:placeholder:text-themeTextGray/60"
           {...register("meetingUrl")}
         />
         <ErrorMessage
@@ -178,7 +178,7 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
       {/* Location and Max Attendees Row */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="location" className="text-sm font-medium text-white flex items-center gap-2">
+          <Label htmlFor="location" className="text-sm font-medium text-slate-900 dark:text-themeTextWhite flex items-center gap-2">
             <MapPin className="w-4 h-4 text-emerald-400" />
             {t("location")}
           </Label>
@@ -186,12 +186,12 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
             id="location"
             type="text"
             placeholder={t("locationPlaceholder")}
-            className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white placeholder:text-themeTextGray/60"
+            className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-slate-900 dark:text-themeTextWhite placeholder:text-slate-400 dark:placeholder:text-themeTextGray/60"
             {...register("location")}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="maxAttendees" className="text-sm font-medium text-white flex items-center gap-2">
+          <Label htmlFor="maxAttendees" className="text-sm font-medium text-slate-900 dark:text-themeTextWhite flex items-center gap-2">
             <Users className="w-4 h-4 text-emerald-400" />
             {t("maxAttendees")}
           </Label>
@@ -199,7 +199,7 @@ export const CreateEventForm = ({ groupId, userId, onSuccess }: CreateEventFormP
             id="maxAttendees"
             type="number"
             placeholder={t("unlimited")}
-            className="bg-themeBlack/60 border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-white placeholder:text-themeTextGray/60"
+            className="bg-slate-50 dark:bg-themeBlack/60 border-slate-200 dark:border-themeGray/60 focus:border-emerald-500/60 rounded-lg h-11 text-slate-900 dark:text-themeTextWhite placeholder:text-slate-400 dark:placeholder:text-themeTextGray/60"
             {...register("maxAttendees")}
           />
         </div>

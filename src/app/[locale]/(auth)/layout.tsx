@@ -53,10 +53,6 @@ const AuthLayout = async ({ children, params }: AuthLayoutProps) => {
         </div>
       </div>
 
-      {/* Mobile hero - shown below card on small screens, centered */}
-      <div className="md:hidden container pb-8 text-center">
-        <AuthHero />
-      </div>
     </div>
   )
 }

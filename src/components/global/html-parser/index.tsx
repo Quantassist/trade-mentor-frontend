@@ -41,7 +41,7 @@ export const HtmlParser = ({ html }: HtmlParserProps) => {
                     width={width}
                     height={height}
                     sizes="(min-width: 1024px) 800px, 100vw"
-                    className="h-auto w-full rounded-lg border border-themeGray/60"
+                    className="h-auto w-full rounded-lg border border-slate-200 dark:border-themeGray/60"
                   />
                 </span>
               )
@@ -54,7 +54,7 @@ export const HtmlParser = ({ html }: HtmlParserProps) => {
                   alt={alt}
                   fill
                   sizes="(min-width: 1024px) 800px, 100vw"
-                  className="object-contain rounded-lg border border-themeGray/60"
+                  className="object-contain rounded-lg border border-slate-200 dark:border-themeGray/60"
                 />
               </span>
             )
@@ -65,8 +65,8 @@ export const HtmlParser = ({ html }: HtmlParserProps) => {
     : null
 
   return (
-    <div className="html-parser [&_h1]:text-4xl [&_h2]:text-3xl [&_h3]:text-2xl text-themeTextGray flex flex-col gap-y-3">
-      {!mounted && <Skeleton className="h-[280px] w-full bg-[#202020]" />}
+    <div className="html-parser [&_h1]:text-4xl [&_h2]:text-3xl [&_h3]:text-2xl text-slate-600 dark:text-themeTextGray flex flex-col gap-y-3">
+      {!mounted && <Skeleton className="h-[280px] w-full bg-slate-200 dark:bg-[#202020]" />}
       {mounted && (
         <div className="parsed-html prose prose-lg dark:prose-invert max-w-full [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1">
           {content}

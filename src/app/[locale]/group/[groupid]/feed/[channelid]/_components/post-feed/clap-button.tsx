@@ -117,7 +117,7 @@ export const ClapButton = ({
       <span className={cn(
         "tabular-nums transition-colors duration-200",
         config.text,
-        myClaps > 0 ? "text-amber-500" : "text-themeTextGray group-hover:text-white"
+        myClaps > 0 ? "text-amber-500" : "text-slate-500 dark:text-themeTextGray group-hover:text-slate-900 dark:group-hover:text-white"
       )}>
         {totalClaps}
       </span>

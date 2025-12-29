@@ -33,10 +33,10 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
 
   return (
     <div className={cn("space-y-5")}> 
-      <Card className="border-themeGray/60 bg-[#161a20] rounded-xl p-5">
+      <Card className="border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] rounded-xl p-5">
       {/* Continue your journey */}
       <div className="space-y-5">
-        <h3 className="text-themeTextWhite font-semibold tracking-tight text-xl">{t("title")}</h3>
+        <h3 className="text-slate-900 dark:text-themeTextWhite font-semibold tracking-tight text-xl">{t("title")}</h3>
         <div className="space-y-3">
           {courses.map((c: any) => {
             const currentLesson = Math.min((c.completedCount ?? 0) + 1, c.totalCount || 0)
@@ -48,12 +48,12 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
             return (
             <Card
               key={c.courseId}
-              className="group border border-[#2a2a2e] bg-[#141417] hover:bg-[#17181b] transition-colors rounded-2xl shadow-sm ring-1 ring-white/5 hover:shadow-md"
+              className="group border border-slate-200 dark:border-[#2a2a2e] bg-slate-50 dark:bg-[#141417] hover:bg-slate-100 dark:hover:bg-[#17181b] transition-colors rounded-2xl shadow-sm ring-1 ring-slate-200/50 dark:ring-white/5 hover:shadow-md"
             >
               <Link href={toCourseHref(c.courseId)} className="block p-4">
                 <div className="flex items-center gap-3">
                   {thumb ? (
-                    <div className="relative h-16 w-16 shrink-0 rounded-xl ring-1 ring-white/5 overflow-hidden">
+                    <div className="relative h-16 w-16 shrink-0 rounded-xl ring-1 ring-slate-200 dark:ring-white/5 overflow-hidden">
                       <Image
                         src={thumb}
                         alt="thumbnail"
@@ -70,13 +70,13 @@ export const OngoingCoursesWidget = ({ groupid, className, limit = 3 }: OngoingC
                     </div>
                   )}
                     <div className="min-w-0 flex-1">
-                      <p className="text-themeTextWhite font-medium truncate group-hover:text-themeTextWhite/90">{c.name}</p>
-                      <p className="text-xs text-themeTextGray">{Math.round(progress)}% {t("complete")}</p>
+                      <p className="text-slate-900 dark:text-themeTextWhite font-medium truncate group-hover:text-slate-700 dark:group-hover:text-themeTextWhite/90">{c.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-themeTextGray">{Math.round(progress)}% {t("complete")}</p>
                       <div className="mt-2">
-                        <Progress value={progress} className="h-2 bg-[#1f2023]" />
+                        <Progress value={progress} className="h-2 bg-slate-200 dark:bg-[#1f2023]" />
                       </div>
                     </div>
-                    <ChevronRight className="text-themeTextGray" size={16} />
+                    <ChevronRight className="text-slate-400 dark:text-themeTextGray" size={16} />
                 </div>
               </Link>
             </Card>

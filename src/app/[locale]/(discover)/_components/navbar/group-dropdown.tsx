@@ -37,7 +37,7 @@ export const GroupDropDown = ({ groups }: GroupDropDownProps) => {
       trigger={
         <Button
           variant="ghost"
-          className="rounded-2xl hover:bg-themeGray font-medium flex gap-2"
+          className="rounded-2xl hover:bg-slate-100 dark:hover:bg-themeGray font-medium flex gap-2"
         >
           TradeFlix
           <CarotSort />
@@ -53,7 +53,7 @@ export const GroupDropDown = ({ groups }: GroupDropDownProps) => {
           >
             <Button
               variant="ghost"
-              className="flex gap-2 w-full justify-start hover:bg-themeGray items-center"
+              className="flex gap-2 w-full justify-start hover:bg-slate-100 dark:hover:bg-themeGray items-center"
             >
               <Group />
               {item.name}

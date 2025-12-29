@@ -85,7 +85,8 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
         "flex-col gap-y-10",
         !mobile
           ? cn(
-              "h-screen fixed overflow-hidden hidden bg-black md:flex md:shrink-0",
+              "h-screen fixed overflow-hidden hidden md:flex md:shrink-0",
+              "bg-slate-50 dark:bg-black dark:border-transparent",
               effectiveCollapsed
                 ? "md:w-[70px] md:min-w-[70px] md:max-w-[70px] md:px-2"
                 : "md:w-[280px] md:min-w-[280px] md:max-w-[280px] sm:px-5 md:px-5",
@@ -101,13 +102,14 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
             <div
               title={groupInfo.group?.name}
               className={cn(
-                "w-full flex items-center text-themeTextGray rounded-xl cursor-pointer transition-colors",
-                "bg-[#1a1d21] hover:bg-[#252a31] hover:text-white",
+                "w-full flex items-center rounded-xl cursor-pointer transition-colors",
+                "text-slate-600 dark:text-themeTextWhite",
+                "bg-slate-200 dark:bg-[#1a1d21] hover:bg-slate-300 dark:hover:bg-[#252a31] hover:text-slate-900 dark:hover:text-white",
                 isSheet
                   ? "justify-between p-3"
                   : effectiveCollapsed
                     ? "justify-center px-0 py-2"
-                    : "justify-between md:border-[1px] border-themeGray/60 p-3",
+                    : "justify-between  dark:border-themeGray/60 p-3",
               )}
             >
               <div className={cn(
@@ -140,8 +142,9 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
               <span
                 className={cn(
                   isSheet ? "inline" : !effectiveCollapsed ? "hidden md:inline" : "hidden",
+                  "text-slate-600 dark:text-themeTextWhite",
                 )}
-              > 
+              >
                 <CarotSort />
               </span>
             </div>
@@ -163,7 +166,7 @@ export const SideBar = ({ groupid, userid, mobile }: SideBarProps) => {
               <Link key={item.id} href={`/group/${item.slug || item.id}/about`}>
                 <Button
                   variant="ghost"
-                  className="flex gap-2 w-full justify-start hover:bg-[#2a2f36] items-center"
+                  className="flex gap-2 w-full justify-start hover:bg-slate-200 dark:hover:bg-[#2a2f36] items-center"
                 >
                   <Group />
                   {item.name}

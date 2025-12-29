@@ -67,7 +67,7 @@ export function NavBar({
     <div className={cn(containerPositionClass, fullWidth && "w-full box-border max-w-full overflow-x-hidden", className)}>
       <div
         className={cn(
-          "pointer-events-auto flex items-center bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg",
+          "pointer-events-auto flex items-center bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full",
           fullWidth ? "w-full justify-between gap-1" : "gap-3",
         )}
       >

@@ -42,7 +42,7 @@ export default function ReflectionView({ payload, sectionid, groupid, locale, us
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           {effective?.reflection_type ? (
-            <span className="rounded-full border border-themeGray/60 bg-[#0f0f14] px-3 py-1.5 text-xs md:text-sm text-themeTextGray ring-1 ring-white/5">{typeBadge}</span>
+            <span className="rounded-full border border-slate-200 dark:border-themeGray/60 bg-slate-100 dark:bg-[#0f0f14] px-3 py-1.5 text-xs md:text-sm text-slate-500 dark:text-themeTextGray ring-1 ring-slate-200 dark:ring-white/5">{typeBadge}</span>
           ) : null}
         </div>
         {canEdit && (
@@ -52,28 +52,28 @@ export default function ReflectionView({ payload, sectionid, groupid, locale, us
         )}
       </div>
 
-      <section className="rounded-xl border border-themeGray/60 bg-[#12151b] p-4">
+      <section className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-4">
         <Markdown>{effective?.prompt_md}</Markdown>
       </section>
 
       {effective?.guidance_md ? (
-        <div className="rounded-xl overflow-hidden border border-themeGray/60 bg-[#161a20]">
+        <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20]">
           <Accordion type="single" collapsible>
-            <AccordionItem value="guidance" className="border-themeGray/60">
+            <AccordionItem value="guidance" className="border-slate-200 dark:border-themeGray/60">
               <AccordionTrigger className="px-4 py-4 hover:no-underline">
                 <div className="w-full flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0 text-left">
-                    <div className="h-8 w-8 rounded-full bg-themeGray/40 flex items-center justify-center ring-1 ring-white/10">
+                    <div className="h-8 w-8 rounded-full bg-slate-100 dark:bg-themeGray/40 flex items-center justify-center ring-1 ring-slate-200 dark:ring-white/10">
                       <Lightbulb className="h-4 w-4 text-[#b9a9ff]" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs text-[#b9a9ff]">Helpful Tips</p>
-                      <p className="text-sm md:text-base text-white truncate">Guidance</p>
+                      <p className="text-sm md:text-base text-slate-900 dark:text-themeTextWhite truncate">Guidance</p>
                     </div>
                   </div>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4 text-themeTextWhite">
+              <AccordionContent className="px-4 pb-4 text-slate-700 dark:text-themeTextWhite">
                 <Markdown>{effective.guidance_md}</Markdown>
               </AccordionContent>
             </AccordionItem>
@@ -81,12 +81,12 @@ export default function ReflectionView({ payload, sectionid, groupid, locale, us
         </div>
       ) : null}
 
-      <section className="rounded-xl border border-themeGray/60 bg-[#161a20] p-4">
+      <section className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] p-4">
         <textarea
           value={value}
           onChange={(e) => setValue(e.target.value)}
           rows={8}
-          className="w-full resize-y rounded-lg border border-themeGray/60 bg-[#0f0f14] p-3 text-themeTextWhite placeholder:text-themeTextGray focus:outline-none focus:ring-1 focus:ring-[#4F46E5]/30"
+          className="w-full resize-y rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#0f0f14] p-3 text-slate-700 dark:text-themeTextWhite placeholder:text-slate-400 dark:placeholder:text-themeTextGray focus:outline-none focus:ring-1 focus:ring-[#4F46E5]/30"
           placeholder="Write your reflection here..."
         />
         <div className="mt-2 flex items-center justify-between text-xs">
@@ -106,14 +106,14 @@ export default function ReflectionView({ payload, sectionid, groupid, locale, us
       </section>
 
       {samples.length > 0 && (
-        <section className="rounded-xl border border-themeGray/60 bg-[#12151b] p-4">
+        <section className="rounded-xl border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b] p-4">
           <div className="mb-2 flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-[#b9a9ff]" />
-            <h3 className="text-sm font-semibold text-white">Sample responses</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-themeTextWhite">Sample responses</h3>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             {samples.map((s: string, i: number) => (
-              <div key={i} className="rounded-lg border border-themeGray/60 bg-[#161a20] p-3 text-themeTextWhite">
+              <div key={i} className="rounded-lg border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] p-3 text-slate-700 dark:text-themeTextWhite">
                 {s}
               </div>
             ))}
@@ -122,9 +122,9 @@ export default function ReflectionView({ payload, sectionid, groupid, locale, us
       )}
       {canEdit && (
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogContent className="bg-[#161a20] border border-themeGray/60 text-themeTextWhite">
+          <DialogContent className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 text-slate-700 dark:text-themeTextWhite">
             <DialogHeader>
-              <DialogTitle className="text-white">Edit Reflection</DialogTitle>
+              <DialogTitle className="text-slate-900 dark:text-themeTextWhite">Edit Reflection</DialogTitle>
             </DialogHeader>
             <ReflectionContentForm
               groupid={groupid}

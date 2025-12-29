@@ -47,7 +47,7 @@ const OutcomesFields = ({ controlName, control, register, errors }: OutcomesFiel
           <div key={f.id} className="flex items-center gap-2">
             <Input
               placeholder={`Outcome ${i + 1}`}
-              className="bg-transparent border-themeGray text-themeTextWhite"
+              className="bg-white dark:bg-transparent border-slate-200 dark:border-themeGray text-slate-900 dark:text-themeTextWhite"
               {...register(`${controlName}.${i}`)}
             />
             <Button type="button" variant="ghost" onClick={() => remove(i)} className="text-red-400 hover:text-red-300">
@@ -59,7 +59,7 @@ const OutcomesFields = ({ controlName, control, register, errors }: OutcomesFiel
       <Button
         type="button"
         variant="secondary"
-        className="bg-themeGray text-themeTextWhite"
+        className="bg-slate-100 dark:bg-themeGray text-slate-900 dark:text-themeTextWhite"
         onClick={() => append("")}
       >
         <Plus className="h-4 w-4 mr-2" /> Add another outcome
@@ -87,13 +87,13 @@ const FaqFields = ({ controlName, control, register }: FaqFieldsProps) => {
           <div key={f.id} className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <Input
               placeholder="Question"
-              className="bg-transparent border-themeGray text-themeTextWhite"
+              className="bg-white dark:bg-transparent border-slate-200 dark:border-themeGray text-slate-900 dark:text-themeTextWhite"
               {...register(`${controlName}.${i}.question`)}
             />
             <div className="flex items-center gap-2">
               <Input
                 placeholder="Answer"
-                className="bg-transparent border-themeGray text-themeTextWhite"
+                className="bg-white dark:bg-transparent border-slate-200 dark:border-themeGray text-slate-900 dark:text-themeTextWhite"
                 {...register(`${controlName}.${i}.answer`)}
               />
               <Button type="button" variant="ghost" onClick={() => remove(i)} className="text-red-400 hover:text-red-300">
@@ -106,7 +106,7 @@ const FaqFields = ({ controlName, control, register }: FaqFieldsProps) => {
       <Button
         type="button"
         variant="secondary"
-        className="bg-themeGray text-themeTextWhite"
+        className="bg-slate-100 dark:bg-themeGray text-slate-900 dark:text-themeTextWhite"
         onClick={() => append({ question: "", answer: "" })}
       >
         <Plus className="h-4 w-4 mr-2" /> Add FAQ
@@ -139,10 +139,10 @@ const MentorsFields = ({ control, register, mentorsData, setValue, watch }: Ment
               value={watch(`mentors.${i}.mentorId`)}
               onValueChange={(v) => setValue(`mentors.${i}.mentorId`, v)}
             >
-              <SelectTrigger className="w-full border-themeGray bg-transparent text-themeTextWhite">
+              <SelectTrigger className="w-full border-slate-200 dark:border-themeGray bg-white dark:bg-transparent text-slate-900 dark:text-themeTextWhite">
                 <SelectValue placeholder="Select mentor" />
               </SelectTrigger>
-              <SelectContent className="border-themeGray bg-[#101011] text-themeTextWhite">
+              <SelectContent className="border-slate-200 dark:border-themeGray bg-white dark:bg-[#101011] text-slate-900 dark:text-themeTextWhite">
                 {options.map((o) => (
                   <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>
                 ))}
@@ -152,10 +152,10 @@ const MentorsFields = ({ control, register, mentorsData, setValue, watch }: Ment
               value={watch(`mentors.${i}.role`) || "PRIMARY"}
               onValueChange={(v) => setValue(`mentors.${i}.role`, v)}
             >
-              <SelectTrigger className="w-full border-themeGray bg-transparent text-themeTextWhite">
+              <SelectTrigger className="w-full border-slate-200 dark:border-themeGray bg-white dark:bg-transparent text-slate-900 dark:text-themeTextWhite">
                 <SelectValue placeholder="Role" />
               </SelectTrigger>
-              <SelectContent className="border-themeGray bg-[#101011] text-themeTextWhite">
+              <SelectContent className="border-slate-200 dark:border-themeGray bg-white dark:bg-[#101011] text-slate-900 dark:text-themeTextWhite">
                 {roles.map((r) => (
                   <SelectItem key={r} value={r}>{r}</SelectItem>
                 ))}
@@ -174,7 +174,7 @@ const MentorsFields = ({ control, register, mentorsData, setValue, watch }: Ment
       <Button
         type="button"
         variant="secondary"
-        className="bg-themeGray text-themeTextWhite"
+        className="bg-slate-100 dark:bg-themeGray text-slate-900 dark:text-themeTextWhite"
         onClick={() => {
           // Always append a new row; user can pick mentor and role afterwards
           append({ mentorId: "", role: "PRIMARY", sortOrder: fields.length })
@@ -269,7 +269,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
           trigger={
             trigger ??
             (variant === "button" ? (
-              <Button size="sm" variant="secondary" className="bg-themeGray text-themeTextWhite">
+              <Button size="sm" variant="secondary" className="bg-slate-100 dark:bg-themeGray text-slate-900 dark:text-themeTextWhite">
                 {initial ? t("editCourseButton") : t("createCourseButton")}
               </Button>
             ) : (
@@ -330,7 +330,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
                         <Label>{`Course Name (${l})`}</Label>
                         <Input
                           placeholder={`Add your course name`}
-                          className="bg-transparent outline-none border-themeGray"
+                          className="bg-white dark:bg-transparent outline-none border-slate-200 dark:border-themeGray text-slate-900 dark:text-themeTextWhite"
                           value={tNames[l] ?? ""}
                           onChange={(e) => setTNames((prev) => ({ ...prev, [l]: e.target.value }))}
                         />
@@ -339,7 +339,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
                         <Label>{`Course Description (${l})`}</Label>
                         <Textarea
                           placeholder={`Add your course description`}
-                          className="bg-transparent outline-none border-themeGray min-h-24"
+                          className="bg-white dark:bg-transparent outline-none border-slate-200 dark:border-themeGray min-h-24 text-slate-900 dark:text-themeTextWhite"
                           value={tDescriptions[l] ?? ""}
                           onChange={(e) => setTDescriptions((prev) => ({ ...prev, [l]: e.target.value }))}
                         />
@@ -352,7 +352,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
                             <div key={`${l}-out-${i}`} className="flex items-center gap-2">
                               <Input
                                 placeholder={`Outcome ${i + 1}`}
-                                className="bg-transparent border-themeGray text-themeTextWhite"
+                                className="bg-white dark:bg-transparent border-slate-200 dark:border-themeGray text-slate-900 dark:text-themeTextWhite"
                                 value={val}
                                 onChange={(e) => {
                                   setTOutcomes((prev) => {
@@ -381,7 +381,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
                         <Button
                           type="button"
                           variant="secondary"
-                          className="bg-themeGray text-themeTextWhite"
+                          className="bg-slate-100 dark:bg-themeGray text-slate-900 dark:text-themeTextWhite"
                           onClick={() => setTOutcomes((prev) => ({ ...prev, [l]: [...(prev[l] ?? []), ""] }))}
                         >
                           <Plus className="h-4 w-4 mr-2" /> Add another outcome
@@ -395,7 +395,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
                             <div key={`${l}-faq-${i}`} className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               <Input
                                 placeholder="Question"
-                                className="bg-transparent border-themeGray text-themeTextWhite"
+                                className="bg-white dark:bg-transparent border-slate-200 dark:border-themeGray text-slate-900 dark:text-themeTextWhite"
                                 value={f?.question ?? ""}
                                 onChange={(e) =>
                                   setTFaqs((prev) => {
@@ -409,7 +409,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
                               <div className="flex items-center gap-2">
                                 <Input
                                   placeholder="Answer"
-                                  className="bg-transparent border-themeGray text-themeTextWhite"
+                                  className="bg-white dark:bg-transparent border-slate-200 dark:border-themeGray text-slate-900 dark:text-themeTextWhite"
                                   value={f?.answer ?? ""}
                                   onChange={(e) =>
                                     setTFaqs((prev) => {
@@ -440,7 +440,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
                         <Button
                           type="button"
                           variant="secondary"
-                          className="bg-themeGray text-themeTextWhite"
+                          className="bg-slate-100 dark:bg-themeGray text-slate-900 dark:text-themeTextWhite"
                           onClick={() =>
                             setTFaqs((prev) => ({
                               ...prev,
@@ -460,10 +460,10 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
             <div className="space-y-2">
               <Label>Level</Label>
               <Select value={watch("level")} onValueChange={(v) => setValue("level", v)}>
-                <SelectTrigger className="w-full border-themeGray bg-transparent text-themeTextWhite">
+                <SelectTrigger className="w-full border-slate-200 dark:border-themeGray bg-white dark:bg-transparent text-slate-900 dark:text-themeTextWhite">
                   <SelectValue placeholder="Select level" />
                 </SelectTrigger>
-                <SelectContent className="border-themeGray bg-[#101011] text-themeTextWhite">
+                <SelectContent className="border-slate-200 dark:border-themeGray bg-white dark:bg-[#101011] text-slate-900 dark:text-themeTextWhite">
                   <SelectItem value="All levels">All levels</SelectItem>
                   <SelectItem value="Beginner">Beginner</SelectItem>
                   <SelectItem value="Intermediate">Intermediate</SelectItem>
@@ -641,7 +641,7 @@ export const CourseCreate = ({ groupid, variant = "card", initial, trigger }: Co
                   <Button size="sm" className="px-4" disabled>
                     Start course
                   </Button>
-                  <Button size="sm" variant="secondary" className="bg-themeGray text-themeTextWhite" disabled>
+                  <Button size="sm" variant="secondary" className="bg-slate-100 dark:bg-themeGray text-slate-900 dark:text-themeTextWhite" disabled>
                     Course overview
                   </Button>
                 </div>

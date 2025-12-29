@@ -19,8 +19,8 @@ export function AboutMentor({ mentors }: { mentors: MentorItem[] }) {
   if (list.length === 0) return null
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-semibold text-white">Meet your Mentor{list.length > 1 ? "s" : ""}</h3>
-      <Card className="border-themeGray/60 bg-[#161a20] rounded-xl p-5">
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-themeTextWhite">Meet your Mentor{list.length > 1 ? "s" : ""}</h3>
+      <Card className="border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20] rounded-xl p-5">
         <div className="flex flex-col gap-5">
           {list.map((m, idx) => {
             const initials = (m.displayName || "?")
@@ -43,30 +43,30 @@ export function AboutMentor({ mentors }: { mentors: MentorItem[] }) {
             } catch {}
             return (
               <div key={idx} className="flex items-start gap-4">
-                <Avatar className="h-14 w-14 ring-1 ring-white/10 bg-themeGray/20">
+                <Avatar className="h-14 w-14 ring-1 ring-slate-200 dark:ring-white/10 bg-slate-100 dark:bg-themeGray/20">
                   <AvatarImage src={m.headshotUrl || undefined} />
                   <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="text-white text-xl font-semibold truncate">{m.displayName || "Mentor"}</p>
+                    <p className="text-slate-900 dark:text-themeTextWhite text-xl font-semibold truncate">{m.displayName || "Mentor"}</p>
                     {m.role ? (
-                      <span className="text-[10px] uppercase tracking-wide text-themeTextGray bg-white/5 border border-white/10 rounded px-1.5 py-0.5">
+                      <span className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-themeTextGray bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded px-1.5 py-0.5">
                         {m.role}
                       </span>
                     ) : null}
                   </div>
                   {(m.title || m.organization) ? (
-                    <p className="text-sm text-[#b9a9ff]">
+                    <p className="text-sm text-primary dark:text-[#b9a9ff]">
                       {m.title}
                       {m.organization ? `, ${m.organization}` : ""}
                     </p>
                   ) : null}
                   {years !== null ? (
-                    <p className="text-sm text-themeTextGray">{years} year{years === 1 ? "" : "s"} of experience</p>
+                    <p className="text-sm text-slate-500 dark:text-themeTextGray">{years} year{years === 1 ? "" : "s"} of experience</p>
                   ) : null}
                   {m.bio ? (
-                    <p className="mt-3 text-sm text-themeTextWhite/90 leading-relaxed max-w-3xl">{m.bio}</p>
+                    <p className="mt-3 text-sm text-slate-600 dark:text-themeTextWhite/90 leading-relaxed max-w-3xl">{m.bio}</p>
                   ) : null}
                   {socials.length > 0 ? (
                     <div className="flex flex-wrap gap-3 pt-2">

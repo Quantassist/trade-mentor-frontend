@@ -9,7 +9,7 @@ import ReflectionView from "./ReflectionView"
 type Props = { type?: SectionType | string; payload?: any; sectionid: string; groupid: string; locale?: string; user?: any; initial?: any }
 
 export default function TypedSectionRenderer({ type, payload, sectionid, groupid, locale, user, initial }: Props) {
-  if (!type) return <div className="p-5 text-themeTextGray">No section type</div>
+  if (!type) return <div className="p-5 text-slate-500 dark:text-themeTextGray">No section type</div>
   switch (type) {
     case "example":
       return <ExampleView payload={(payload || {}) as any} sectionid={sectionid} groupid={groupid} locale={locale} initial={initial} />
@@ -24,6 +24,6 @@ export default function TypedSectionRenderer({ type, payload, sectionid, groupid
     case "callout":
       return <CalloutView payload={payload} />
     default:
-      return <div className="p-5 text-themeTextGray">Unsupported section type</div>
+      return <div className="p-5 text-slate-500 dark:text-themeTextGray">Unsupported section type</div>
   }
 }

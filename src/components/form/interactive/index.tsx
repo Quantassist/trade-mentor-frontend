@@ -37,16 +37,16 @@ export default function InteractiveContentForm({
       className="space-y-4 pb-20"
     >
       <div className="space-y-2">
-        <Label className="text-themeTextWhite">HTML content</Label>
+        <Label className="text-slate-900 dark:text-themeTextWhite">HTML content</Label>
         <Textarea
           rows={16}
-          className="bg-[#12151b] border-themeGray/60 text-themeTextWhite font-mono"
+          className="bg-slate-50 dark:bg-[#12151b] border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite font-mono"
           placeholder="Paste your sanitized HTML here"
           {...register("html_content")}
         />
       </div>
 
-      <DialogFooter className="sticky bottom-0 left-0 right-0 bg-[#161a20] border-t border-themeGray/60 pt-3">
+      <DialogFooter className="sticky bottom-0 left-0 right-0 bg-white dark:bg-[#161a20] border-t border-slate-200 dark:border-themeGray/60 pt-3">
         <Button type="button" variant="ghost" className="text-themeTextGray" onClick={onCancel}>
           Cancel
         </Button>

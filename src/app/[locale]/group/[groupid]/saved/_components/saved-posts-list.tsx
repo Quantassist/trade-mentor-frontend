@@ -54,7 +54,7 @@ const SavedPostCard = ({
   const totalClaps = post.claps?.reduce((sum, c) => sum + (c.count || 0), 0) || 0
 
   return (
-    <Card className="bg-[#161a20] border-themeGray/60 rounded-xl overflow-hidden group transition-all duration-200 hover:border-themeGray/80">
+    <Card className="bg-white dark:bg-[#161a20] border-slate-200 dark:border-themeGray/60 rounded-xl overflow-hidden group transition-all duration-200 hover:border-slate-300 dark:hover:border-themeGray/80">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -67,15 +67,15 @@ const SavedPostCard = ({
                   className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
-                <div className="h-8 w-8 rounded-full bg-themeGray/40 flex items-center justify-center text-xs text-themeTextGray">
+                <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-themeGray/40 flex items-center justify-center text-xs text-slate-500 dark:text-themeTextGray">
                   {post.author.firstname?.[0]}
                 </div>
               )}
               <div className="flex flex-col">
-                <span className="text-sm text-white font-medium">
+                <span className="text-sm text-slate-900 dark:text-themeTextWhite font-medium">
                   {post.author.firstname} {post.author.lastname}
                 </span>
-                <span className="text-xs text-themeTextGray">
+                <span className="text-xs text-slate-500 dark:text-themeTextGray">
                   in #{post.channel.name}
                 </span>
               </div>
@@ -83,18 +83,18 @@ const SavedPostCard = ({
 
             {/* Post title and content */}
             <Link href={`/group/${groupid}/feed/${channelSlug}/${postUrlId}`}>
-              <h3 className="text-lg font-semibold text-white group-hover:text-[#d4f0e7] transition-colors line-clamp-2 mb-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-themeTextWhite group-hover:text-emerald-600 dark:group-hover:text-[#d4f0e7] transition-colors line-clamp-2 mb-2">
                 {post.title}
               </h3>
               {post.htmlContent && (
-                <div className="text-sm text-themeTextGray line-clamp-2">
+                <div className="text-sm text-slate-500 dark:text-themeTextGray line-clamp-2">
                   <HtmlParser html={post.htmlContent} />
                 </div>
               )}
             </Link>
 
             {/* Stats */}
-            <div className="flex items-center gap-4 mt-3 text-xs text-themeTextGray">
+            <div className="flex items-center gap-4 mt-3 text-xs text-slate-500 dark:text-themeTextGray">
               <span className="flex items-center gap-1">
                 👏 {totalClaps}
               </span>
@@ -112,8 +112,8 @@ const SavedPostCard = ({
             className={cn(
               "p-2 rounded-full transition-all duration-200",
               isSaved || !isPending
-                ? "text-white hover:bg-white/10"
-                : "text-themeTextGray"
+                ? "text-slate-900 dark:text-themeTextWhite hover:bg-slate-100 dark:hover:bg-white/10"
+                : "text-slate-500 dark:text-themeTextGray"
             )}
             title="Remove from saved"
           >
@@ -137,17 +137,17 @@ export const SavedPostsList = ({ groupid, userid }: SavedPostsListProps) => {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-[#161a20] border border-themeGray/60 rounded-xl p-4 animate-pulse"
+            className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 rounded-xl p-4 animate-pulse"
           >
             <div className="flex items-center gap-2 mb-3">
-              <div className="h-8 w-8 rounded-full bg-themeGray/40" />
+              <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-themeGray/40" />
               <div className="space-y-1">
-                <div className="h-3 w-24 bg-themeGray/40 rounded" />
-                <div className="h-2 w-16 bg-themeGray/40 rounded" />
+                <div className="h-3 w-24 bg-slate-200 dark:bg-themeGray/40 rounded" />
+                <div className="h-2 w-16 bg-slate-200 dark:bg-themeGray/40 rounded" />
               </div>
             </div>
-            <div className="h-5 w-3/4 bg-themeGray/40 rounded mb-2" />
-            <div className="h-4 w-full bg-themeGray/40 rounded" />
+            <div className="h-5 w-3/4 bg-slate-200 dark:bg-themeGray/40 rounded mb-2" />
+            <div className="h-4 w-full bg-slate-200 dark:bg-themeGray/40 rounded" />
           </div>
         ))}
       </div>
@@ -159,11 +159,11 @@ export const SavedPostsList = ({ groupid, userid }: SavedPostsListProps) => {
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="h-16 w-16 rounded-full bg-themeGray/20 flex items-center justify-center mb-4">
-          <Bookmark size={32} className="text-themeTextGray" />
+        <div className="h-16 w-16 rounded-full bg-slate-100 dark:bg-themeGray/20 flex items-center justify-center mb-4">
+          <Bookmark size={32} className="text-slate-400 dark:text-themeTextGray" />
         </div>
-        <h3 className="text-xl font-semibold text-white mb-2">No saved posts yet</h3>
-        <p className="text-themeTextGray max-w-sm">
+        <h3 className="text-xl font-semibold text-slate-900 dark:text-themeTextWhite mb-2">No saved posts yet</h3>
+        <p className="text-slate-500 dark:text-themeTextGray max-w-sm">
           When you save posts for later reading, they'll appear here. Click the bookmark icon on any post to save it.
         </p>
       </div>

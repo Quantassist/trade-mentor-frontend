@@ -75,8 +75,8 @@ export default async function AboutCoursePage({ params }: PageProps) {
             {/* About text */}
             {course?.description && (
               <section className="space-y-2">
-                <h3 className="text-lg font-semibold text-white">About this course</h3>
-                <p className="text-themeTextGray leading-relaxed max-w-3xl">{course.description}</p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-themeTextWhite">About this course</h3>
+                <p className="text-slate-600 dark:text-themeTextGray leading-relaxed max-w-3xl">{course.description}</p>
               </section>
             )}
 

@@ -59,24 +59,24 @@ const CreateNewPost = ({ userImage, channelid, username, locale, groupid }: Prop
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <div>
-              <Card className="border-themeGray/60 cursor-pointer rounded-xl overflow-hidden bg-gradient-to-r from-[#1a1f25] to-[#1e2329] hover:from-[#1e2329] hover:to-[#252a32] transition-all duration-300 hover:border-[#d4f0e7]/30 hover:shadow-lg hover:shadow-[#d4f0e7]/5 group">
+              <Card className="border-slate-200 dark:border-themeGray/60 cursor-pointer rounded-xl overflow-hidden bg-white dark:bg-gradient-to-r dark:from-[#1a1f25] dark:to-[#1e2329] hover:bg-slate-50 dark:hover:from-[#1e2329] dark:hover:to-[#252a32] transition-all duration-300 hover:border-slate-300 dark:hover:border-[#d4f0e7]/30 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-[#d4f0e7]/5 group">
                 <CardContent className="p-4 flex gap-x-4 items-center">
                   <Avatar className="h-11 w-11 ring-2 ring-[#d4f0e7]/20 group-hover:ring-[#d4f0e7]/40 transition-all">
                     <AvatarImage src={userImage} alt="user" />
-                    <AvatarFallback className="bg-gradient-to-br from-[#2a3441] to-[#1e2329] text-white">
+                    <AvatarFallback className="bg-gradient-to-br from-slate-200 to-slate-100 dark:from-[#2a3441] dark:to-[#1e2329] text-slate-600 dark:text-themeTextWhite">
                       {username?.[0]?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 flex items-center justify-between">
                     <div className="flex flex-col gap-y-0.5">
-                      <span className="text-themeTextGray/80 text-sm group-hover:text-themeTextGray transition-colors">
+                      <span className="text-slate-500 dark:text-themeTextGray/80 text-sm group-hover:text-slate-700 dark:group-hover:text-themeTextGray transition-colors">
                         {tr("hintAddElements")}
                       </span>
-                      <span className="text-xs text-themeTextGray/50">
+                      <span className="text-xs text-slate-400 dark:text-themeTextGray/50">
                         Share your thoughts with the community
                       </span>
                     </div>
-                    <div className="flex items-center gap-x-2 px-4 py-2 rounded-full bg-[#d4f0e7]/10 text-[#d4f0e7] text-sm font-medium group-hover:bg-[#d4f0e7]/20 transition-all">
+                    <div className="flex items-center gap-x-2 px-4 py-2 rounded-full bg-emerald-500/10 dark:bg-[#d4f0e7]/10 text-emerald-600 dark:text-[#d4f0e7] text-sm font-medium group-hover:bg-emerald-500/20 dark:group-hover:bg-[#d4f0e7]/20 transition-all">
                       <Upload size={16} />
                       <span className="hidden sm:inline">{t("createPost.button")}</span>
                     </div>
@@ -89,7 +89,7 @@ const CreateNewPost = ({ userImage, channelid, username, locale, groupid }: Prop
             role="dialog"
             onInteractOutside={(e) => e.preventDefault()}
             onPointerDownOutside={(e) => e.preventDefault()}
-            className="bg-[#1C1C1E] !max-w-2xl border-themeDarkGray"
+            className="bg-white dark:bg-[#1C1C1E] !max-w-2xl border-slate-200 dark:border-themeDarkGray"
           >
             <DialogHeader>
               <VisuallyHidden>
@@ -102,17 +102,17 @@ const CreateNewPost = ({ userImage, channelid, username, locale, groupid }: Prop
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <p className="text-themeTextGray text-sm capitalize">{username}</p>
-                <p className="text-sm capitalize text-themeTextGray">
+                <p className="text-slate-500 dark:text-themeTextGray text-sm capitalize">{username}</p>
+                <p className="text-sm capitalize text-slate-500 dark:text-themeTextGray">
                   {currentLocale === "hi" ? (
                     <>
-                      <span className="font-bold capitalize text-themeTextWhite">{name}</span>{" "}
+                      <span className="font-bold capitalize text-slate-900 dark:text-themeTextWhite">{name}</span>{" "}
                       {tr("postingIn")}
                     </>
                   ) : (
                     <>
                       {tr("postingIn")} {" "}
-                      <span className="font-bold capitalize text-themeTextWhite">{name}</span>
+                      <span className="font-bold capitalize text-slate-900 dark:text-themeTextWhite">{name}</span>
                     </>
                   )}
                 </p>
@@ -129,7 +129,7 @@ const CreateNewPost = ({ userImage, channelid, username, locale, groupid }: Prop
               />
             </div>
             {/* Fixed footer row inside DialogContent */}
-            <div className="mt-2 border-t border-themeDarkGray pt-3 flex justify-end">
+            <div className="mt-2 border-t border-slate-200 dark:border-themeDarkGray pt-3 flex justify-end">
               <Button
                 type="submit"
                 form={formId}

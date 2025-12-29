@@ -40,11 +40,11 @@ const CoursesPage = async ({ params }: CoursePageProps) => {
     <HydrationBoundary state={dehydrate(client)}>
       <div className="container mx-auto max-w-6xl py-10 px-5">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-themeTextWhite">{t("title")}</h1>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-themeTextWhite">{t("title")}</h1>
           {canCreate && <CourseCreate groupid={groupid} variant="button" />}
         </div>
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="bg-themeGray text-themeTextGray">
+          <TabsList className="bg-slate-100 dark:bg-themeGray text-slate-600 dark:text-themeTextGray">
             <TabsTrigger value="all">{t("tabs.all")}</TabsTrigger>
             <TabsTrigger value="in_progress">{t("tabs.inProgress")}</TabsTrigger>
             <TabsTrigger value="completed">{t("tabs.completed")}</TabsTrigger>

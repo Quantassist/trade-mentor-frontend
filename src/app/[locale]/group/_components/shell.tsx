@@ -24,7 +24,7 @@ export function GroupShell({
       <SideBar groupid={groupid} userid={userid} />
       <div
         className={cn(
-          "flex flex-col flex-1 bg-[#101011] rounded-tl-xl border-l-[1px] border-t-[1px] border-[#28282D] overflow-hidden",
+          "flex flex-col flex-1 bg-slate-50 dark:bg-[#101011] rounded-tl-xl border-l-[1px] border-t-[1px] border-slate-200 dark:border-[#28282D] overflow-hidden",
           // keep small screen left gutter 70px (sidebar width in mobile layout)
           collapsed
             ? "md:ml-[70px] lg:ml-[70px] xl:ml-[70px]"

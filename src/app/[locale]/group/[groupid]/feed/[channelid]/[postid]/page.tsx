@@ -40,7 +40,7 @@ const PostPage = async ({
     <HydrationBoundary state={dehydrate(client)}>
       <div className="flex justify-center w-full min-h-[calc(100dvh-var(--group-navbar-h,5rem))]">
         {/* Main content area - fixed width to match feed */}
-        <div className="flex-1 max-w-[600px] border-x border-themeGray/30">
+        <div className="flex-1 max-w-[600px] border-x border-slate-200 dark:border-themeGray/30">
           <PostHeader channelId={channelid} groupId={groupid} />
           <div className="py-4 px-3">
             <PostInfo id={postid} userid={user.id!} locale={locale} />

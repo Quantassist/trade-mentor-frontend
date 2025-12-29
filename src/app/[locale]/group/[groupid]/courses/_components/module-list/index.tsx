@@ -133,7 +133,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                   title={
                     <div className="group/module flex w-full items-center gap-3">
                       {handleProps && (
-                        <span {...handleProps} className="cursor-grab text-themeTextGray hover:text-white">
+                        <span {...handleProps} className="cursor-grab text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white">
                           <GripVertical className="h-4 w-4" />
                         </span>
                       )}
@@ -159,7 +159,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                             }
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className="flex-1 bg-[#1e2329] border-themeGray text-white text-[15px] md:text-base font-semibold h-8"
+                          className="flex-1 bg-slate-100 dark:bg-[#1e2329] border-slate-300 dark:border-themeGray text-slate-900 dark:text-themeTextWhite text-[15px] md:text-base font-semibold h-8"
                         />
                       ) : (
                         <>
@@ -171,7 +171,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                               role="button"
                               tabIndex={0}
                               aria-label="Edit module name"
-                              className="opacity-0 group-hover/module:opacity-100 text-themeTextGray hover:text-white h-6 w-6 transition-opacity inline-flex items-center justify-center cursor-pointer"
+                              className="opacity-0 group-hover/module:opacity-100 text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white h-6 w-6 transition-opacity inline-flex items-center justify-center cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation()
                                 e.preventDefault()
@@ -191,7 +191,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                         </>
                       )}
                       <div className="ml-auto flex items-center gap-2">
-                        <span className="text-xs md:text-sm text-themeTextGray">
+                        <span className="text-xs md:text-sm text-slate-500 dark:text-themeTextGray">
                           {completed}/{total}
                         </span>
                         {canManage && (
@@ -199,7 +199,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                             role="button"
                             tabIndex={0}
                             aria-label="Delete module"
-                            className="text-themeTextGray hover:text-red-400 h-6 w-6 inline-flex items-center justify-center cursor-pointer"
+                            className="text-slate-500 dark:text-themeTextGray hover:text-red-400 h-6 w-6 inline-flex items-center justify-center cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation()
                               e.preventDefault()
@@ -223,11 +223,11 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                       </div>
                     </div>
                   }
-                  itemClassName="rounded-xl overflow-hidden border border-themeGray/60 bg-[#161a20]"
-                  triggerClassName="px-3 py-2 text-[15px] md:text-base font-semibold text-themeTextGray hover:text-white data-[state=open]:text-white"
+                  itemClassName="rounded-xl overflow-hidden border border-slate-200 dark:border-themeGray/60 bg-white dark:bg-[#161a20]"
+                  triggerClassName="px-3 py-2 text-[15px] md:text-base font-semibold text-slate-600 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white data-[state=open]:text-slate-900 dark:data-[state=open]:text-white"
                 >
                   <AccordionContent className="px-0 py-0">
-                    <div className="border-t border-themeGray/60 bg-white/5">
+                    <div className="border-t border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#12151b]">
                       <div className="flex flex-col gap-y-2 px-3 py-2">
                         {module.section.length ? (
                           <ReorderableList
@@ -250,12 +250,12 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                   className={cn(
                                     "group relative flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border text-[15px] md:text-base",
                                     isSelected
-                                      ? "bg-[#1a1a24] text-white border-[#3A3A41] ring-1 ring-[#4F46E5]/40"
-                                      : "text-themeTextGray hover:bg-white/5 border-transparent",
+                                      ? "bg-primary/5 dark:bg-[#1a1a24] text-slate-900 dark:text-themeTextWhite border-primary/30 dark:border-[#3A3A41] ring-1 ring-[#4F46E5]/40"
+                                      : "text-slate-600 dark:text-themeTextGray hover:bg-slate-100 dark:hover:bg-white/5 border-transparent",
                                   )}
                                 >
                                   {handleProps && (
-                                    <span {...handleProps} className="cursor-grab text-themeTextGray hover:text-white">
+                                    <span {...handleProps} className="cursor-grab text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white">
                                       <GripVertical className="h-4 w-4" />
                                     </span>
                                   )}
@@ -279,8 +279,8 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                       ) : (
                                         <span className="block whitespace-normal break-words leading-snug text-[15px] md:text-base">{section.name}</span>
                                       )}
-                                      <div className="mt-0.5 flex items-center gap-2 text-[11px] md:text-xs text-themeTextGray">
-                                        <span className="px-1.5 py-0.5 rounded border border-themeGray/60 bg-white/5 text-[10px] uppercase tracking-wide text-themeTextGray">
+                                      <div className="mt-0.5 flex items-center gap-2 text-[11px] md:text-xs text-slate-500 dark:text-themeTextGray">
+                                        <span className="px-1.5 py-0.5 rounded border border-slate-200 dark:border-themeGray/60 bg-slate-100 dark:bg-white/5 text-[10px] uppercase tracking-wide text-slate-500 dark:text-themeTextGray">
                                           {SECTION_TYPES.find((t) => t.id === (section.type || "concept"))?.label || section.type || "Concept"}
                                         </span>
                                       </div>
@@ -290,14 +290,14 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                     <div className="absolute right-2 top-1.5 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity">
                                       <Popover>
                                         <PopoverTrigger asChild>
-                                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-themeTextGray hover:text-white">
+                                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white">
                                             <MoreVertical className="h-4 w-4" />
                                           </Button>
                                         </PopoverTrigger>
-                                        <PopoverContent align="end" className="w-40 p-1 bg-[#161a20] border-themeGray/60">
+                                        <PopoverContent align="end" className="w-40 p-1 bg-white dark:bg-[#161a20] border-slate-200 dark:border-themeGray/60">
                                           <GlassSheet
                                             trigger={
-                                              <Button type="button" variant="ghost" className="w-full justify-start px-2 py-1.5 text-sm text-themeTextWhite hover:bg-white/5">
+                                              <Button type="button" variant="ghost" className="w-full justify-start px-2 py-1.5 text-sm text-slate-700 dark:text-themeTextWhite hover:bg-slate-100 dark:hover:bg-white/5">
                                                 Edit
                                               </Button>
                                             }
@@ -315,7 +315,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                           <Button
                                             type="button"
                                             variant="ghost"
-                                            className="w-full justify-start px-2 py-1.5 text-sm text-red-300 hover:bg-white/5"
+                                            className="w-full justify-start px-2 py-1.5 text-sm text-red-500 dark:text-red-300 hover:bg-slate-100 dark:hover:bg-white/5"
                                             onClick={() => {
                                               if (confirm("Delete this section?")) {
                                                 deleteSection(section.id)
@@ -343,12 +343,12 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                                 className={cn(
                                   "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border text-[15px] md:text-base",
                                   selectedSectionId === sectionVariables.sectionid
-                                    ? "bg-[#0B0B10] text-white border-[#3A3A41] ring-1 ring-[#4F46E5]/30"
-                                    : "text-themeTextGray hover:bg-white/5 border-dashed border-[#2F2F36]",
+                                    ? "bg-primary/5 dark:bg-[#0B0B10] text-slate-900 dark:text-themeTextWhite border-primary/30 dark:border-[#3A3A41] ring-1 ring-[#4F46E5]/30"
+                                    : "text-slate-600 dark:text-themeTextGray hover:bg-slate-100 dark:hover:bg-white/5 border-dashed border-slate-300 dark:border-[#2F2F36]",
                                 )}
                                 href={`/group/${groupid}/courses/${courseId}/${sectionVariables.sectionid}`}
                               >
-                                <Circle className="text-themeTextGray" />
+                                <Circle className="text-slate-400 dark:text-themeTextGray" />
                                 <IconRenderer icon={"doc"} mode={selectedSectionId === sectionVariables.sectionid ? "LIGHT" : "DARK"} />
                                 <span className="truncate text-[15px] md:text-base">New Section</span>
                               </Link>
@@ -356,7 +356,7 @@ export const CourseModuleList = ({ courseId, groupid }: ModuleListProps) => {
                             <GlassSheet
                               trigger={
                                 <Button
-                                  className="mt-2 w-full justify-center rounded-lg border-2 border-dashed border-[#2F2F36] bg-transparent text-themeTextGray hover:border-[#3A3A41] hover:bg-[#0F0F14]"
+                                  className="mt-2 w-full justify-center rounded-lg border-2 border-dashed border-slate-300 dark:border-[#2F2F36] bg-transparent text-slate-500 dark:text-themeTextGray hover:border-slate-400 dark:hover:border-[#3A3A41] hover:bg-slate-100 dark:hover:bg-[#0F0F14]"
                                   variant="outline"
                                 >
                                   <Plus className="h-4 w-4" />

@@ -47,8 +47,8 @@ export const ExplorePageContent = ({
                 <Layers className="h-5 w-5 text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">Categories</h3>
-                <p className="text-xs text-themeTextGray">Browse groups by topic</p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-themeTextWhite">Categories</h3>
+                <p className="text-xs text-slate-500 dark:text-themeTextGray">Browse groups by topic</p>
               </div>
             </div>
 

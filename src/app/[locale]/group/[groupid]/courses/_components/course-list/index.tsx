@@ -50,12 +50,12 @@ export const CourseList = ({ groupid, filter = "all", canManage = false }: Cours
 
   if (items.length === 0) {
     return (
-      <div className="text-sm text-themeTextGray py-8">No courses to show.</div>
+      <div className="text-sm text-slate-500 dark:text-themeTextGray py-8">No courses to show.</div>
     )
   }
 
   return (
-    <div className="divide-y divide-themeGray">
+    <div className="divide-y divide-slate-200 dark:divide-themeGray">
       {items.map((c: any, idx: number) => {
         const thumb = c.thumbnail ? `https://ucarecdn.com/${c.thumbnail}/-/scale_crop/160x100/center/-/format/auto/` : null
         const progress = Math.min(Math.max(Number(c.progress || 0), 0), 100)
@@ -64,24 +64,24 @@ export const CourseList = ({ groupid, filter = "all", canManage = false }: Cours
         const resumeHref = `/group/${groupid}/courses/${courseUrlId}` // course page redirects to correct section
         const overviewHref = `/group/${groupid}/courses/about/${courseUrlId}`
         return (
-          <Card key={c.id} className="bg-[#111213] border-themeGray rounded-xl p-4">
+          <Card key={c.id} className="bg-white dark:bg-[#111213] border-slate-200 dark:border-themeGray rounded-xl p-4">
             <div className="flex items-start gap-4">
-              <div className="relative h-24 w-40 shrink-0 rounded-lg overflow-hidden ring-1 ring-white/5">
+              <div className="relative h-24 w-40 shrink-0 rounded-lg overflow-hidden ring-1 ring-slate-200 dark:ring-white/5">
                 {thumb ? (
                   <Image src={thumb} alt={c.name || "cover"} fill sizes="160px" priority={idx === 0} className="object-cover" />
                 ) : (
-                  <div className="h-full w-full bg-themeGray" />
+                  <div className="h-full w-full bg-slate-200 dark:bg-themeGray" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <h3 className="text-white font-semibold truncate">{c.name}</h3>
-                    <p className="text-sm text-themeTextGray truncate">
+                    <h3 className="text-slate-900 dark:text-themeTextWhite font-semibold truncate">{c.name}</h3>
+                    <p className="text-sm text-slate-500 dark:text-themeTextGray truncate">
                       {truncateString(c.description)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-themeTextGray">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-themeTextGray">
                     {c.moduleCount != null && (
                       <span>{c.moduleCount} {t("modulesText")}</span>
                     )}
@@ -93,7 +93,7 @@ export const CourseList = ({ groupid, filter = "all", canManage = false }: Cours
                         <CourseCreate
                           groupid={groupid}
                           initial={c}
-                          trigger={<Button size="icon" variant="ghost" className="h-8 w-8 text-themeTextGray"><Pencil className="h-4 w-4" /></Button>}
+                          trigger={<Button size="icon" variant="ghost" className="h-8 w-8 text-slate-500 dark:text-themeTextGray"><Pencil className="h-4 w-4" /></Button>}
                         />
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -106,9 +106,9 @@ export const CourseList = ({ groupid, filter = "all", canManage = false }: Cours
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-[#111213] border-themeGray">
+                          <AlertDialogContent className="bg-white dark:bg-[#111213] border-slate-200 dark:border-themeGray">
                             <AlertDialogHeader>
-                              <AlertDialogTitle className="text-white">Delete course?</AlertDialogTitle>
+                              <AlertDialogTitle className="text-slate-900 dark:text-themeTextWhite">Delete course?</AlertDialogTitle>
                               <AlertDialogDescription>
                                 Are you sure you want to delete this course? The course will not be permanently deleted, rather soft deleted.
                               </AlertDialogDescription>
@@ -130,11 +130,11 @@ export const CourseList = ({ groupid, filter = "all", canManage = false }: Cours
                   </div>
                 </div>
                 <div className="mt-3">
-                  <div className="flex items-center justify-between text-xs text-themeTextGray">
+                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-themeTextGray">
                     <span>{Math.round(progress)}% {t("completedText")}</span>
                   </div>
                   <div className="mt-1">
-                    <Progress value={progress} className="h-2 bg-themeGray" />
+                    <Progress value={progress} className="h-2 bg-slate-200 dark:bg-themeGray" />
                   </div>
                 </div>
                 <div className="mt-4 flex items-center gap-3">
@@ -144,7 +144,7 @@ export const CourseList = ({ groupid, filter = "all", canManage = false }: Cours
                     </Button>
                   </Link>
                   <Link href={overviewHref}>
-                    <Button size="sm" variant="secondary" className="bg-themeGray text-themeTextWhite">
+                    <Button size="sm" variant="secondary" className="bg-slate-100 dark:bg-themeGray text-slate-700 dark:text-themeTextWhite">
                       {t("courseOverviewButton")}
                     </Button>
                   </Link>

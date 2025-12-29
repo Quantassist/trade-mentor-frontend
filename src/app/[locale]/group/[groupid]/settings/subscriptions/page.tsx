@@ -13,7 +13,7 @@ const SubscriptionPage = async ({ params }: SubscriptionPageProps) => {
     <div className="p-8">
       <div className="flex flex-col gap-2">
         <h3 className="text-3xl font-bold">{t("title")}</h3>
-        <p className="text-sm text-themeTextGray">{t("description")}</p>
+        <p className="text-sm text-slate-500 dark:text-themeTextGray">{t("description")}</p>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           <GroupSubscriptionForm groupid={groupid} />
           <Subscriptions groupid={groupid} />

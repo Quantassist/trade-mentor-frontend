@@ -25,8 +25,8 @@ export default async function AccountPage({ params }: AccountPageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Account</h1>
-        <p className="text-sm text-themeTextGray mt-1">Manage your account settings and preferences</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-themeTextWhite">Account</h1>
+        <p className="text-sm text-slate-500 dark:text-themeTextGray mt-1">Manage your account settings and preferences</p>
       </div>
       <SettingsForm session={session} activeSessions={activeSessions || []} />
     </div>

@@ -100,7 +100,7 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
       <div className="p-5 md:p-6 space-y-4">
         <SectionAnchors moduleId={moduleId} anchorIds={anchorIds} />
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-white">Interactive Demo</h2>
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-themeTextWhite">Interactive Demo</h2>
           {canEdit && (
             <Button type="button" className="rounded-md px-3 py-1.5 text-sm text-white bg-[#4F46E5] hover:bg-[#4F46E5]/90 ring-1 ring-[#4F46E5]/30" onClick={() => setEditOpen(true)}>
               Edit section
@@ -110,11 +110,11 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
 
         {/* React mode takes precedence if code exists */}
         {runner?.code ? (
-          <div className="rounded-lg border border-themeGray/60 bg-[#0f0f14] p-4 text-themeTextWhite">
-            <div className="text-sm text-themeTextGray mb-2">Preview (React)</div>
-            <div className="rounded-md border border-themeGray/60 p-4 bg-[#12151b]">
+          <div className="rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#0f0f14] p-4 text-slate-700 dark:text-themeTextWhite">
+            <div className="text-sm text-slate-500 dark:text-themeTextGray mb-2">Preview (React)</div>
+            <div className="rounded-md border border-slate-200 dark:border-themeGray/60 p-4 bg-white dark:bg-[#12151b]">
               {libsLoading ? (
-                <div className="text-themeTextGray text-sm">Loading libraries...</div>
+                <div className="text-slate-500 dark:text-themeTextGray text-sm">Loading libraries...</div>
               ) : (
                 <>
                   <div className="mb-2">{element}</div>
@@ -128,7 +128,7 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
             </div>
           </div>
         ) : html ? (
-          <div className="relative w-full overflow-hidden rounded-lg border border-themeGray/60 bg-[#0f0f14]" style={{ paddingTop: "56.25%" }}>
+          <div className="relative w-full overflow-hidden rounded-lg border border-slate-200 dark:border-themeGray/60 bg-slate-50 dark:bg-[#0f0f14]" style={{ paddingTop: "56.25%" }}>
             <iframe
               title="Interactive Demo"
               className="absolute inset-0 h-full w-full"
@@ -138,7 +138,7 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
             />
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed border-themeGray/60 bg-[#0f0f14] p-6 text-center text-themeTextGray">
+          <div className="rounded-lg border border-dashed border-slate-300 dark:border-themeGray/60 bg-slate-50 dark:bg-[#0f0f14] p-6 text-center text-slate-500 dark:text-themeTextGray">
             No content yet. {canEdit ? "Click Edit section to add HTML or React code." : ""}
           </div>
         )}
@@ -146,13 +146,13 @@ export default function InteractiveView({ payload, sectionid, groupid, locale, i
 
       {canEdit && (
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogContent className="bg-[#161a20] border border-themeGray/60 text-themeTextWhite">
+          <DialogContent className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 text-slate-700 dark:text-themeTextWhite">
             <DialogHeader>
-              <DialogTitle className="text-white">Edit Interactive</DialogTitle>
+              <DialogTitle className="text-slate-900 dark:text-themeTextWhite">Edit Interactive</DialogTitle>
             </DialogHeader>
             <div className="flex gap-2 mb-4">
-              <Button type="button" variant={activeTab === 'html' ? 'default' : 'ghost'} className={activeTab === 'html' ? 'bg-[#4F46E5] text-white' : 'text-themeTextGray'} onClick={() => setActiveTab('html')}>HTML</Button>
-              <Button type="button" variant={activeTab === 'react' ? 'default' : 'ghost'} className={activeTab === 'react' ? 'bg-[#4F46E5] text-white' : 'text-themeTextGray'} onClick={() => setActiveTab('react')}>React</Button>
+              <Button type="button" variant={activeTab === 'html' ? 'default' : 'ghost'} className={activeTab === 'html' ? 'bg-[#4F46E5] text-white' : 'text-slate-500 dark:text-themeTextGray'} onClick={() => setActiveTab('html')}>HTML</Button>
+              <Button type="button" variant={activeTab === 'react' ? 'default' : 'ghost'} className={activeTab === 'react' ? 'bg-[#4F46E5] text-white' : 'text-slate-500 dark:text-themeTextGray'} onClick={() => setActiveTab('react')}>React</Button>
             </div>
 
             {activeTab === 'html' ? (

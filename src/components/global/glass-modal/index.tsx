@@ -77,10 +77,10 @@ export const GlassModal = ({
       return (
         <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogTrigger asChild>{trigger}</DialogTrigger>
-          <DialogContent className="bg-[#0d0f12]/95 backdrop-filter backdrop-blur-xl border-themeGray/40 rounded-2xl max-w-md shadow-2xl">
+          <DialogContent className="bg-white/95 dark:bg-[#0d0f12]/95 backdrop-filter backdrop-blur-xl border-slate-200 dark:border-themeGray/40 rounded-2xl max-w-md shadow-2xl">
             <DialogHeader className="space-y-2">
-              <DialogTitle className="text-xl font-semibold text-white">{title}</DialogTitle>
-              <DialogDescription className="text-themeTextGray text-sm">{description}</DialogDescription>
+              <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-themeTextWhite">{title}</DialogTitle>
+              <DialogDescription className="text-slate-500 dark:text-themeTextGray text-sm">{description}</DialogDescription>
             </DialogHeader>
             {children}
           </DialogContent>

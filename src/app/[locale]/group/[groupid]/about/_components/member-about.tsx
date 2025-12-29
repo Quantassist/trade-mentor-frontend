@@ -67,7 +67,7 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
     <div className="flex flex-col gap-y-8">
       {/* Group Name Header */}
       <div>
-        <h1 className="font-bold text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
+        <h1 className="font-bold text-4xl md:text-5xl lg:text-6xl text-slate-900 dark:text-themeTextWhite leading-tight">
           {group.name}
         </h1>
       </div>
@@ -129,8 +129,8 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
 
       {/* Member-Only Section - Membership Details */}
       <div className="mt-4">
-        <h2 className="text-2xl font-semibold text-white mb-4">{t("yourMembership")}</h2>
-        <Card className="bg-[#161a20] rounded-xl p-6 border border-themeGray/60">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-themeTextWhite mb-4">{t("yourMembership")}</h2>
+        <Card className="bg-white dark:bg-[#161a20] rounded-xl p-6 border border-slate-200 dark:border-themeGray/60">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Role Badge */}
             <div className="flex items-center gap-4">
@@ -138,8 +138,8 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
                 <Shield className="h-6 w-6 text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm text-themeTextGray">{t("yourRole")}</p>
-                <p className="text-lg font-semibold text-white capitalize">
+                <p className="text-sm text-slate-500 dark:text-themeTextGray">{t("yourRole")}</p>
+                <p className="text-lg font-semibold text-slate-900 dark:text-themeTextWhite capitalize">
                   {isOwner ? (
                     <span className="text-amber-400">{t("owner")}</span>
                   ) : (
@@ -155,7 +155,7 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
                 <Calendar className="h-6 w-6 text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-themeTextGray">{t("memberSince")}</p>
+                <p className="text-sm text-slate-500 dark:text-themeTextGray">{t("memberSince")}</p>
                 <p className="text-lg font-semibold text-white">
                   {new Date(group.createdAt).toLocaleDateString(locale, {
                     month: "short",
@@ -171,7 +171,7 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
                 <Users className="h-6 w-6 text-purple-400" />
               </div>
               <div>
-                <p className="text-sm text-themeTextGray">{t("groupType")}</p>
+                <p className="text-sm text-slate-500 dark:text-themeTextGray">{t("groupType")}</p>
                 <p className="text-lg font-semibold text-white">
                   {group.privacy ? t("private") : t("public")}
                 </p>
@@ -183,8 +183,8 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
 
       {/* Description Section */}
       <div className="mt-4">
-        <h2 className="text-2xl font-semibold text-white mb-4">{t("aboutGroup")}</h2>
-        <div className="bg-[#161a20] rounded-xl p-6 border border-themeGray/60">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-themeTextWhite mb-4">{t("aboutGroup")}</h2>
+        <div className="bg-white dark:bg-[#161a20] rounded-xl p-6 border border-slate-200 dark:border-themeGray/60">
           {userid !== group.userId ? (
             <HtmlParser html={group.htmlDescription || `<p>${t("noDescription")}</p>`} />
           ) : (
@@ -226,16 +226,16 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
       {/* Owner-Only Section - Quick Stats */}
       {isOwner && (
         <div className="mt-4">
-          <h2 className="text-2xl font-semibold text-white mb-4">{t("groupStatistics")}</h2>
-          <Card className="bg-[#161a20] rounded-xl p-6 border border-themeGray/60">
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-themeTextWhite mb-4">{t("groupStatistics")}</h2>
+          <Card className="bg-white dark:bg-[#161a20] rounded-xl p-6 border border-slate-200 dark:border-themeGray/60">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <p className="text-sm text-themeTextGray mb-1">{t("category")}</p>
-                <p className="text-lg font-medium text-white capitalize">{group.category}</p>
+                <p className="text-sm text-slate-500 dark:text-themeTextGray mb-1">{t("category")}</p>
+                <p className="text-lg font-medium text-slate-900 dark:text-themeTextWhite capitalize">{group.category}</p>
               </div>
               <div>
-                <p className="text-sm text-themeTextGray mb-1">{t("created")}</p>
-                <p className="text-lg font-medium text-white">
+                <p className="text-sm text-slate-500 dark:text-themeTextGray mb-1">{t("created")}</p>
+                <p className="text-lg font-medium text-slate-900 dark:text-themeTextWhite">
                   {new Date(group.createdAt).toLocaleDateString(locale, {
                     day: "numeric",
                     month: "long",
@@ -244,12 +244,12 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
                 </p>
               </div>
               <div>
-                <p className="text-sm text-themeTextGray mb-1">{t("galleryItems")}</p>
-                <p className="text-lg font-medium text-white">{group.gallery?.length || 0}</p>
+                <p className="text-sm text-slate-500 dark:text-themeTextGray mb-1">{t("galleryItems")}</p>
+                <p className="text-lg font-medium text-slate-900 dark:text-themeTextWhite">{group.gallery?.length || 0}</p>
               </div>
               <div>
-                <p className="text-sm text-themeTextGray mb-1">{t("privacy")}</p>
-                <p className="text-lg font-medium text-white">{group.privacy ? t("private") : t("public")}</p>
+                <p className="text-sm text-slate-500 dark:text-themeTextGray mb-1">{t("privacy")}</p>
+                <p className="text-lg font-medium text-slate-900 dark:text-themeTextWhite">{group.privacy ? t("private") : t("public")}</p>
               </div>
             </div>
           </Card>

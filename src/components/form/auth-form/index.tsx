@@ -60,7 +60,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
     return (
       <div className={`w-full space-y-6 ${FORM_MIN_HEIGHT}`}>
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t("forgotPassword.title") || "Forgot Password"}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-themeTextWhite">{t("forgotPassword.title") || "Forgot Password"}</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {t("forgotPassword.description") || "Enter your email and we'll send you a reset link"}
           </p>
@@ -76,7 +76,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
               type="email"
               placeholder={t("form.email.placeholder")}
               {...registerForgot("email")}
-              className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
+              className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-themeTextWhite placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
             />
             {forgotErrors.email && (
               <p className="text-sm text-red-500">{forgotErrors.email.message}</p>
@@ -128,7 +128,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
       {/* Sign In Tab */}
       <TabsContent value="sign-in" className="mt-8 space-y-6 data-[state=inactive]:hidden" forceMount>
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t("signin.title")}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-themeTextWhite">{t("signin.title")}</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">{t("signin.description")}</p>
         </div>
 
@@ -142,7 +142,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
               type="email"
               placeholder={t("form.email.placeholder")}
               {...registerSignIn("email")}
-              className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
+              className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-themeTextWhite placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
             />
             {signInErrors.email && (
               <p className="text-sm text-red-500">{signInErrors.email.message}</p>
@@ -161,7 +161,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
                 type={showSignInPassword ? "text" : "password"}
                 placeholder={t("form.password.signInPlaceholder") || "Enter your password"}
                 {...registerSignIn("password")}
-                className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5 pr-12"
+                className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-themeTextWhite placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5 pr-12"
               />
               <button
                 type="button"
@@ -226,7 +226,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
       {/* Sign Up Tab */}
       <TabsContent value="sign-up" className="mt-8 space-y-5 data-[state=inactive]:hidden" forceMount>
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t("card.title")}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-themeTextWhite">{t("card.title")}</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">{t("card.description")}</p>
         </div>
 
@@ -241,7 +241,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
                 type="text"
                 placeholder={t("form.firstname.placeholder")}
                 {...registerSignUp("firstname")}
-                className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
+                className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-themeTextWhite placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
               />
               {signUpErrors.firstname && (
                 <p className="text-sm text-red-500">{signUpErrors.firstname.message}</p>
@@ -256,7 +256,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
                 type="text"
                 placeholder={t("form.lastname.placeholder")}
                 {...registerSignUp("lastname")}
-                className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
+                className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-themeTextWhite placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
               />
               {signUpErrors.lastname && (
                 <p className="text-sm text-red-500">{signUpErrors.lastname.message}</p>
@@ -273,7 +273,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
               type="email"
               placeholder={t("form.email.placeholder")}
               {...registerSignUp("email")}
-              className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
+              className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-themeTextWhite placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5"
             />
             {signUpErrors.email && (
               <p className="text-sm text-red-500">{signUpErrors.email.message}</p>
@@ -290,7 +290,7 @@ export function AuthForm({ defaultTab = "sign-in" }: AuthFormProps) {
                 type={showSignUpPassword ? "text" : "password"}
                 placeholder={t("form.password.placeholder")}
                 {...registerSignUp("password")}
-                className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5 pr-12"
+                className="bg-white dark:bg-[#1a1d21] border-gray-200 dark:border-gray-700 text-gray-900 dark:text-themeTextWhite placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500 rounded-full h-12 px-5 pr-12"
               />
               <button
                 type="button"

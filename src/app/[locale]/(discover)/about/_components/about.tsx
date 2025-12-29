@@ -64,7 +64,7 @@ export const AboutGroup = ({ userid, groupid, locale }: AboutGroupProps) => {
     <div className="flex flex-col gap-y-8">
       {/* Group Name Header */}
       <div>
-        <h1 className="font-bold text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
+        <h1 className="font-bold text-4xl md:text-5xl lg:text-6xl text-slate-900 dark:text-themeTextWhite leading-tight">
           {group.name}
         </h1>
       </div>
@@ -126,8 +126,8 @@ export const AboutGroup = ({ userid, groupid, locale }: AboutGroupProps) => {
 
       {/* Description Section */}
       <div className="mt-4">
-        <h2 className="text-2xl font-semibold text-white mb-4">About this group</h2>
-        <div className="bg-[#161a20] rounded-xl p-6 border border-themeGray/60">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-themeTextWhite mb-4">About this group</h2>
+        <div className="bg-white dark:bg-[#161a20] rounded-xl p-6 border border-slate-200 dark:border-themeGray/60">
           {userid !== group.userId ? (
             <HtmlParser html={group.htmlDescription || "<p>No description available.</p>"} />
           ) : (
@@ -153,7 +153,7 @@ export const AboutGroup = ({ userid, groupid, locale }: AboutGroupProps) => {
               />
               {onEditDescription && (
                 <Button
-                  className="self-end bg-themeBlack border-themeGray px-10 mt-4"
+                  className="self-end bg-white dark:bg-themeBlack border-slate-200 dark:border-themeGray px-10 mt-4"
                   variant={"outline"}
                   disabled={isPending}
                   type="submit"

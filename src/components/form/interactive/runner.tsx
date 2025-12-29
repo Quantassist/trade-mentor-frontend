@@ -49,10 +49,10 @@ export default function InteractiveRunnerForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pb-20">
       <div className="space-y-2">
-        <Label className="text-themeTextWhite">React component code (TSX/JSX)</Label>
+        <Label className="text-slate-900 dark:text-themeTextWhite">React component code (TSX/JSX)</Label>
         <Textarea
           rows={18}
-          className="bg-[#12151b] border-themeGray/60 text-themeTextWhite font-mono"
+          className="bg-slate-50 dark:bg-[#12151b] border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite font-mono"
           placeholder={`() => {\n  return <div>Hello {` + "${locale}" + `}</div>\n}`}
           {...register("code")}
         />
@@ -60,26 +60,26 @@ export default function InteractiveRunnerForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-themeTextWhite">Allowed libraries (comma separated)</Label>
+          <Label className="text-slate-900 dark:text-themeTextWhite">Allowed libraries (comma separated)</Label>
           <Input
-            className="bg-[#12151b] border-themeGray/60 text-themeTextWhite"
+            className="bg-slate-50 dark:bg-[#12151b] border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite"
             placeholder="lucide-react, dayjs, classnames"
             value={allowedText}
             onChange={(e) => setAllowedText(e.target.value)}
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-themeTextWhite">Scope config (JSON)</Label>
+          <Label className="text-slate-900 dark:text-themeTextWhite">Scope config (JSON)</Label>
           <Textarea
             rows={6}
-            className="bg-[#12151b] border-themeGray/60 text-themeTextWhite font-mono"
+            className="bg-slate-50 dark:bg-[#12151b] border-slate-200 dark:border-themeGray/60 text-slate-900 dark:text-themeTextWhite font-mono"
             placeholder='{"currency":"INR"}'
             {...register("scope_config")}
           />
         </div>
       </div>
 
-      <DialogFooter className="sticky bottom-0 left-0 right-0 bg-[#161a20] border-t border-themeGray/60 pt-3">
+      <DialogFooter className="sticky bottom-0 left-0 right-0 bg-white dark:bg-[#161a20] border-t border-slate-200 dark:border-themeGray/60 pt-3">
         <Button type="button" variant="ghost" className="text-themeTextGray" onClick={onCancel}>
           Cancel
         </Button>

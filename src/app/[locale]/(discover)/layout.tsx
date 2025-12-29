@@ -6,7 +6,7 @@ type ExploreLayoutProps = {
 
 const DiscoverLayout = ({ children }: ExploreLayoutProps) => {
   return (
-    <div className="flex flex-col min-h-screen bg-black pb-10">
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-black pb-10">
       <Navbar />
       {children}
     </div>

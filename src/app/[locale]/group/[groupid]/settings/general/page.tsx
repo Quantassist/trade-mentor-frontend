@@ -11,9 +11,9 @@ const GroupPageSettings = async ({
   return (
     <div className="flex flex-col w-full h-full overflow-auto">
       {/* Header section */}
-      <div className="border-b border-themeGray/30 px-6 py-6">
-        <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
-        <p className="text-sm text-themeTextGray mt-1">{t("description")}</p>
+      <div className="border-b border-slate-200 dark:border-themeGray/30 px-6 py-6">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-themeTextWhite">{t("title")}</h1>
+        <p className="text-sm text-slate-500 dark:text-themeTextGray mt-1">{t("description")}</p>
       </div>
       {/* Content section */}
       <div className="flex-1 px-6 py-6">

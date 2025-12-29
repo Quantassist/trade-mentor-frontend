@@ -18,8 +18,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Profile</h1>
-        <p className="text-sm text-themeTextGray mt-1">Manage your account information</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-themeTextWhite">Profile</h1>
+        <p className="text-sm text-slate-500 dark:text-themeTextGray mt-1">Manage your account information</p>
       </div>
       <ProfileForm session={session} />
     </div>

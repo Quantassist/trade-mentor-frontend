@@ -13,18 +13,18 @@ const Affiliates = async ({ params }: Props) => {
   const affiliate = await onGetAffiliateLink(groupid)
   return (
     <div className="flex flex-col items-start p-5">
-      <Card className="border-themeGray bg-[#1A1A1D] p-5">
+      <Card className="border-slate-200 dark:border-themeGray bg-white dark:bg-[#1A1A1D] p-5">
         <CardTitle className="text-3xl">{t("title")}</CardTitle>
-        <CardDescription className="text-themeTextGray">{t("description")}</CardDescription>
+        <CardDescription className="text-slate-500 dark:text-themeTextGray">{t("description")}</CardDescription>
         <div className="flex flex-col mt-8 gap-y-2">
-          <div className="bg-black border-themeGray p-3 rounded-lg flex gap-x-5 items-center">
+          <div className="bg-slate-100 dark:bg-black border-slate-200 dark:border-themeGray p-3 rounded-lg flex gap-x-5 items-center">
             {process.env.NEXT_PUBLIC_BASE_URL}/affiliates/
             {affiliate.affiliate?.id}
             <CopyButton
               content={`${process.env.NEXT_PUBLIC_BASE_URL}/affiliates/${affiliate.affiliate?.id}`}
             />
           </div>
-          <CardDescription className="text-themeTextGray">{t("note")}</CardDescription>
+          <CardDescription className="text-slate-500 dark:text-themeTextGray">{t("note")}</CardDescription>
         </div>
       </Card>
     </div>

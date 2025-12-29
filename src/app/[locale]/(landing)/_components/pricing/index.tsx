@@ -21,22 +21,22 @@ export const PricingSection = () => {
           collaborate, and cultivate meaningful relationships
         </p>
       </BackdropGradient>
-      <Card className="p-7 mt-10 md:w-auto w-full bg-themeBlack border-themeGray">
+      <Card className="p-7 mt-10 md:w-auto w-full bg-white dark:bg-themeBlack border border-slate-200 dark:border-themeGray">
         <div className="flex flex-col gap-2">
-          <CardTitle>99/m</CardTitle>
-          <CardDescription className="text-[#B4B0AE]">
+          <CardTitle className="text-slate-900 dark:text-themeTextWhite">99/m</CardTitle>
+          <CardDescription className="text-slate-500 dark:text-[#B4B0AE]">
             Great if you’re just getting started
           </CardDescription>
           <Link href="#" className="w-full mt-3">
             <Button
               variant="default"
-              className="bg-[#333337] w-full rounded-2xl text-white hover:text-[#333337]"
+              className="bg-slate-800 dark:bg-[#333337] w-full rounded-2xl text-white hover:bg-slate-700 dark:hover:text-[#333337]"
             >
               Start for free
             </Button>
           </Link>
         </div>
-        <div className="flex flex-col gap-2 text-[#B4B0AE] mt-5">
+        <div className="flex flex-col gap-2 text-slate-600 dark:text-[#B4B0AE] mt-5">
           <p>Features</p>
           <span className="flex gap-2 mt-3 items-center">
             <Check />

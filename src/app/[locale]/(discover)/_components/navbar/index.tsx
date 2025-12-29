@@ -15,12 +15,12 @@ export const Navbar = async () => {
   const groups = await onGetUserGroups(user.id!)
 
   return (
-    <div className="flex px-5 lg:px-8 py-4 items-center bg-[#0a0a0b]/80 border-b border-themeGray/20 fixed z-50 w-full backdrop-blur-xl">
+    <div className="flex px-5 lg:px-8 py-4 items-center bg-white/80 dark:bg-[#0a0a0b]/80 border-b border-slate-200 dark:border-themeGray/20 fixed z-50 w-full backdrop-blur-xl">
       <div className="hidden lg:inline">
         {user.status === 200 ? (
           <GroupDropDown groups={groups} />
         ) : (
-          <Link href="/" className="text-xl font-bold text-white hover:text-emerald-400 transition-colors">
+          <Link href="/" className="text-xl font-bold text-slate-900 dark:text-themeTextWhite hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
             TradeFlix
           </Link>
         )}
@@ -39,7 +39,7 @@ export const Navbar = async () => {
         <Link href={user.status === 200 ? `/group/create` : "/sign-in"}>
           <Button
             variant="outline"
-            className="bg-transparent rounded-full flex gap-2 border-themeGray/60 hover:bg-[#1a1d21] hover:border-themeGray text-white transition-all h-10 px-5"
+            className="bg-transparent rounded-full flex gap-2 border-slate-200 dark:border-themeGray/60 hover:bg-slate-100 dark:hover:bg-[#1a1d21] hover:border-slate-300 dark:hover:border-themeGray text-slate-900 dark:text-themeTextWhite transition-all h-10 px-5"
           >
             <Plus className="h-4 w-4" />
             Create Group

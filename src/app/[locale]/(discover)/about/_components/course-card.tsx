@@ -36,7 +36,7 @@ export const CourseCard = ({
 
   return (
     <Link href={href}>
-      <Card className="bg-[#161a20] border-themeGray/60 rounded-xl overflow-hidden group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-black/30 hover:border-themeGray/80 h-full flex flex-col">
+      <Card className="bg-white dark:bg-[#161a20] border-slate-200 dark:border-themeGray/60 rounded-xl overflow-hidden group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/30 hover:border-slate-300 dark:hover:border-themeGray/80 h-full flex flex-col">
         <div className="overflow-hidden relative">
           {thumbUrl ? (
             <img
@@ -45,8 +45,8 @@ export const CourseCard = ({
               className="w-full aspect-video object-cover opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-105"
             />
           ) : (
-            <div className="w-full aspect-video bg-themeGray/40 flex items-center justify-center">
-              <GraduationCap className="h-12 w-12 text-themeTextGray/50" />
+            <div className="w-full aspect-video bg-slate-200 dark:bg-themeGray/40 flex items-center justify-center">
+              <GraduationCap className="h-12 w-12 text-slate-400 dark:text-themeTextGray/50" />
             </div>
           )}
           {level && (
@@ -56,15 +56,15 @@ export const CourseCard = ({
           )}
         </div>
         <div className="p-5 flex flex-col flex-1">
-          <h3 className="text-lg text-white font-semibold group-hover:text-[#d4f0e7] transition-colors line-clamp-2">
+          <h3 className="text-lg text-slate-900 dark:text-themeTextWhite font-semibold group-hover:text-emerald-600 dark:group-hover:text-[#d4f0e7] transition-colors line-clamp-2">
             {name}
           </h3>
           {description && (
-            <p className="text-sm text-themeTextGray mt-2 line-clamp-2">
+            <p className="text-sm text-slate-500 dark:text-themeTextGray mt-2 line-clamp-2">
               {truncateString(description, 100)}
             </p>
           )}
-          <div className="mt-auto pt-4 flex items-center gap-4 text-xs text-themeTextGray">
+          <div className="mt-auto pt-4 flex items-center gap-4 text-xs text-slate-500 dark:text-themeTextGray">
             {moduleCount != null && moduleCount > 0 && (
               <span className="flex items-center gap-1.5">
                 <BookOpen className="h-3.5 w-3.5" />

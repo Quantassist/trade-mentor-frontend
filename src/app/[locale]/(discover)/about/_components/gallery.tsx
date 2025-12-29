@@ -39,7 +39,7 @@ export const MediaGallery = ({
           return (
             <div
               key={key}
-              className="relative group w-28 aspect-video rounded-lg overflow-hidden cursor-pointer hover:opacity-100 opacity-80 transition-all border border-themeGray/40 hover:border-themeGray"
+              className="relative group w-28 aspect-video rounded-lg overflow-hidden cursor-pointer hover:opacity-100 opacity-80 transition-all border border-slate-200 dark:border-themeGray/40 hover:border-slate-300 dark:hover:border-themeGray"
             >
               {/* Delete button - only for owner */}
               {isOwner && (
@@ -99,8 +99,8 @@ export const MediaGallery = ({
           title="Add Media"
           description="Add a video link or upload an image to your gallery"
           trigger={
-            <div className="w-28 aspect-video rounded-lg border-2 border-dashed border-themeGray/60 hover:border-emerald-500/60 bg-themeBlack/50 hover:bg-themeBlack cursor-pointer flex items-center justify-center transition-all group">
-              <Plus className="w-6 h-6 text-themeTextGray group-hover:text-emerald-400 transition-colors" />
+            <div className="w-28 aspect-video rounded-lg border-2 border-dashed border-slate-300 dark:border-themeGray/60 hover:border-emerald-500/60 bg-slate-100 dark:bg-themeBlack/50 hover:bg-slate-50 dark:hover:bg-themeBlack cursor-pointer flex items-center justify-center transition-all group">
+              <Plus className="w-6 h-6 text-slate-400 dark:text-themeTextGray group-hover:text-emerald-400 transition-colors" />
             </div>
           }
         >

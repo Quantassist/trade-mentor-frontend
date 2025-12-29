@@ -12,11 +12,11 @@ const CreateGroupLayout = ({ children }: CreateGroupLayoutProps) => {
     <div className="container h-screen grid grid-cols-1 lg:grid-cols-2 content-center">
       <div className="flex items-center">
         <BackdropGradient className="w-8/12 h-2/6 opacity-50">
-          <h5 className="text-2xl font-bold text-themeTextWhite">TradeFlix</h5>
+          <h5 className="text-2xl font-bold text-slate-900 dark:text-themeTextWhite">TradeFlix</h5>
           <GradientText element="H2" className="text-4xl font-semibold py-1">
             Create Your Group
           </GradientText>
-          <p className="text-themeTextGray">
+          <p className="text-slate-500 dark:text-themeTextGray">
             Free for 14 days, then $99/month. Cancel anytime.All features.
             Unlimited everything. No hidden fees.
           </p>
@@ -24,7 +24,7 @@ const CreateGroupLayout = ({ children }: CreateGroupLayoutProps) => {
             {GROUPLE_CONSTANTS.createGroupPlaceholder.map((placeholder) => (
               <div className="flex gap-3" key={placeholder.id}>
                 {placeholder.icon}
-                <p className="text-themeTextGray">{placeholder.label}</p>
+                <p className="text-slate-500 dark:text-themeTextGray">{placeholder.label}</p>
               </div>
             ))}
           </div>

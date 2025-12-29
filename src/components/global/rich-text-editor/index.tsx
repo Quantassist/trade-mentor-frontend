@@ -95,7 +95,7 @@ const BlockTextEditor = ({
             className={cn(
               inline
                 ? onEdit && "mb-5"
-                : "border-[1px] rounded-xl px-10 py-5 text-base border-themeGray bg-themeBlack w-full",
+                : "border-[1px] rounded-xl px-10 py-5 text-base border-slate-200 dark:border-themeGray bg-white dark:bg-themeBlack w-full",
             )}
             editorProps={{
               editable: () => !disabled as boolean,
@@ -107,7 +107,7 @@ const BlockTextEditor = ({
                 keydown: (_view, event) => handleCommandNavigation(event),
               },
               attributes: {
-                class: `prose prose-lg dark:prose-invert focus:outline-none max-w-full [&_h1]:text-4xl [&_h1]:font-bold [&_h2]:text-3xl [&_h2]:font-semibold [&_h3]:text-2xl [&_h3]:font-semibold text-themeTextGray`,
+                class: `prose prose-lg dark:prose-invert focus:outline-none max-w-full [&_h1]:text-4xl [&_h1]:font-bold [&_h2]:text-3xl [&_h2]:font-semibold [&_h3]:text-2xl [&_h3]:font-semibold text-slate-600 dark:text-themeTextGray`,
               },
             }}
             extensions={extensionsList}
@@ -126,7 +126,7 @@ const BlockTextEditor = ({
             }}
           >
             {!onEdit && !content && (
-              <p className="text-themeTextGray text-lg">
+              <p className="text-slate-400 dark:text-themeTextGray text-lg">
                 Type / to insert element
               </p>
             )}
@@ -169,7 +169,7 @@ const BlockTextEditor = ({
               tippyOptions={{
                 placement: "top",
               }}
-              className="flex w-fit max-w-[90vw] overflow-hidden rounded border border-muted bg-themeBlack text-themeTextGray shadow-xl"
+              className="flex w-fit max-w-[90vw] overflow-hidden rounded border border-slate-200 dark:border-muted bg-white dark:bg-themeBlack text-slate-600 dark:text-themeTextGray shadow-xl"
             >
               <NodeSelector open={openNode} onOpenChange={setOpenNode} />
               <LinkSelector open={openLink} onOpenChange={setOpenLink} />

@@ -31,14 +31,15 @@ export const LeaderBoardCard = ({ light, groupid }: LeaderBoardCardProps) => {
   return (
     <Card
       className={cn(
-        "border-themeGray rounded-xl p-5 overflow-hidden",
-        light ? "border-themeGray bg-[#1A1A1D]" : "bg-themeBlack",
+        "rounded-xl p-5 overflow-hidden",
+        "border-slate-200 dark:border-themeGray bg-white dark:bg-themeBlack",
+        light && "dark:bg-[#1A1A1D]",
       )}
     >
-      <h2 className="text-themeTextWhite text-xl font-bold">
+      <h2 className="text-slate-900 dark:text-themeTextWhite text-xl font-bold">
         {t("title")} ({t("period")})
       </h2>
-      <p className="text-themeTextGray text-sm mb-4">
+      <p className="text-slate-500 dark:text-themeTextGray text-sm mb-4">
         {t("subtitle")}
       </p>
 
@@ -48,8 +49,8 @@ export const LeaderBoardCard = ({ light, groupid }: LeaderBoardCardProps) => {
         </div>
       ) : !leaderboard || leaderboard.length === 0 ? (
         <div className="py-6 text-center">
-          <Trophy className="h-8 w-8 text-themeTextGray mx-auto mb-2" />
-          <p className="text-themeTextGray text-sm">{t("noRankings")}</p>
+          <Trophy className="h-8 w-8 text-slate-400 dark:text-themeTextGray mx-auto mb-2" />
+          <p className="text-slate-500 dark:text-themeTextGray text-sm">{t("noRankings")}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -60,7 +61,7 @@ export const LeaderBoardCard = ({ light, groupid }: LeaderBoardCardProps) => {
             return (
               <div
                 key={entry.id}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-themeGray/20 transition-colors"
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-themeGray/20 transition-colors"
               >
                 {/* Rank */}
                 <div className="w-8 flex justify-center flex-shrink-0">
@@ -69,7 +70,7 @@ export const LeaderBoardCard = ({ light, groupid }: LeaderBoardCardProps) => {
                       {RankIcon && <RankIcon className="h-3 w-3 text-white" />}
                     </div>
                   ) : (
-                    <span className="text-sm font-bold text-themeTextGray">#{entry.rank}</span>
+                    <span className="text-sm font-bold text-slate-500 dark:text-themeTextGray">#{entry.rank}</span>
                   )}
                 </div>
 
@@ -90,7 +91,7 @@ export const LeaderBoardCard = ({ light, groupid }: LeaderBoardCardProps) => {
 
                 {/* Name */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium truncate">
+                  <p className="text-slate-900 dark:text-themeTextWhite text-sm font-medium truncate">
                     {entry.user?.firstname} {entry.user?.lastname}
                   </p>
                 </div>

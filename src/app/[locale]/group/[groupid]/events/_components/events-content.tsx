@@ -84,8 +84,8 @@ export const EventsContent = ({ groupid, userid, canCreateEvent }: EventsContent
             <Calendar className="h-8 w-8 text-emerald-400" />
           </div>
           <div>
-            <h1 className="font-bold text-3xl md:text-4xl text-white">{t("title")}</h1>
-            <p className="text-themeTextGray">{t("subtitle")}</p>
+            <h1 className="font-bold text-3xl md:text-4xl text-slate-900 dark:text-themeTextWhite">{t("title")}</h1>
+            <p className="text-slate-500 dark:text-themeTextGray">{t("subtitle")}</p>
           </div>
         </div>
 
@@ -114,7 +114,7 @@ export const EventsContent = ({ groupid, userid, canCreateEvent }: EventsContent
       {/* Draft Events (Owner Only) */}
       {canCreateEvent && draftEvents.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold text-white mb-4">{t("draftEvents")}</h2>
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-themeTextWhite mb-4">{t("draftEvents")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {draftEvents.map((event: any) => (
               <EventCard
@@ -139,7 +139,7 @@ export const EventsContent = ({ groupid, userid, canCreateEvent }: EventsContent
         <div>
           <div className="flex items-center gap-2 mb-4">
             <CalendarCheck className="h-5 w-5 text-emerald-400" />
-            <h2 className="text-xl font-semibold text-white">{t("mySchedule")}</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-themeTextWhite">{t("mySchedule")}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {myRegisteredEvents.map((event: any) => (
@@ -160,19 +160,19 @@ export const EventsContent = ({ groupid, userid, canCreateEvent }: EventsContent
 
       {/* Upcoming Events */}
       <div>
-        <h2 className="text-xl font-semibold text-white mb-4">{t("upcomingEvents")}</h2>
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-themeTextWhite mb-4">{t("upcomingEvents")}</h2>
         {upcomingEvents.length === 0 && myRegisteredEvents.length === 0 ? (
-          <Card className="bg-[#161a20] border-themeGray/60 rounded-xl p-12 text-center">
-            <Calendar className="h-12 w-12 text-themeTextGray mx-auto mb-4" />
-            <p className="text-themeTextGray">{t("noUpcoming")}</p>
+          <Card className="bg-white dark:bg-[#161a20] border-slate-200 dark:border-themeGray/60 rounded-xl p-12 text-center">
+            <Calendar className="h-12 w-12 text-slate-400 dark:text-themeTextGray mx-auto mb-4" />
+            <p className="text-slate-500 dark:text-themeTextGray">{t("noUpcoming")}</p>
             {canCreateEvent && (
-              <p className="text-sm text-themeTextGray mt-2">
+              <p className="text-sm text-slate-500 dark:text-themeTextGray mt-2">
                 {t("createToStart")}
               </p>
             )}
           </Card>
         ) : upcomingEvents.length === 0 ? (
-          <p className="text-themeTextGray text-sm">{t("noOtherUpcoming")}</p>
+          <p className="text-slate-500 dark:text-themeTextGray text-sm">{t("noOtherUpcoming")}</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {upcomingEvents.map((event: any) => (
@@ -244,7 +244,7 @@ const EventCard = ({
 
   return (
     <Card className={cn(
-      "bg-[#161a20] border-themeGray/60 rounded-xl overflow-hidden transition-all hover:border-themeGray/80",
+      "bg-white dark:bg-[#161a20] border-slate-200 dark:border-themeGray/60 rounded-xl overflow-hidden transition-all hover:border-slate-300 dark:hover:border-themeGray/80",
       isDraft && "border-dashed border-amber-500/40",
       isMyEvent && "border-emerald-500/30"
     )}>
@@ -276,15 +276,15 @@ const EventCard = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4 text-themeTextGray" />
+                  <MoreVertical className="h-4 w-4 text-slate-500 dark:text-themeTextGray" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-[#1a1a1d] border-themeGray">
+              <DropdownMenuContent align="end" className="bg-white dark:bg-[#1a1a1d] border-slate-200 dark:border-themeGray">
                 {isDraft && onPublish && (
                   <DropdownMenuItem 
                     onClick={onPublish}
                     disabled={isPublishing}
-                    className="text-emerald-400 hover:bg-themeGray"
+                    className="text-emerald-500 dark:text-emerald-400 hover:bg-slate-100 dark:hover:bg-themeGray"
                   >
                     Publish Event
                   </DropdownMenuItem>
@@ -292,7 +292,7 @@ const EventCard = ({
                 <DropdownMenuItem 
                   onClick={onDelete}
                   disabled={isDeleting}
-                  className="text-red-400 hover:bg-themeGray"
+                  className="text-red-500 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-themeGray"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
@@ -303,18 +303,18 @@ const EventCard = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-semibold text-white mb-3 line-clamp-2">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-themeTextWhite mb-3 line-clamp-2">
           {event.title}
         </h3>
 
         {/* Date & Time */}
         <div className="space-y-1.5 mb-4">
-          <div className="flex items-center gap-2 text-sm text-themeTextGray">
-            <Calendar className="h-4 w-4 text-themeTextGray/60" />
+          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-themeTextGray">
+            <Calendar className="h-4 w-4 text-slate-400 dark:text-themeTextGray/60" />
             <span>{formatDate(startDate)}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-themeTextGray">
-            <Clock className="h-4 w-4 text-themeTextGray/60" />
+          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-themeTextGray">
+            <Clock className="h-4 w-4 text-slate-400 dark:text-themeTextGray/60" />
             <span>
               {formatTime(startDate)}
               {endDate && ` - ${formatTime(endDate)}`}
@@ -323,15 +323,15 @@ const EventCard = ({
 
           {/* Location */}
           {event.location && (
-            <div className="flex items-center gap-2 text-sm text-themeTextGray">
-              <MapPin className="h-4 w-4 text-themeTextGray/60" />
+            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-themeTextGray">
+              <MapPin className="h-4 w-4 text-slate-400 dark:text-themeTextGray/60" />
               <span className="truncate">{event.location}</span>
             </div>
           )}
 
           {/* Attendees */}
-          <div className="flex items-center gap-2 text-sm text-themeTextGray">
-            <Users className="h-4 w-4 text-themeTextGray/60" />
+          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-themeTextGray">
+            <Users className="h-4 w-4 text-slate-400 dark:text-themeTextGray/60" />
             <span>
               {event.attendeeCount || 0} registered
               {event.maxAttendees && ` / ${event.maxAttendees} max`}
@@ -360,7 +360,7 @@ const EventCard = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-themeGray/60 text-themeTextGray hover:bg-themeGray/30"
+                  className="flex-1 border-slate-200 dark:border-themeGray/60 text-slate-600 dark:text-themeTextGray hover:bg-slate-100 dark:hover:bg-themeGray/30"
                   onClick={() => unregisterFromEvent()}
                   disabled={isUnregistering}
                 >
@@ -383,7 +383,7 @@ const EventCard = ({
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 border-themeGray/60 text-themeTextGray hover:bg-themeGray/30"
+              className="flex-1 border-slate-200 dark:border-themeGray/60 text-slate-600 dark:text-themeTextGray hover:bg-slate-100 dark:hover:bg-themeGray/30"
               onClick={() => unregisterFromEvent()}
               disabled={isUnregistering}
             >

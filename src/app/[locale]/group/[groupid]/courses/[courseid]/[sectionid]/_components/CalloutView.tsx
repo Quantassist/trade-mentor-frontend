@@ -53,7 +53,7 @@ export default function CalloutView({ payload }: { payload: CalloutBlockPayload 
   if (!open && payload?.dismissible !== false) return null
 
   return (
-    <div className={`relative rounded-xl border bg-[#161a20] p-4 ring-1 ${v.ring}`}>
+    <div className={`relative rounded-xl border bg-white dark:bg-[#161a20] p-4 ring-1 ${v.ring}`}>
       <div className="flex items-start gap-3">
         <div className={`flex h-8 w-8 items-center justify-center rounded-md border ${v.badge} ring-1 ring-white/10`}>
           {v.icon}
@@ -63,7 +63,7 @@ export default function CalloutView({ payload }: { payload: CalloutBlockPayload 
             <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wide border ${v.badge}`}>
               {v.label}
             </span>
-            {title ? <h3 className="text-sm md:text-base font-semibold text-white">{title}</h3> : null}
+            {title ? <h3 className="text-sm md:text-base font-semibold text-slate-900 dark:text-themeTextWhite">{title}</h3> : null}
           </div>
           <div className="prose prose-sm dark:prose-invert max-w-none">
             <Markdown>{payload?.text_md}</Markdown>
@@ -72,7 +72,7 @@ export default function CalloutView({ payload }: { payload: CalloutBlockPayload 
         {payload?.dismissible !== false && (
           <button
             aria-label="Dismiss"
-            className="ml-2 rounded-md p-1 text-themeTextGray hover:text-white hover:bg-white/5"
+            className="ml-2 rounded-md p-1 text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
             onClick={() => setOpen(false)}
           >
             <X className="h-4 w-4" />

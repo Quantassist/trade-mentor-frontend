@@ -20,7 +20,7 @@ export const SubscriptionCard = ({
     <Card
       onClick={onClick}
       className={cn(
-        "cursor-pointer bg-themeBlack text-themeTextGray flex flex-col gap-y-3 items-center justify-canter aspect-video pt-5",
+        "cursor-pointer bg-white dark:bg-themeBlack text-slate-600 dark:text-themeTextGray flex flex-col gap-y-3 items-center justify-canter aspect-video pt-5 border-slate-200 dark:border-themeGray",
         active ? "border-purple-800 border-2" : "border-none",
         optimistic ? "opacity-60" : "",
       )}

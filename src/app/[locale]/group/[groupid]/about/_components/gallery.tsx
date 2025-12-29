@@ -99,7 +99,7 @@ export const MediaGallery = ({
           title="Add Media"
           description="Add a video link or upload an image to your gallery"
           trigger={
-            <div className="w-28 aspect-video rounded-lg border-2 border-dashed border-themeGray/60 hover:border-emerald-500/60 bg-themeBlack/50 hover:bg-themeBlack cursor-pointer flex items-center justify-center transition-all group">
+            <div className="w-28 aspect-video rounded-lg border-2 border-dashed border-themeGray/60 dark:border-slate-100 hover:border-emerald-500/60 dark:hover:border-emerald-500/60 bg-slate-200 dark:bg-themeGray hover:bg-themeBlack cursor-pointer flex items-center justify-center transition-all group">
               <Plus className="w-6 h-6 text-themeTextGray group-hover:text-emerald-400 transition-colors" />
             </div>
           }

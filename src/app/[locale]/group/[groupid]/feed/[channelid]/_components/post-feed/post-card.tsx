@@ -105,7 +105,7 @@ export const PostCard = ({
 
   return (
     <Card 
-      className="relative border-themeGray/50 bg-brand-card-elevated first-letter:rounded-2xl overflow-hidden cursor-pointer hover:border-themeGray/70 transition-colors"
+      className="relative border-slate-200 dark:border-themeGray/50 bg-white dark:bg-brand-card-elevated first-letter:rounded-2xl overflow-hidden cursor-pointer hover:border-slate-300 dark:hover:border-themeGray/70 transition-colors shadow-sm dark:shadow-none"
       onClick={handleCardClick}
     >
       {isAuthor && (
@@ -114,7 +114,7 @@ export const PostCard = ({
             trigger={
               <button
                 aria-label="Edit post"
-                className="p-1 rounded-md hover:bg-[#2A2A2D]"
+                className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-[#2A2A2D] text-slate-600 dark:text-themeTextWhite"
               >
                 <Pencil size={16} />
               </button>
@@ -122,7 +122,7 @@ export const PostCard = ({
           >
             <>
               <MultiPostEditContent postid={postid} formId={formId} />
-              <div className="mt-2 border-t border-themeDarkGray pt-3 flex justify-end">
+              <div className="mt-2 border-t border-slate-200 dark:border-themeDarkGray pt-3 flex justify-end">
                 <DialogClose asChild>
                   <button
                     type="submit"
@@ -139,7 +139,7 @@ export const PostCard = ({
           <button
             aria-label="Delete post"
             onClick={onDelete}
-            className="p-1 rounded-md hover:bg-[#2A2A2D]"
+            className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-[#2A2A2D] text-slate-600 dark:text-themeTextWhite"
           >
             <Trash2 size={16} />
           </button>
@@ -153,11 +153,11 @@ export const PostCard = ({
           createdAt={createdAt}
         />
         <div className="flex flex-col gap-y-3 w-full">
-          <h2 className="text-2xl">{title}</h2>
+          <h2 className="text-2xl text-slate-900 dark:text-themeTextWhite">{title}</h2>
           <HtmlParser html={html} />
         </div>
       </CardContent>
-      <Separator orientation="horizontal" className="bg-themeGray mt-3" />
+      <Separator orientation="horizontal" className="bg-slate-200 dark:bg-themeGray mt-3" />
       <Interactions
         id={postid}
         totalClaps={totalClaps}
@@ -176,7 +176,7 @@ export const PostCard = ({
       
       {/* Inline Comments Section - LinkedIn style */}
       {showComments && (
-        <div className="border-t border-themeGray animate-in slide-in-from-top-2 duration-300">
+        <div className="border-t border-slate-200 dark:border-themeGray animate-in slide-in-from-top-2 duration-300">
           {/* Comment input */}
           <div className="px-4 py-3">
             <PostCommentForm
@@ -189,7 +189,7 @@ export const PostCard = ({
           {/* Comments list - show first 3 */}
           <div className="px-4 pb-3">
             {isLoadingComments ? (
-              <p className="text-themeTextGray text-sm py-2">Loading comments...</p>
+              <p className="text-slate-500 dark:text-themeTextGray text-sm py-2">Loading comments...</p>
             ) : commentsData?.comments && commentsData.status === 200 && commentsData.comments.length > 0 ? (
               <>
                 {commentsData.comments.slice(0, 3).map((comment: any) => {
@@ -220,7 +220,7 @@ export const PostCard = ({
                 {commentsData.comments.length > 3 && (
                   <Link 
                     href={`${pathname}/${postUrlId}`}
-                    className="flex items-center gap-2 text-sm text-themeTextGray hover:text-white transition-colors py-2"
+                    className="flex items-center gap-2 text-sm text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white transition-colors py-2"
                   >
                     <MessageSquare size={16} />
                     Load all {commentsData.comments.length} comments
@@ -228,7 +228,7 @@ export const PostCard = ({
                 )}
               </>
             ) : (
-              <p className="text-themeTextGray text-sm py-2">No comments yet. Be the first to comment!</p>
+              <p className="text-slate-500 dark:text-themeTextGray text-sm py-2">No comments yet. Be the first to comment!</p>
             )}
           </div>
         </div>

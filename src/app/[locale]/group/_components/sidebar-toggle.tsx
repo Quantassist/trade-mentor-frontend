@@ -35,11 +35,10 @@ export function SidebarToggle() {
       aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       className={cn(
-        "hidden md:inline-flex items-center justify-center cursor-pointer",
+        "hidden md:inline-flex items-center justify-center cursor-pointer mr-3",
         "h-8 w-8 rounded-lg",
-        "bg-[#1e2329] hover:bg-[#2a2f36]",
-        "border border-themeGray/40 hover:border-themeGray/60",
-        "text-themeTextGray hover:text-white",
+        "bg-slate-100 dark:bg-[#1e2329] hover:bg-slate-200 dark:hover:bg-[#2a2f36]",
+        "text-slate-600 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white",
         "transition-all duration-200",
       )}
     >

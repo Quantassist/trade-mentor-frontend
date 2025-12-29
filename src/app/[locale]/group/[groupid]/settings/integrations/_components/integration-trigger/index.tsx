@@ -28,7 +28,7 @@ const IntegrationTrigger = ({
       title={title}
       description={descrioption}
       trigger={
-        <Card className="px-3 py-2 cursor-pointer flex gap-2 bg-themeBlack border border-themeGray">
+        <Card className="px-3 py-2 cursor-pointer flex gap-2 bg-white dark:bg-themeBlack border border-slate-200 dark:border-themeGray">
           <CloudIcon />
           {connections[name] ? "connected" : "connect"}
         </Card>
@@ -36,7 +36,7 @@ const IntegrationTrigger = ({
       type="Integration"
       logo={logo}
     >
-      <Separator orientation="horizontal" className=" bg-themeGray" />
+      <Separator orientation="horizontal" className="bg-slate-200 dark:bg-themeGray" />
       <IntegrationModalBody
         connections={connections}
         type={name}

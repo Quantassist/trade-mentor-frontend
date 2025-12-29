@@ -24,7 +24,7 @@ export const CoursesSection = ({ groupid }: CoursesSectionProps) => {
     return (
       <section className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-themeTextWhite flex items-center gap-3">
             <GraduationCap className="h-6 w-6 text-[#b9a9ff]" />
             Available Courses
           </h2>
@@ -33,13 +33,13 @@ export const CoursesSection = ({ groupid }: CoursesSectionProps) => {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-[#161a20] border border-themeGray/60 rounded-xl overflow-hidden animate-pulse"
+              className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 rounded-xl overflow-hidden animate-pulse"
             >
-              <div className="w-full aspect-video bg-themeGray/40" />
+              <div className="w-full aspect-video bg-slate-200 dark:bg-themeGray/40" />
               <div className="p-5 space-y-3">
-                <div className="h-5 bg-themeGray/40 rounded w-3/4" />
-                <div className="h-4 bg-themeGray/40 rounded w-full" />
-                <div className="h-4 bg-themeGray/40 rounded w-1/2" />
+                <div className="h-5 bg-slate-200 dark:bg-themeGray/40 rounded w-3/4" />
+                <div className="h-4 bg-slate-200 dark:bg-themeGray/40 rounded w-full" />
+                <div className="h-4 bg-slate-200 dark:bg-themeGray/40 rounded w-1/2" />
               </div>
             </div>
           ))}
@@ -57,7 +57,7 @@ export const CoursesSection = ({ groupid }: CoursesSectionProps) => {
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-themeTextWhite flex items-center gap-3">
           <GraduationCap className="h-6 w-6 text-[#b9a9ff]" />
           Available Courses
         </h2>
@@ -66,7 +66,7 @@ export const CoursesSection = ({ groupid }: CoursesSectionProps) => {
             <Button
               variant="ghost"
               size="sm"
-              className="text-themeTextGray hover:text-white gap-1.5"
+              className="text-slate-500 dark:text-themeTextGray hover:text-slate-900 dark:hover:text-white gap-1.5"
             >
               View all
               <ArrowRight className="h-4 w-4" />
@@ -95,7 +95,7 @@ export const CoursesSection = ({ groupid }: CoursesSectionProps) => {
           <Link href={`/group/${groupid}/courses`}>
             <Button
               variant="outline"
-              className="bg-transparent border-themeGray/60 text-themeTextWhite hover:bg-themeGray/20 hover:text-white"
+              className="bg-transparent border-slate-200 dark:border-themeGray/60 text-slate-700 dark:text-themeTextWhite hover:bg-slate-100 dark:hover:bg-themeGray/20 hover:text-slate-900 dark:hover:text-white"
             >
               See all {courses.length} courses
               <ArrowRight className="h-4 w-4 ml-2" />

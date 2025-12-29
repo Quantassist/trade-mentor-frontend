@@ -78,7 +78,7 @@ export const CommentClapButton = ({
         onClick={handleClick}
         disabled={disabled}
         className={cn(
-          "relative flex items-center gap-1.5 text-themeTextGray text-sm transition-all duration-200",
+          "relative flex items-center gap-1.5 text-slate-500 dark:text-themeTextGray text-sm transition-all duration-200",
           "hover:text-amber-500 active:scale-95 p-1 rounded-full hover:bg-amber-500/10",
           isAnimating && "scale-110",
           disabled && "opacity-50 cursor-not-allowed",
