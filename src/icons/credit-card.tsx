@@ -1,24 +1,28 @@
-export const CreditCard = () => {
+type CreditCardProps = {
+  className?: string
+}
+
+export const CreditCard = ({ className }: CreditCardProps) => {
   return (
     <svg
-      width="24"
-      height="24"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
-      <rect x="2" y="4" width="20" height="16" rx="3" fill="#333337" />
+      <rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" strokeWidth="2" />
       <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M22 10H2V8H22V10Z"
-        fill="#7A7775"
+        d="M2 10H22"
+        stroke="currentColor"
+        strokeWidth="2"
       />
       <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M4 15C4 14.4477 4.44772 14 5 14H11C11.5523 14 12 14.4477 12 15C12 15.5523 11.5523 16 11 16H5C4.44772 16 4 15.5523 4 15Z"
-        fill="#7A7775"
+        d="M6 15H12"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
     </svg>
   )

@@ -1,4 +1,8 @@
 import { Chat, CreditCard, Explore, Home } from "@/icons"
+import { GlobeIcon } from "@/icons/globe"
+import { UsersIcon } from "@/icons/users-icon"
+import { PuzzleIcon } from "@/icons/puzzle-icon"
+import { Settings } from "@/icons/settings"
 import { JSX } from "react"
 
 export type MenuProps = {
@@ -113,35 +117,31 @@ export const SIDEBAR_SETTINGS_MENU: MenuProps[] = [
   {
     id: 0,
     label: "General",
-    // icon: <IDuotoneBlack />,
-    icon: <Chat />,
+    icon: <Settings className="text-slate-600 dark:text-themeTextWhite" />,
     path: "general",
   },
   {
     id: 1,
     label: "Subscriptions",
-    icon: <CreditCard />,
+    icon: <CreditCard className="text-slate-600 dark:text-themeTextWhite" />,
     path: "subscriptions",
   },
   {
     id: 2,
     label: "Affiliates",
-    // icon: <AffiliateDuoToneBlack />,
-    icon: <Chat />,
+    icon: <UsersIcon className="text-slate-600 dark:text-themeTextWhite" />,
     path: "affiliates",
   },
   {
     id: 3,
     label: "Domain Config",
-    icon: <Chat />,
-    // icon: <GlobalDuoToneBlack/>,
+    icon: <GlobeIcon className="text-slate-600 dark:text-themeTextWhite" />,
     path: "domains",
   },
   {
     id: 4,
     label: "Integration",
-    // icon: <ZapDuoToneBlack/>,
-    icon: <Chat />,
+    icon: <PuzzleIcon className="text-slate-600 dark:text-themeTextWhite" />,
     path: "integrations",
   },
 ]

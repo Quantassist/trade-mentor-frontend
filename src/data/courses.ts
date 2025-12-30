@@ -476,7 +476,7 @@ export const getSectionInfo = cache(async (sectionIdOrPublicId: string, locale?:
     let jsonContent: any = coerceJson((section as any).jsonContent)
     let htmlContent: string | undefined = (section as any).htmlContent ?? undefined
     let content: string | undefined = (section as any).content ?? undefined
-    let blockPayload: any = (section as any).blockPayload ?? undefined
+    let blockPayload: any = coerceJson((section as any).blockPayload)
 
     if (locale && locale !== defaultLocale) {
       const translation = await client.sectionTranslation.findUnique({
@@ -487,7 +487,7 @@ export const getSectionInfo = cache(async (sectionIdOrPublicId: string, locale?:
         htmlContent = translation?.contentHtml ?? htmlContent
         content = translation?.contentText ?? content
       } else {
-        blockPayload = (translation as any)?.blockPayload ?? blockPayload
+        blockPayload = coerceJson((translation as any)?.blockPayload) ?? blockPayload
       }
     }
 

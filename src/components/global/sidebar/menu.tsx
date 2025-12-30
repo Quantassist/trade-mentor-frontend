@@ -123,40 +123,9 @@ export const SideBarMenu = ({
   // Use group slug for URL-friendly links (fallback to groupid for backward compatibility)
   const groupSlug = (groupInfo as any)?.group?.slug || groupid
 
-  const settingsPathToKey = (path?: string) => {
-    switch (path) {
-      case "general":
-        return "general"
-      case "subscriptions":
-        return "subscriptions"
-      case "affiliates":
-        return "affiliates"
-      case "domains":
-        return "domains"
-      case "integrations":
-        return "integrations"
-      default:
-        return path || "general"
-    }
-  }
-  const {
-    channel: current,
-    onEditChannel,
-    channelRef,
-    inputRef,
-    variables,
-    isPending,
-    edit,
-    triggerRef,
-    onSetIcon,
-    icon,
-    onChannelDetele,
-    deleteVariables,
-    updateChannelById,
-  } = useChannelInfo()
-  if (currentPage === "settings") {
+  const SettingsMenu = () => {
     return (
-      <div className="flex flex-col">
+      <>
         {SIDEBAR_SETTINGS_MENU.map((item) =>
           item.integration ? (
             <Link
@@ -194,16 +163,13 @@ export const SideBarMenu = ({
             </Link>
           ),
         )}
-      </div>
+      </>
     )
   }
 
-  //side menu component for channels
-  //in the link tag we destructor the jsx element attributes to conditionally pass ref to elements we want
-  //this eliminates the need for duplicates for different states
-  //under the loop/map we add our optimistic ui
-  return (
-    <div className="flex flex-col gap-y-5">
+  const ChannelsMenu = () => {
+    return (
+    <>
       <div className={cn("flex items-center", showLabels ? "justify-between" : "justify-center")}> 
         {showLabels && <p className="text-xs text-slate-500 dark:text-themeTextWhite">{t("sidebar.channels")}</p>}
         {userId === groupUserid && (
@@ -373,6 +339,49 @@ export const SideBarMenu = ({
           </div>
         )}
       </div>
+    </>
+  )
+  }
+
+  const settingsPathToKey = (path?: string) => {
+    switch (path) {
+      case "general":
+        return "general"
+      case "subscriptions":
+        return "subscriptions"
+      case "affiliates":
+        return "affiliates"
+      case "domains":
+        return "domains"
+      case "integrations":
+        return "integrations"
+      default:
+        return path || "general"
+    }
+  }
+  const {
+    channel: current,
+    onEditChannel,
+    channelRef,
+    inputRef,
+    variables,
+    isPending,
+    edit,
+    triggerRef,
+    onSetIcon,
+    icon,
+    onChannelDetele,
+    deleteVariables,
+    updateChannelById,
+  } = useChannelInfo()
+
+  //side menu component for channels
+  //in the link tag we destructor the jsx element attributes to conditionally pass ref to elements we want
+  //this eliminates the need for duplicates for different states
+  //under the loop/map we add our optimistic ui
+  return (
+    <div className="flex flex-col gap-y-5">
+      {currentPage === "settings" ? <SettingsMenu />:<ChannelsMenu />}
 
       {/* Library Link */}
       <div className="mt-4">

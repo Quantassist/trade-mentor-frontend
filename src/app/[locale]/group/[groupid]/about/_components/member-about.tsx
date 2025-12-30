@@ -156,7 +156,7 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
               </div>
               <div>
                 <p className="text-sm text-slate-500 dark:text-themeTextGray">{t("memberSince")}</p>
-                <p className="text-lg font-semibold text-white">
+                <p className="text-lg font-semibold text-slate-900 dark:text-white">
                   {new Date(group.createdAt).toLocaleDateString(locale, {
                     month: "short",
                     year: "numeric",
@@ -172,7 +172,7 @@ export const MemberAboutGroup = ({ userid, groupid, locale }: MemberAboutGroupPr
               </div>
               <div>
                 <p className="text-sm text-slate-500 dark:text-themeTextGray">{t("groupType")}</p>
-                <p className="text-lg font-semibold text-white">
+                <p className="text-lg font-semibold text-slate-900 dark:text-white">
                   {group.privacy ? t("private") : t("public")}
                 </p>
               </div>

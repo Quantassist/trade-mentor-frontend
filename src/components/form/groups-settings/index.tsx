@@ -40,15 +40,15 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
       onSubmit={onUpdate}
     >
       {/* Cover Image Section */}
-      <div className="bg-[#161a20] border border-themeGray/60 rounded-xl p-5">
+      <div className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-base font-semibold text-white">Cover Image</h3>
-            <p className="text-xs text-themeTextGray mt-0.5">Displayed on your group card</p>
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">Cover Image</h3>
+            <p className="text-xs text-slate-500 dark:text-themeTextGray mt-0.5">Displayed on your group card</p>
           </div>
           <Label
             htmlFor="thumbnail-upload"
-            className="text-sm px-4 py-2 bg-themeGray border border-themeGray/80 text-white rounded-lg hover:bg-themeGray/80 cursor-pointer transition-colors"
+            className="text-sm px-4 py-2 bg-slate-100 dark:bg-themeGray border border-slate-300 dark:border-themeGray/80 text-slate-700 dark:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-themeGray/80 cursor-pointer transition-colors"
           >
             <Input
               type="file"
@@ -75,10 +75,10 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
       </div>
 
       {/* Group Icon Section */}
-      <div className="bg-[#161a20] border border-themeGray/60 rounded-xl p-5">
+      <div className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 rounded-xl p-5">
         <div className="flex items-center gap-6">
           <img
-            className="w-20 h-20 rounded-xl object-cover ring-2 ring-white/10 shrink-0"
+            className="w-20 h-20 rounded-xl object-cover ring-2 ring-slate-200 dark:ring-white/10 shrink-0"
             src={
               previewIcon ||
               (data?.group?.icon &&
@@ -89,11 +89,11 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
           />
           <div className="flex flex-col gap-2">
             <div>
-              <h3 className="text-base font-semibold text-white">Group Icon</h3>
-              <p className="text-xs text-themeTextGray mt-0.5">Square image, recommended 200x200px</p>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">Group Icon</h3>
+              <p className="text-xs text-slate-500 dark:text-themeTextGray mt-0.5">Square image, recommended 200x200px</p>
             </div>
             <Label
-              className="text-sm px-4 py-2 bg-themeGray border border-themeGray/80 text-white rounded-lg cursor-pointer hover:bg-themeGray/80 transition-colors w-fit"
+              className="text-sm px-4 py-2 bg-slate-100 dark:bg-themeGray border border-slate-300 dark:border-themeGray/80 text-slate-700 dark:text-white rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-themeGray/80 transition-colors w-fit"
               htmlFor="icon-upload"
             >
               <Input
@@ -109,7 +109,7 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
       </div>
 
       {/* Privacy Section */}
-      <div className="bg-[#161a20] border border-themeGray/60 rounded-xl p-5">
+      <div className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 rounded-xl p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className={`p-3 rounded-full ${isPrivate ? 'bg-amber-500/20' : 'bg-emerald-500/20'}`}>
@@ -120,10 +120,10 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
               )}
             </div>
             <div>
-              <h3 className="text-base font-semibold text-white">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                 {isPrivate ? "Private Group" : "Public Group"}
               </h3>
-              <p className="text-xs text-themeTextGray mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-themeTextGray mt-0.5">
                 {isPrivate 
                   ? "Only members can see content and join by invitation" 
                   : "Anyone can discover and join this group"}
@@ -131,7 +131,7 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-themeTextGray">
+            <span className="text-sm text-slate-500 dark:text-themeTextGray">
               {isPrivate ? "Private" : "Public"}
             </span>
             <Switch
@@ -145,23 +145,23 @@ export const GroupSettingsForm = ({ groupId }: GroupSettingsFormProps) => {
       </div>
 
       {/* Details Section */}
-      <div className="bg-[#161a20] border border-themeGray/60 rounded-xl p-5">
-        <h3 className="text-lg font-semibold text-white mb-5">Group Details</h3>
+      <div className="bg-white dark:bg-[#161a20] border border-slate-200 dark:border-themeGray/60 rounded-xl p-5">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-5">Group Details</h3>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-themeTextGray">Group Name</Label>
+            <Label className="text-sm font-medium text-slate-600 dark:text-themeTextGray">Group Name</Label>
             <Input
               {...register("name")}
               placeholder={data?.group?.name!}
-              className="bg-[#1e2329] border-themeGray/60 text-white placeholder:text-themeTextGray/50 focus:border-[#d4f0e7]/50 focus:ring-[#d4f0e7]/20"
+              className="bg-slate-50 dark:bg-[#1e2329] border-slate-300 dark:border-themeGray/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-themeTextGray/50 focus:border-emerald-500/50 focus:ring-emerald-500/20"
             />
             {errors.name && (
               <p className="text-xs text-red-400">{errors.name.message}</p>
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-themeTextGray">Group Description</Label>
-            <div className="bg-[#1e2329] border border-themeGray/60 rounded-lg overflow-hidden">
+            <Label className="text-sm font-medium text-slate-600 dark:text-themeTextGray">Group Description</Label>
+            <div className="bg-slate-50 dark:bg-[#1e2329] border border-slate-300 dark:border-themeGray/60 rounded-lg overflow-hidden">
               <BlockTextEditor
                 errors={errors}
                 name="jsondescription"

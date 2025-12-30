@@ -17,9 +17,28 @@ export default function CaseStudyView({ payload, sectionid, groupid, locale, ini
   const [editOpen, setEditOpen] = useState(false)
   // Always render from query so UI reflects invalidation without full refresh
   const { data } = useCourseSectionInfo(sectionid, locale, initial)
-  const effectivePayload = (data?.section?.blockPayload as any) ?? payload
+  // Coerce blockPayload from string to object if needed (handles RSC serialization edge cases)
+  const rawPayload = (data?.section?.blockPayload as any) ?? payload
+  const effectivePayload = useMemo(() => {
+    if (!rawPayload) return {}
+    if (typeof rawPayload === "string") {
+      try { return JSON.parse(rawPayload) } catch { return {} }
+    }
+    return rawPayload
+  }, [rawPayload])
   const dataPoints = Array.isArray(effectivePayload?.data_points) ? effectivePayload!.data_points : []
-  const steps = Array.isArray(effectivePayload?.timeline_steps) ? effectivePayload!.timeline_steps : []
+  // Normalize timeline_steps: handle both string[] and {date_period, event_description}[] formats
+  const steps = useMemo(() => {
+    const raw = effectivePayload?.timeline_steps
+    if (!Array.isArray(raw)) return []
+    return raw.map((item: any) => {
+      if (typeof item === "string") {
+        // Legacy format: plain string - use as event_description, no date_period
+        return { date_period: "", event_description: item }
+      }
+      return item
+    })
+  }, [effectivePayload?.timeline_steps])
   const learn = Array.isArray(effectivePayload?.learning_points) ? effectivePayload!.learning_points : []
   const leftItems = useMemo(() => [
     { id: "background", label: "Background", content: effectivePayload?.background_md },

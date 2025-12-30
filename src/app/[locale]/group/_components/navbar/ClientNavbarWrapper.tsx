@@ -40,7 +40,7 @@ export default function ClientNavbarWrapper({ children }: { children: React.Reac
   }, [])
 
   return (
-    <div ref={ref} className="shrink-0 z-30 w-full max-w-full overflow-x-hidden bg-cyan-400 rounded-tl-xl">
+    <div ref={ref} className="shrink-0 z-30 w-full max-w-full overflow-x-hidden rounded-tl-xl">
       {children}
     </div>
   )

@@ -535,23 +535,24 @@ export const onGetGroupInfo = cache(async (groupIdOrSlug: string, locale?: strin
 })
 
 export const onUpdateGroupGallery = async (
-  groupid: string,
+  groupIdOrSlug: string,
   content: string,
 ) => {
   try {
-    const mediaLimit = await client.group.findUnique({
-      where: {
-        id: groupid,
-      },
-      select: {
-        gallery: true,
-      },
+    // Resolve group by id or slug
+    const group = await client.group.findFirst({
+      where: isUUID(groupIdOrSlug) ? { id: groupIdOrSlug } : { slug: groupIdOrSlug },
+      select: { id: true, gallery: true },
     })
 
-    if (mediaLimit && mediaLimit?.gallery.length < 6) {
+    if (!group) {
+      return { status: 404, message: "Group not found" }
+    }
+
+    if (group.gallery.length < 6) {
       await client.group.update({
         where: {
-          id: groupid,
+          id: group.id,
         },
         data: {
           gallery: {
@@ -559,7 +560,7 @@ export const onUpdateGroupGallery = async (
           },
         },
       })
-      revalidatePath(`/about/${groupid}`)
+      revalidatePath(`/about/${groupIdOrSlug}`)
       return { status: 200 }
     }
 
@@ -573,17 +574,14 @@ export const onUpdateGroupGallery = async (
 }
 
 export const onDeleteGroupGalleryItem = async (
-  groupid: string,
+  groupIdOrSlug: string,
   mediaUrl: string,
 ) => {
   try {
-    const group = await client.group.findUnique({
-      where: {
-        id: groupid,
-      },
-      select: {
-        gallery: true,
-      },
+    // Resolve group by id or slug
+    const group = await client.group.findFirst({
+      where: isUUID(groupIdOrSlug) ? { id: groupIdOrSlug } : { slug: groupIdOrSlug },
+      select: { id: true, gallery: true },
     })
 
     if (!group) {
@@ -594,14 +592,14 @@ export const onDeleteGroupGalleryItem = async (
 
     await client.group.update({
       where: {
-        id: groupid,
+        id: group.id,
       },
       data: {
         gallery: updatedGallery,
       },
     })
 
-    revalidatePath(`/about/${groupid}`)
+    revalidatePath(`/about/${groupIdOrSlug}`)
     return { status: 200, message: "Gallery item deleted successfully" }
   } catch (error) {
     return { status: 400, message: "Failed to delete gallery item" }
@@ -1269,20 +1267,19 @@ export const onGetCommentReplies = async (commentid: string) => {
   }
 }
 
-export const onGetDomainConfig = async (groupid: string) => {
+export const onGetDomainConfig = async (groupIdOrSlug: string) => {
   try {
-    const domain = await client.group.findUnique({
-      where: {
-        id: groupid,
-      },
+    // Resolve group by id or slug
+    const group = await client.group.findFirst({
+      where: isUUID(groupIdOrSlug) ? { id: groupIdOrSlug } : { slug: groupIdOrSlug },
       select: {
         domain: true,
       },
     })
 
-    if (domain && domain.domain) {
+    if (group && group.domain) {
       const status = await axios.get(
-        `https://api/vercel.com/v10/domains/${domain.domain}/config?teamId=${process.env.VERCEL_TEAM_ID}`,
+        `https://api.vercel.com/v10/domains/${group.domain}/config?teamId=${process.env.VERCEL_TEAM_ID}`,
         {
           headers: {
             Authorization: `Bearer ${process.env.AUTH_BEARER_TOKEN}`,
@@ -1290,19 +1287,29 @@ export const onGetDomainConfig = async (groupid: string) => {
           },
         },
       )
-      return { status: status.data, domain: domain.domain }
+      return { status: status.data, domain: group.domain }
     }
 
-    return { status: 404, message: "No domain found" }
+    return { status: { misconfigured: false }, domain: null }
   } catch (error) {
     console.error("Error fetching domain config:", error)
-    return { status: 400, message: "Oops! something went wrong" }
+    return { status: { misconfigured: false }, domain: null }
   }
 }
 
-export const onAddCustomDomain = async (groupid: string, domain: string) => {
+export const onAddCustomDomain = async (groupIdOrSlug: string, domain: string) => {
   try {
-    const addDomainHttpUrl = `https://api/vercel.com/v10/projects/${process.env.PROJECT_ID_VERCEL}/domains?teamId=${process.env.TEAM_ID_VERCEL}`
+    // Resolve group by id or slug
+    const group = await client.group.findFirst({
+      where: isUUID(groupIdOrSlug) ? { id: groupIdOrSlug } : { slug: groupIdOrSlug },
+      select: { id: true },
+    })
+
+    if (!group) {
+      return { status: 404, message: "Group not found" }
+    }
+
+    const addDomainHttpUrl = `https://api.vercel.com/v10/projects/${process.env.PROJECT_ID_VERCEL}/domains?teamId=${process.env.TEAM_ID_VERCEL}`
 
     const response = await axios.post(
       addDomainHttpUrl,
@@ -1320,7 +1327,7 @@ export const onAddCustomDomain = async (groupid: string, domain: string) => {
     if (response) {
       const newDomain = await client.group.update({
         where: {
-          id: groupid,
+          id: group.id,
         },
         data: {
           domain: domain,
